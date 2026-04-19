@@ -1,5 +1,5 @@
 export interface RequestContext {
   userId: string;
-  organizationId: string;
-  role: string;
+  organizationId?: string;
+  role?: string;
 }

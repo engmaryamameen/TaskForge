@@ -1,0 +1,772 @@
+{
+  "info": {
+    "name": "TaskForge API",
+    "description": "Phase 1 — Full System Flow Tests: Auth, Organizations, RBAC, Invitations",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:3000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "organization_id", "value": "" },
+    { "key": "invite_token", "value": "" },
+    { "key": "user_id", "value": "" },
+    { "key": "user2_access_token", "value": "" },
+    { "key": "user2_refresh_token", "value": "" },
+    { "key": "user2_id", "value": "" },
+    { "key": "old_refresh_token", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}" }]
+  },
+  "item": [
+    {
+      "name": "1. Auth Flow",
+      "item": [
+        {
+          "name": "1.1 Register — User 1 (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Returns tokens + user', () => {",
+                  "  pm.expect(res.data.accessToken).to.be.a('string');",
+                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
+                  "  pm.expect(res.data.user.id).to.be.a('string');",
+                  "  pm.expect(res.data.user.email).to.eql('admin@taskforge.dev');",
+                  "});",
+                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
+                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);",
+                  "pm.collectionVariables.set('user_id', res.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.2 Register — Duplicate Email (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));",
+                  "pm.test('Error code EMAIL_ALREADY_EXISTS', () => {",
+                  "  pm.expect(res.error.code).to.eql('EMAIL_ALREADY_EXISTS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.3 Login — Valid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Returns tokens + user', () => {",
+                  "  pm.expect(res.data.accessToken).to.be.a('string');",
+                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
+                  "  pm.expect(res.data.user.email).to.eql('admin@taskforge.dev');",
+                  "});",
+                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
+                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.4 Login — Wrong Password (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Error code INVALID_CREDENTIALS', () => {",
+                  "  pm.expect(res.error.code).to.eql('INVALID_CREDENTIALS');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"WrongPassword\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.5 Refresh Token — Valid",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('New token pair returned', () => {",
+                  "  pm.expect(res.data.accessToken).to.be.a('string');",
+                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
+                  "});",
+                  "// Save old token before updating",
+                  "pm.collectionVariables.set('old_refresh_token', pm.collectionVariables.get('refresh_token'));",
+                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
+                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/refresh",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.6 Refresh Token — Reuse Old (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
+                  "pm.test('Error code REFRESH_TOKEN_INVALID', () => {",
+                  "  pm.expect(res.error.code).to.eql('REFRESH_TOKEN_INVALID');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/refresh",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{old_refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.7 Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/logout",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.8 Re-login (get fresh tokens after logout)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
+                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "1.9 Register — User 2 (Member)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('user2_access_token', res.data.accessToken);",
+                  "pm.collectionVariables.set('user2_refresh_token', res.data.refreshToken);",
+                  "pm.collectionVariables.set('user2_id', res.data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "auth": { "type": "noauth" },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Member\",\n  \"lastName\": \"User\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Organization Flow",
+      "item": [
+        {
+          "name": "2.1 Create Organization (as Admin User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Org created with slug', () => {",
+                  "  pm.expect(res.data.id).to.be.a('string');",
+                  "  pm.expect(res.data.name).to.eql('TaskForge Inc');",
+                  "  pm.expect(res.data.slug).to.be.a('string');",
+                  "});",
+                  "pm.collectionVariables.set('organization_id', res.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/organizations",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"TaskForge Inc\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2.2 List My Organizations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has at least 1 org', () => {",
+                  "  pm.expect(res.data).to.be.an('array').that.has.length.greaterThan(0);",
+                  "});",
+                  "pm.test('User role is admin', () => {",
+                  "  pm.expect(res.data[0].role).to.eql('admin');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations"
+          }
+        },
+        {
+          "name": "2.3 Get Current Org (via header)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns correct org', () => {",
+                  "  pm.expect(res.data.id).to.eql(pm.collectionVariables.get('organization_id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/current",
+            "header": [
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ]
+          }
+        },
+        {
+          "name": "2.4 Get Current Org (fallback — no header)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200 — fallback to current_organization_id', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Returns correct org via fallback', () => {",
+                  "  pm.expect(res.data.id).to.eql(pm.collectionVariables.get('organization_id'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/current"
+          }
+        },
+        {
+          "name": "2.5 List Members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has 1 member (admin)', () => {",
+                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(1);",
+                  "  pm.expect(res.data[0].role).to.eql('admin');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/members",
+            "header": [
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ]
+          }
+        },
+        {
+          "name": "2.6 Switch Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Switch confirmed', () => {",
+                  "  pm.expect(res.data.message).to.include('switched');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/organizations/switch",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"organizationId\": \"{{organization_id}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. RBAC Tests",
+      "item": [
+        {
+          "name": "3.1 Create Invite — as ADMIN (should pass)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Returns invite token', () => {",
+                  "  pm.expect(res.data.token).to.be.a('string');",
+                  "});",
+                  "pm.collectionVariables.set('invite_token', res.data.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/organizations/invites",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"role\": \"member\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3.2 Non-member access org route (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Error code NOT_A_MEMBER', () => {",
+                  "  pm.expect(res.error.code).to.eql('NOT_A_MEMBER');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/members",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ]
+          }
+        },
+        {
+          "name": "3.3 No org context on @OrgScoped route (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Error code ORG_NOT_FOUND', () => {",
+                  "  pm.expect(res.error.code).to.eql('ORG_NOT_FOUND');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/members",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            }
+          }
+        },
+        {
+          "name": "3.4 Unauthenticated request (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations",
+            "auth": { "type": "noauth" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Invite Flow",
+      "item": [
+        {
+          "name": "4.1 Accept Invite — User 2 joins org",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Membership created with member role', () => {",
+                  "  pm.expect(res.data.userId).to.eql(pm.collectionVariables.get('user2_id'));",
+                  "  pm.expect(res.data.organizationId).to.eql(pm.collectionVariables.get('organization_id'));",
+                  "  pm.expect(res.data.role).to.eql('member');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/invitations/accept",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invite_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4.2 Reuse Same Invite Token (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
+                  "pm.test('Invite rejected (used/expired)', () => {",
+                  "  pm.expect(res.error.code).to.eql('INVITE_NOT_FOUND');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/invitations/accept",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{invite_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4.3 Duplicate Invite — same email/org (should fail)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
+                  "pm.test('Already member', () => {",
+                  "  pm.expect(res.error.code).to.be.oneOf(['INVITE_ALREADY_USED', 'ALREADY_MEMBER']);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/organizations/invites",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"role\": \"member\"\n}"
+            }
+          }
+        },
+        {
+          "name": "4.4 Accept with wrong email (should fail)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This test requires a NEW invite targeting a specific email.",
+                  "// First create an invite for 'other@taskforge.dev',",
+                  "// then try to accept it as User 2 (member@taskforge.dev).",
+                  "// Run '4.4a Create invite for wrong-email test' first."
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 403 — email mismatch', () => {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/invitations/accept",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"{{wrong_email_invite_token}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Post-Invite RBAC",
+      "item": [
+        {
+          "name": "5.1 User 2 (member) can now access org members",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has 2 members now', () => {",
+                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations/members",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ]
+          }
+        },
+        {
+          "name": "5.2 User 2 (member) creates invite — SHOULD FAIL",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
+                  "pm.test('Error code INSUFFICIENT_ROLE', () => {",
+                  "  pm.expect(res.error.code).to.eql('INSUFFICIENT_ROLE');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/organizations/invites",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            },
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "x-organization-id", "value": "{{organization_id}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"another@test.dev\",\n  \"role\": \"member\"\n}"
+            }
+          }
+        },
+        {
+          "name": "5.3 User 2 can list their orgs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('User 2 has 1 org with member role', () => {",
+                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(1);",
+                  "  pm.expect(res.data[0].role).to.eql('member');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/organizations",
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
