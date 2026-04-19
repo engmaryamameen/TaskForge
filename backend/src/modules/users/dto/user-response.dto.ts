@@ -1,0 +1,23 @@
+import { User } from '../entities/user.entity';
+
+export class UserResponseDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  isEmailVerified: boolean;
+  status: string;
+  createdAt: Date;
+
+  static fromEntity(user: User): UserResponseDto {
+    const dto = new UserResponseDto();
+    dto.id = user.id;
+    dto.email = user.email;
+    dto.firstName = user.firstName;
+    dto.lastName = user.lastName;
+    dto.isEmailVerified = user.isEmailVerified;
+    dto.status = user.status;
+    dto.createdAt = user.createdAt;
+    return dto;
+  }
+}
