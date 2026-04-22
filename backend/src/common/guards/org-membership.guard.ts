@@ -1,11 +1,14 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import { Injectable, Inject, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { MembershipsService } from '../../modules/organizations/services/memberships.service';
 import { UsersService } from '../../modules/users/services/users.service';
+import { ICacheService, CACHE_SERVICE } from '../../infrastructure/cache';
 import { ORG_SCOPED_KEY } from '../decorators/org-scoped.decorator';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { AppError } from '../../shared/errors/app-error';
 import { ErrorCodes } from '../../shared/errors/error-codes';
+
+const MEMBERSHIP_CACHE_TTL = 300; // 5 minutes
 
 @Injectable()
 export class OrgMembershipGuard implements CanActivate {
@@ -13,17 +16,16 @@ export class OrgMembershipGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly membershipsService: MembershipsService,
     private readonly usersService: UsersService,
+    @Inject(CACHE_SERVICE) private readonly cacheService: ICacheService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // Skip for public routes
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
     if (isPublic) return true;
 
-    // Skip for non-org-scoped routes
     const isOrgScoped = this.reflector.getAllAndOverride<boolean>(
       ORG_SCOPED_KEY,
       [context.getHandler(), context.getClass()],
@@ -34,7 +36,7 @@ export class OrgMembershipGuard implements CanActivate {
     const userId = request.user?.userId;
     if (!userId) return false;
 
-    // Resolve organization ID: header takes precedence, fallback to user's active org
+    // Resolve org ID: header takes precedence, fallback to user's active org
     let orgId = request.headers['x-organization-id'] as string | undefined;
 
     if (!orgId) {
@@ -50,13 +52,26 @@ export class OrgMembershipGuard implements CanActivate {
       );
     }
 
-    // Request-level caching: avoid duplicate DB lookups in the same request
-    const cacheKey = `_membership_${userId}_${orgId}`;
-    let membership = request[cacheKey];
+    // Request-level cache → Redis cache → DB (layered lookup)
+    const requestCacheKey = `_membership_${userId}_${orgId}`;
+    let membership = request[requestCacheKey];
 
     if (!membership) {
-      membership = await this.membershipsService.getMembership(userId, orgId);
-      request[cacheKey] = membership;
+      const redisCacheKey = `cache:membership:${userId}:${orgId}`;
+      membership = await this.cacheService.get(redisCacheKey);
+
+      if (!membership) {
+        membership = await this.membershipsService.getMembership(userId, orgId);
+        if (membership) {
+          await this.cacheService.set(
+            redisCacheKey,
+            membership,
+            MEMBERSHIP_CACHE_TTL,
+          );
+        }
+      }
+
+      request[requestCacheKey] = membership;
     }
 
     if (!membership) {
@@ -67,7 +82,6 @@ export class OrgMembershipGuard implements CanActivate {
       );
     }
 
-    // Enrich request context with org info (DB-backed, never from JWT)
     request.user.organizationId = orgId;
     request.user.role = membership.role;
 
