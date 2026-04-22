@@ -1,4 +1,10 @@
-import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../../redis';
@@ -6,7 +12,7 @@ import { ActivityService } from '../../../modules/activity/services/activity.ser
 import { DomainEvent } from '../../../shared/interfaces';
 
 @Injectable()
-export class ActivityWorker implements OnModuleInit {
+export class ActivityWorker implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(ActivityWorker.name);
   private worker: Worker;
 
@@ -39,5 +45,13 @@ export class ActivityWorker implements OnModuleInit {
     });
 
     this.logger.log('Activity worker started (concurrency: 5)');
+  }
+
+  async onModuleDestroy() {
+    if (this.worker) {
+      this.logger.log('Shutting down activity worker...');
+      await this.worker.close();
+      this.logger.log('Activity worker stopped');
+    }
   }
 }

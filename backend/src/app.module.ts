@@ -1,13 +1,20 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { databaseConfig, redisConfig, authConfig, billingConfig } from './config';
+import { LoggerModule } from 'nestjs-pino';
+import {
+  databaseConfig,
+  redisConfig,
+  authConfig,
+  billingConfig,
+  envValidationSchema,
+} from './config';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { RedisModule } from './infrastructure/redis';
 import { CacheModule } from './infrastructure/cache';
-import { QueueModule } from './infrastructure/queue';
+import { QueueProducerModule } from './infrastructure/queue';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import { ThrottlerRedisStorage } from './infrastructure/redis/throttler-redis.storage';
 
@@ -26,6 +33,8 @@ import { TasksModule } from './modules/tasks/tasks.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { HealthModule } from './modules/health/health.module';
+import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
   imports: [
@@ -33,10 +42,28 @@ import { BillingModule } from './modules/billing/billing.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [databaseConfig, redisConfig, authConfig, billingConfig],
+      validationSchema: envValidationSchema,
+      validationOptions: { abortEarly: false },
     }),
 
     // Database
     DatabaseModule,
+
+    // Structured logging (pino)
+    LoggerModule.forRoot({
+      pinoHttp: {
+        genReqId: (req) => req.headers['x-request-id'] as string,
+        transport:
+          process.env.NODE_ENV !== 'production'
+            ? { target: 'pino-pretty', options: { colorize: true } }
+            : undefined,
+        autoLogging: true,
+        quietReqLogger: true,
+      },
+    }),
+
+    // Health checks (before business modules)
+    HealthModule,
 
     // Event bus
     EventEmitterModule.forRoot({
@@ -63,8 +90,8 @@ import { BillingModule } from './modules/billing/billing.module';
     RealtimeModule,
     BillingModule,
 
-    // Queue (after ActivityModule — worker depends on ActivityService)
-    QueueModule,
+    // Queue producers (worker runs as separate process)
+    QueueProducerModule,
   ],
   providers: [
     { provide: ThrottlerStorage, useClass: ThrottlerRedisStorage },
@@ -75,4 +102,8 @@ import { BillingModule } from './modules/billing/billing.module';
     { provide: APP_GUARD, useClass: RolesGuard },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestIdMiddleware).forRoutes('*');
+  }
+}
