@@ -44,11 +44,20 @@ export class OrganizationsService {
     // Set as user's current organization
     await this.usersService.updateCurrentOrg(userId, org.id);
 
+    // Fetch creator email for billing initialization
+    const creator = await this.usersService.findById(userId);
+
     this.logger.log(`Organization created: ${org.id} (${slug}) by ${userId}`);
 
     this.eventEmitter.emit(EventType.ORGANIZATION_CREATED, {
       type: EventType.ORGANIZATION_CREATED,
-      payload: { organizationId: org.id, slug },
+      payload: {
+        entityId: org.id,
+        organizationId: org.id,
+        slug,
+        orgName: org.name,
+        creatorEmail: creator?.email,
+      },
       occurredAt: new Date(),
       organizationId: org.id,
       triggeredBy: userId,
