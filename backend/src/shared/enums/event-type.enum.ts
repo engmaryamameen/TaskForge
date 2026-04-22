@@ -21,4 +21,11 @@ export enum EventType {
   TASK_CREATED = 'task.created',
   TASK_UPDATED = 'task.updated',
   TASK_DELETED = 'task.deleted',
+
+  // Billing / Subscriptions
+  SUBSCRIPTION_CREATED = 'subscription.created',
+  SUBSCRIPTION_UPDATED = 'subscription.updated',
+  SUBSCRIPTION_CANCELED = 'subscription.canceled',
+  INVOICE_PAID = 'invoice.paid',
+  INVOICE_FAILED = 'invoice.failed',
 }

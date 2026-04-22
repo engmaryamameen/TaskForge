@@ -6,7 +6,7 @@ import { ResponseTransformInterceptor } from './common/interceptors/response-tra
 import { API_PREFIX } from './shared/constants';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.setGlobalPrefix(API_PREFIX);
 
