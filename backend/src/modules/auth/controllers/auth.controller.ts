@@ -1,5 +1,6 @@
 import { Controller, Post, Body, Req } from '@nestjs/common';
 import { Request } from 'express';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
 import { RegisterDto, LoginDto, RefreshTokenDto } from '../dto';
 import { Public } from '../../../common/decorators/public.decorator';
@@ -11,12 +12,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('register')
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Public()
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Post('login')
   async login(@Body() dto: LoginDto, @Req() req: Request) {
     const device = req.headers['user-agent'];
