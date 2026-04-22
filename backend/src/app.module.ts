@@ -17,6 +17,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ActivityModule } from './modules/activity/activity.module';
+import { RealtimeModule } from './modules/realtime/realtime.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ActivityModule } from './modules/activity/activity.module';
     ProjectsModule,
     TasksModule,
     ActivityModule,
+    RealtimeModule,
   ],
   providers: [
     // Global guards — execution order follows registration order
