@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EventType } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces/domain-event.interface';
 import { ActivityService } from '../services/activity.service';
 
@@ -20,6 +19,21 @@ export class ActivityListener {
 
   @OnEvent('member.*')
   async handleMemberEvent(event: DomainEvent) {
+    await this.activityService.log(event);
+  }
+
+  @OnEvent('organization.*')
+  async handleOrgEvent(event: DomainEvent) {
+    await this.activityService.log(event);
+  }
+
+  @OnEvent('invite.*')
+  async handleInviteEvent(event: DomainEvent) {
+    await this.activityService.log(event);
+  }
+
+  @OnEvent('user.*')
+  async handleUserEvent(event: DomainEvent) {
     await this.activityService.log(event);
   }
 }

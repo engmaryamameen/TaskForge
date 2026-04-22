@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "TaskForge API",
-    "description": "Phase 1 — Full System Flow Tests: Auth, Organizations, RBAC, Invitations",
+    "description": "Phase 1 + Phase 2 — Full System Flow Tests: Auth, Organizations, RBAC, Invitations, Projects, Tasks, Activity",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -14,7 +14,12 @@
     { "key": "user2_access_token", "value": "" },
     { "key": "user2_refresh_token", "value": "" },
     { "key": "user2_id", "value": "" },
-    { "key": "old_refresh_token", "value": "" }
+    { "key": "old_refresh_token", "value": "" },
+    { "key": "project_id", "value": "" },
+    { "key": "project2_id", "value": "" },
+    { "key": "task_id", "value": "" },
+    { "key": "task2_id", "value": "" },
+    { "key": "task3_id", "value": "" }
   ],
   "auth": {
     "type": "bearer",
@@ -26,255 +31,109 @@
       "item": [
         {
           "name": "1.1 Register — User 1 (Admin)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Returns tokens + user', () => {",
-                  "  pm.expect(res.data.accessToken).to.be.a('string');",
-                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
-                  "  pm.expect(res.data.user.id).to.be.a('string');",
-                  "  pm.expect(res.data.user.email).to.eql('admin@taskforge.dev');",
-                  "});",
-                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
-                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);",
-                  "pm.collectionVariables.set('user_id', res.data.user.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/register",
-            "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Returns tokens + user', () => {",
+            "  pm.expect(res.data.accessToken).to.be.a('string');",
+            "  pm.expect(res.data.user.id).to.be.a('string');",
+            "});",
+            "pm.collectionVariables.set('access_token', res.data.accessToken);",
+            "pm.collectionVariables.set('refresh_token', res.data.refreshToken);",
+            "pm.collectionVariables.set('user_id', res.data.user.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/register", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}" }}
         },
         {
           "name": "1.2 Register — Duplicate Email (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));",
-                  "pm.test('Error code EMAIL_ALREADY_EXISTS', () => {",
-                  "  pm.expect(res.error.code).to.eql('EMAIL_ALREADY_EXISTS');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/register",
-            "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 409', () => pm.response.to.have.status(409));",
+            "pm.test('EMAIL_ALREADY_EXISTS', () => pm.expect(pm.response.json().error.code).to.eql('EMAIL_ALREADY_EXISTS'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/register", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Admin\",\n  \"lastName\": \"User\"\n}" }}
         },
         {
-          "name": "1.3 Login — Valid Credentials",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Returns tokens + user', () => {",
-                  "  pm.expect(res.data.accessToken).to.be.a('string');",
-                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
-                  "  pm.expect(res.data.user.email).to.eql('admin@taskforge.dev');",
-                  "});",
-                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
-                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/login",
-            "auth": { "type": "noauth" },
+          "name": "1.3 Login — Valid",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('access_token', res.data.accessToken);",
+            "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/login", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}" }}
         },
         {
-          "name": "1.4 Login — Wrong Password (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
-                  "pm.test('Error code INVALID_CREDENTIALS', () => {",
-                  "  pm.expect(res.error.code).to.eql('INVALID_CREDENTIALS');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/login",
-            "auth": { "type": "noauth" },
+          "name": "1.4 Login — Wrong Password",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));",
+            "pm.test('INVALID_CREDENTIALS', () => pm.expect(pm.response.json().error.code).to.eql('INVALID_CREDENTIALS'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/login", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"WrongPassword\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"WrongPassword\"\n}" }}
         },
         {
           "name": "1.5 Refresh Token — Valid",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('New token pair returned', () => {",
-                  "  pm.expect(res.data.accessToken).to.be.a('string');",
-                  "  pm.expect(res.data.refreshToken).to.be.a('string');",
-                  "});",
-                  "// Save old token before updating",
-                  "pm.collectionVariables.set('old_refresh_token', pm.collectionVariables.get('refresh_token'));",
-                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
-                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/refresh",
-            "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('old_refresh_token', pm.collectionVariables.get('refresh_token'));",
+            "pm.collectionVariables.set('access_token', res.data.accessToken);",
+            "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/refresh", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" }}
         },
         {
           "name": "1.6 Refresh Token — Reuse Old (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 401', () => pm.response.to.have.status(401));",
-                  "pm.test('Error code REFRESH_TOKEN_INVALID', () => {",
-                  "  pm.expect(res.error.code).to.eql('REFRESH_TOKEN_INVALID');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/refresh",
-            "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));",
+            "pm.test('REFRESH_TOKEN_INVALID', () => pm.expect(pm.response.json().error.code).to.eql('REFRESH_TOKEN_INVALID'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/refresh", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{old_refresh_token}}\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{old_refresh_token}}\"\n}" }}
         },
         {
-          "name": "1.7 Logout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/logout",
+          "name": "1.7 Logout + Re-login",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/logout",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refresh_token}}\"\n}" }}
         },
         {
-          "name": "1.8 Re-login (get fresh tokens after logout)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('access_token', res.data.accessToken);",
-                  "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/login",
-            "auth": { "type": "noauth" },
+          "name": "1.8 Re-login (fresh tokens)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('access_token', res.data.accessToken);",
+            "pm.collectionVariables.set('refresh_token', res.data.refreshToken);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/login", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin@taskforge.dev\",\n  \"password\": \"SecurePass123!\"\n}" }}
         },
         {
           "name": "1.9 Register — User 2 (Member)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.collectionVariables.set('user2_access_token', res.data.accessToken);",
-                  "pm.collectionVariables.set('user2_refresh_token', res.data.refreshToken);",
-                  "pm.collectionVariables.set('user2_id', res.data.user.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/auth/register",
-            "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('user2_access_token', res.data.accessToken);",
+            "pm.collectionVariables.set('user2_refresh_token', res.data.refreshToken);",
+            "pm.collectionVariables.set('user2_id', res.data.user.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/auth/register", "auth": { "type": "noauth" },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Member\",\n  \"lastName\": \"User\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"password\": \"SecurePass123!\",\n  \"firstName\": \"Member\",\n  \"lastName\": \"User\"\n}" }}
         }
       ]
     },
@@ -282,489 +141,432 @@
       "name": "2. Organization Flow",
       "item": [
         {
-          "name": "2.1 Create Organization (as Admin User)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Org created with slug', () => {",
-                  "  pm.expect(res.data.id).to.be.a('string');",
-                  "  pm.expect(res.data.name).to.eql('TaskForge Inc');",
-                  "  pm.expect(res.data.slug).to.be.a('string');",
-                  "});",
-                  "pm.collectionVariables.set('organization_id', res.data.id);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/organizations",
+          "name": "2.1 Create Organization",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Org created', () => pm.expect(res.data.slug).to.be.a('string'));",
+            "pm.collectionVariables.set('organization_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/organizations",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"TaskForge Inc\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"TaskForge Inc\"\n}" }}
         },
         {
           "name": "2.2 List My Organizations",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has at least 1 org', () => {",
-                  "  pm.expect(res.data).to.be.an('array').that.has.length.greaterThan(0);",
-                  "});",
-                  "pm.test('User role is admin', () => {",
-                  "  pm.expect(res.data[0].role).to.eql('admin');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations"
-          }
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Has orgs with admin role', () => {",
+            "  pm.expect(res.data).to.be.an('array').that.has.length.greaterThan(0);",
+            "  pm.expect(res.data[0].role).to.eql('admin');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/organizations" }
         },
         {
-          "name": "2.3 Get Current Org (via header)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Returns correct org', () => {",
-                  "  pm.expect(res.data.id).to.eql(pm.collectionVariables.get('organization_id'));",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/current",
-            "header": [
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ]
-          }
+          "name": "2.3 Create Invite + User 2 joins",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('invite_token', res.data.token);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/organizations/invites",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"role\": \"member\"\n}" }}
         },
         {
-          "name": "2.4 Get Current Org (fallback — no header)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200 — fallback to current_organization_id', () => {",
-                  "  pm.response.to.have.status(200);",
-                  "});",
-                  "pm.test('Returns correct org via fallback', () => {",
-                  "  pm.expect(res.data.id).to.eql(pm.collectionVariables.get('organization_id'));",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/current"
-          }
-        },
-        {
-          "name": "2.5 List Members",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has 1 member (admin)', () => {",
-                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(1);",
-                  "  pm.expect(res.data[0].role).to.eql('admin');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/members",
-            "header": [
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ]
-          }
-        },
-        {
-          "name": "2.6 Switch Organization",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Switch confirmed', () => {",
-                  "  pm.expect(res.data.message).to.include('switched');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/organizations/switch",
+          "name": "2.4 Accept Invite — User 2",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Member role', () => pm.expect(res.data.role).to.eql('member'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/invitations/accept",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }] },
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"organizationId\": \"{{organization_id}}\"\n}"
-            }
-          }
+            "body": { "mode": "raw", "raw": "{\n  \"token\": \"{{invite_token}}\"\n}" }}
         }
       ]
     },
     {
-      "name": "3. RBAC Tests",
+      "name": "6. Projects CRUD",
       "item": [
         {
-          "name": "3.1 Create Invite — as ADMIN (should pass)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Returns invite token', () => {",
-                  "  pm.expect(res.data.token).to.be.a('string');",
-                  "});",
-                  "pm.collectionVariables.set('invite_token', res.data.token);"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/organizations/invites",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"role\": \"member\"\n}"
-            }
-          }
+          "name": "6.1 Create Project",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Project created with correct org', () => {",
+            "  pm.expect(res.data.name).to.eql('Backend API');",
+            "  pm.expect(res.data.organizationId).to.eql(pm.collectionVariables.get('organization_id'));",
+            "});",
+            "pm.collectionVariables.set('project_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Backend API\",\n  \"description\": \"Core backend services\"\n}" }}
         },
         {
-          "name": "3.2 Non-member access org route (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
-                  "pm.test('Error code NOT_A_MEMBER', () => {",
-                  "  pm.expect(res.error.code).to.eql('NOT_A_MEMBER');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/members",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ]
-          }
+          "name": "6.2 Create Second Project",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.collectionVariables.set('project2_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Frontend App\"\n}" }}
         },
         {
-          "name": "3.3 No org context on @OrgScoped route (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
-                  "pm.test('Error code ORG_NOT_FOUND', () => {",
-                  "  pm.expect(res.error.code).to.eql('ORG_NOT_FOUND');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/members",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            }
-          }
+          "name": "6.3 List Projects (paginated)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Paginated response with meta', () => {",
+            "  pm.expect(res.data).to.be.an('array');",
+            "  pm.expect(res.meta).to.have.property('page');",
+            "  pm.expect(res.meta).to.have.property('total');",
+            "  pm.expect(res.meta.total).to.be.at.least(2);",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/projects?page=1&limit=10",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         },
         {
-          "name": "3.4 Unauthenticated request (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status 401', () => pm.response.to.have.status(401));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations",
-            "auth": { "type": "noauth" }
-          }
+          "name": "6.4 Get Project by ID",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Correct project', () => pm.expect(res.data.id).to.eql(pm.collectionVariables.get('project_id')));"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/projects/{{project_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "6.5 Update Project (admin)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Name updated', () => pm.expect(res.data.name).to.eql('Backend API v2'));"
+          ]}}],
+          "request": { "method": "PATCH", "url": "{{base_url}}/projects/{{project_id}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Backend API v2\"\n}" }}
+        },
+        {
+          "name": "6.6 Update Project as member (should fail — not creator)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));",
+            "pm.test('INSUFFICIENT_ROLE', () => pm.expect(pm.response.json().error.code).to.eql('INSUFFICIENT_ROLE'));"
+          ]}}],
+          "request": { "method": "PATCH", "url": "{{base_url}}/projects/{{project_id}}",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }] },
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Hacked\"\n}" }}
+        },
+        {
+          "name": "6.7 Delete Project — member (should fail)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/projects/{{project2_id}}",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }] },
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "6.8 Delete Project — admin (soft delete)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/projects/{{project2_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "6.9 Get Deleted Project (should 404)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('PROJECT_NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('PROJECT_NOT_FOUND'));"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/projects/{{project2_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "6.10 Get Project with fake UUID (should 404)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/projects/00000000-0000-0000-0000-000000000000",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         }
       ]
     },
     {
-      "name": "4. Invite Flow",
+      "name": "7. Tasks CRUD + Filtering",
       "item": [
         {
-          "name": "4.1 Accept Invite — User 2 joins org",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
-                  "pm.test('Membership created with member role', () => {",
-                  "  pm.expect(res.data.userId).to.eql(pm.collectionVariables.get('user2_id'));",
-                  "  pm.expect(res.data.organizationId).to.eql(pm.collectionVariables.get('organization_id'));",
-                  "  pm.expect(res.data.role).to.eql('member');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/invitations/accept",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{invite_token}}\"\n}"
-            }
-          }
+          "name": "7.1 Create Task — todo",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Task created', () => {",
+            "  pm.expect(res.data.title).to.eql('Setup CI pipeline');",
+            "  pm.expect(res.data.status).to.eql('todo');",
+            "  pm.expect(res.data.priority).to.eql('high');",
+            "  pm.expect(res.data.organizationId).to.eql(pm.collectionVariables.get('organization_id'));",
+            "});",
+            "pm.collectionVariables.set('task_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects/{{project_id}}/tasks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Setup CI pipeline\",\n  \"description\": \"Configure GitHub Actions for CI/CD\",\n  \"priority\": \"high\"\n}" }}
         },
         {
-          "name": "4.2 Reuse Same Invite Token (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 400', () => pm.response.to.have.status(400));",
-                  "pm.test('Invite rejected (used/expired)', () => {",
-                  "  pm.expect(res.error.code).to.eql('INVITE_NOT_FOUND');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/invitations/accept",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{invite_token}}\"\n}"
-            }
-          }
+          "name": "7.2 Create Task — assigned to User 2",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Assigned correctly', () => {",
+            "  pm.expect(res.data.assignedTo).to.eql(pm.collectionVariables.get('user2_id'));",
+            "});",
+            "pm.collectionVariables.set('task2_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects/{{project_id}}/tasks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Write API docs\",\n  \"priority\": \"medium\",\n  \"assignedTo\": \"{{user2_id}}\",\n  \"dueDate\": \"2026-05-01\"\n}" }}
         },
         {
-          "name": "4.3 Duplicate Invite — same email/org (should fail)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 409', () => pm.response.to.have.status(409));",
-                  "pm.test('Already member', () => {",
-                  "  pm.expect(res.error.code).to.be.oneOf(['INVITE_ALREADY_USED', 'ALREADY_MEMBER']);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/organizations/invites",
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"member@taskforge.dev\",\n  \"role\": \"member\"\n}"
-            }
-          }
+          "name": "7.3 Create Task — in_progress status",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Status is in_progress', () => pm.expect(res.data.status).to.eql('in_progress'));",
+            "pm.collectionVariables.set('task3_id', res.data.id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects/{{project_id}}/tasks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Database optimization\",\n  \"status\": \"in_progress\",\n  \"priority\": \"urgent\"\n}" }}
         },
         {
-          "name": "4.4 Accept with wrong email (should fail)",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "exec": [
-                  "// This test requires a NEW invite targeting a specific email.",
-                  "// First create an invite for 'other@taskforge.dev',",
-                  "// then try to accept it as User 2 (member@taskforge.dev).",
-                  "// Run '4.4a Create invite for wrong-email test' first."
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 403 — email mismatch', () => {",
-                  "  pm.response.to.have.status(403);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/invitations/accept",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"token\": \"{{wrong_email_invite_token}}\"\n}"
-            }
-          }
+          "name": "7.4 Assign to non-member (should fail)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "pm.test('INVALID_ASSIGNEE', () => pm.expect(pm.response.json().error.code).to.eql('INVALID_ASSIGNEE'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects/{{project_id}}/tasks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Bad assignment\",\n  \"assignedTo\": \"00000000-0000-0000-0000-000000000000\"\n}" }}
+        },
+        {
+          "name": "7.5 Create Task in deleted project (should fail)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('PROJECT_NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('PROJECT_NOT_FOUND'));"
+          ]}}],
+          "request": { "method": "POST", "url": "{{base_url}}/projects/{{project2_id}}/tasks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Ghost task\"\n}" }}
+        },
+        {
+          "name": "7.6 List Tasks by Project (paginated)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Paginated with meta', () => {",
+            "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(3);",
+            "  pm.expect(res.meta.total).to.eql(3);",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/projects/{{project_id}}/tasks",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.7 List All Tasks in Org",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Returns all org tasks', () => {",
+            "  pm.expect(res.data).to.be.an('array');",
+            "  pm.expect(res.meta.total).to.be.at.least(3);",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.8 Filter Tasks — by status=todo",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All tasks have todo status', () => {",
+            "  res.data.forEach(t => pm.expect(t.status).to.eql('todo'));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks?status=todo",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.9 Filter Tasks — by priority=urgent",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All tasks have urgent priority', () => {",
+            "  res.data.forEach(t => pm.expect(t.priority).to.eql('urgent'));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks?priority=urgent",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.10 Filter Tasks — by assignee",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All tasks assigned to user2', () => {",
+            "  res.data.forEach(t => pm.expect(t.assignedTo).to.eql(pm.collectionVariables.get('user2_id')));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks?assignedTo={{user2_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.11 Filter Tasks — by due date range",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tasks within due date range', () => {",
+            "  pm.expect(res.data).to.be.an('array');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks?dueAfter=2026-04-01&dueBefore=2026-06-01",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.12 Update Task — change status to done",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Status changed to done', () => pm.expect(res.data.status).to.eql('done'));"
+          ]}}],
+          "request": { "method": "PATCH", "url": "{{base_url}}/tasks/{{task_id}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"done\"\n}" }}
+        },
+        {
+          "name": "7.13 Update Task — reassign",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Reassigned', () => pm.expect(res.data.assignedTo).to.eql(pm.collectionVariables.get('user_id')));"
+          ]}}],
+          "request": { "method": "PATCH", "url": "{{base_url}}/tasks/{{task2_id}}",
+            "header": [{ "key": "Content-Type", "value": "application/json" }, { "key": "x-organization-id", "value": "{{organization_id}}" }],
+            "body": { "mode": "raw", "raw": "{\n  \"assignedTo\": \"{{user_id}}\"\n}" }}
+        },
+        {
+          "name": "7.14 Delete Task — member not creator (should fail)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));",
+            "pm.test('INSUFFICIENT_ROLE', () => pm.expect(pm.response.json().error.code).to.eql('INSUFFICIENT_ROLE'));"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/tasks/{{task_id}}",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }] },
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.15 Delete Task — admin (soft delete)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));"
+          ]}}],
+          "request": { "method": "DELETE", "url": "{{base_url}}/tasks/{{task3_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "7.16 Get Deleted Task (should 404)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('TASK_NOT_FOUND', () => pm.expect(pm.response.json().error.code).to.eql('TASK_NOT_FOUND'));"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/tasks/{{task3_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         }
       ]
     },
     {
-      "name": "5. Post-Invite RBAC",
+      "name": "8. Activity Log",
       "item": [
         {
-          "name": "5.1 User 2 (member) can now access org members",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Has 2 members now', () => {",
-                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(2);",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations/members",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ]
-          }
+          "name": "8.1 List All Activity (paginated)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Has activity entries', () => {",
+            "  pm.expect(res.data).to.be.an('array').that.has.length.greaterThan(0);",
+            "  pm.expect(res.meta).to.have.property('total');",
+            "});",
+            "pm.test('Activity has correct shape', () => {",
+            "  const a = res.data[0];",
+            "  pm.expect(a).to.have.property('eventType');",
+            "  pm.expect(a).to.have.property('entityType');",
+            "  pm.expect(a).to.have.property('entityId');",
+            "  pm.expect(a).to.have.property('payload');",
+            "  pm.expect(a).to.have.property('triggeredBy');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/activity",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         },
         {
-          "name": "5.2 User 2 (member) creates invite — SHOULD FAIL",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 403', () => pm.response.to.have.status(403));",
-                  "pm.test('Error code INSUFFICIENT_ROLE', () => {",
-                  "  pm.expect(res.error.code).to.eql('INSUFFICIENT_ROLE');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "url": "{{base_url}}/organizations/invites",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            },
-            "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "x-organization-id", "value": "{{organization_id}}" }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"another@test.dev\",\n  \"role\": \"member\"\n}"
-            }
-          }
+          "name": "8.2 Filter Activity — entityType=project",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All entries are project type', () => {",
+            "  res.data.forEach(a => pm.expect(a.entityType).to.eql('project'));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/activity?entityType=project",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         },
         {
-          "name": "5.3 User 2 can list their orgs",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "const res = pm.response.json();",
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('User 2 has 1 org with member role', () => {",
-                  "  pm.expect(res.data).to.be.an('array').that.has.lengthOf(1);",
-                  "  pm.expect(res.data[0].role).to.eql('member');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "url": "{{base_url}}/organizations",
-            "auth": {
-              "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{user2_access_token}}" }]
-            }
-          }
+          "name": "8.3 Filter Activity — entityType=task",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All entries are task type', () => {",
+            "  res.data.forEach(a => pm.expect(a.entityType).to.eql('task'));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/activity?entityType=task",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "8.4 Filter Activity — specific entity",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('All entries match entity ID', () => {",
+            "  res.data.forEach(a => pm.expect(a.entityId).to.eql(pm.collectionVariables.get('task_id')));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/activity?entityType=task&entityId={{task_id}}",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
+        },
+        {
+          "name": "8.5 Activity payload has snapshot structure",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const res = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Payload has entityId and snapshot', () => {",
+            "  const entry = res.data.find(a => a.eventType === 'task.created');",
+            "  if (entry) {",
+            "    pm.expect(entry.payload).to.have.property('entityId');",
+            "    pm.expect(entry.payload).to.have.property('snapshot');",
+            "  }",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "url": "{{base_url}}/activity?entityType=task",
+            "header": [{ "key": "x-organization-id", "value": "{{organization_id}}" }] }
         }
       ]
     }
