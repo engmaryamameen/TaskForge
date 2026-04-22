@@ -6,56 +6,147 @@ TaskForge is not a CRUD app with a database. It is a fully engineered backend sy
 
 ---
 
-## Architecture
+## Why TaskForge Exists
+
+Most project management tools start as a CRUD app and bolt on multi-tenancy, billing, and realtime features as afterthoughts. The result is systems where tenant isolation depends on remembering to add `WHERE org_id = ?` to every query, billing enforcement is checked in random controller methods, and scaling means rewriting the foundation.
+
+TaskForge inverts this. It starts from the constraints:
+
+- **Tenant isolation is structural.** A guard chain enforces organization scoping at the request boundary before any business logic runs. You cannot accidentally write a cross-tenant query because services never see raw tenant IDs from user input.
+- **Billing is a system primitive, not a feature.** Entitlements are computed from plan + live usage counters, cached with version keys, and enforced via atomic database operations. The billing system is the entitlement system — not a Stripe wrapper with a few `if` checks.
+- **Realtime and async processing are first-class.** Domain events flow through an event bus to both WebSocket broadcasts and a persistent audit trail via background workers. This isn't WebSocket bolted onto REST — it's event-driven architecture where REST, WebSocket, and background processing are consumers of the same event stream.
+
+The result is a system where complexity exists because the problem demands it, not because the code grew organically.
+
+---
+
+## System in 30 Seconds
+
+A user creates a task. The request hits Nginx, which injects a request ID and proxies to the API. Four guards execute in sequence: rate limiting (Redis-backed), JWT verification, organization membership validation (3-tier cache), and role check. The task is written to PostgreSQL. A domain event fires synchronously to the event bus. Two things happen in parallel: the realtime listener broadcasts `task:created` to all org members via WebSocket, and the activity listener enqueues the event to BullMQ. The worker process (separate container) picks up the job, writes an immutable audit log entry, and the request has already returned to the client. Total synchronous path: ~15ms. Audit persistence: ~100ms async.
 
 ```
-                              ┌─────────────┐
-                              │   Nginx      │
-                              │  (reverse    │
-                              │   proxy)     │
-                              └──────┬───────┘
-                                     │
-                    ┌────────────────┼────────────────┐
-                    │                │                 │
-               HTTP /api/      WebSocket          /health
-                    │          /socket.io/             │
-                    ▼                ▼                 ▼
-              ┌──────────────────────────────────────────┐
-              │              NestJS API                   │
-              │                                          │
-              │  ┌─────────┐ ┌──────────┐ ┌───────────┐ │
-              │  │  Auth    │ │  Billing │ │  Realtime │ │
-              │  │  (JWT +  │ │  (Stripe)│ │(Socket.io)│ │
-              │  │  argon2) │ │          │ │           │ │
-              │  └─────────┘ └──────────┘ └───────────┘ │
-              │  ┌─────────┐ ┌──────────┐ ┌───────────┐ │
-              │  │  Orgs   │ │ Projects │ │   Tasks   │ │
-              │  │  (multi │ │          │ │           │ │
-              │  │  tenant)│ │          │ │           │ │
-              │  └─────────┘ └──────────┘ └───────────┘ │
-              │                                          │
-              │  Guards: Throttler → JWT → OrgScope → Roles │
-              └────────────┬──────────────┬──────────────┘
+Request → Nginx → API Guard Chain → Service → PostgreSQL (write)
+                                        │
+                                        ▼
+                                  Domain Event Bus
+                                   │           │
+                                   ▼           ▼
+                              BullMQ       WebSocket
+                              Queue       Broadcast
+                                │         (instant)
+                                ▼
+                             Worker
+                          (async audit
+                           log → DB)
+```
+
+---
+
+## Architecture
+
+### Runtime Architecture
+
+```
+                    Stripe                          Clients
+                  (webhooks)                       (browser)
+                      │                               │
+                      ▼                               ▼
+              ┌──────────────────────────────────────────────────┐
+              │                    Nginx                         │
+              │   (reverse proxy, X-Request-ID, security hdrs)  │
+              └────────────┬──────────────┬─────────────────────┘
                            │              │
-                    ┌──────▼──────┐ ┌─────▼──────┐
-                    │ PostgreSQL  │ │   Redis     │
-                    │             │ │ (cache +    │
-                    │  - users    │ │  sessions + │
-                    │  - orgs     │ │  rate limit │
-                    │  - tasks    │ │  + queues)  │
-                    │  - billing  │ │             │
-                    │  - activity │ │             │
-                    └─────────────┘ └──────┬──────┘
-                                           │
-                                    ┌──────▼──────┐
-                                    │   BullMQ    │
-                                    │   Worker    │
-                                    │             │
-                                    │ - activity  │
-                                    │   logging   │
-                                    │ - async     │
-                                    │   events    │
-                                    └─────────────┘
+                      HTTP /api/    WebSocket /socket.io/
+                           │              │
+              ┌────────────▼──────────────▼─────────────────────┐
+              │                  NestJS API                      │
+              │                                                  │
+              │  Request Flow:                                   │
+              │  Throttler → JWT → OrgMembership → Roles         │
+              │       │                                          │
+              │       ▼                                          │
+              │  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
+              │  │  Auth    │  │  Orgs    │  │   Billing     │  │
+              │  │ (argon2  │  │ (tenant  │  │  (Stripe +    │  │
+              │  │  + JWT   │  │  scoping)│  │  entitlements) │  │
+              │  │  + token │  │          │  │               │  │
+              │  │  rotate) │  │          │  │               │  │
+              │  └──────────┘  └──────────┘  └───────────────┘  │
+              │  ┌──────────┐  ┌──────────┐  ┌───────────────┐  │
+              │  │ Projects │  │  Tasks   │  │   Realtime    │  │
+              │  │          │  │          │  │  (Socket.io   │  │
+              │  │          │  │          │  │   rooms)      │  │
+              │  └──────────┘  └──────────┘  └───────────────┘  │
+              │       │                             ▲            │
+              │       ▼                             │            │
+              │  ┌─────────────────────────────────────────┐    │
+              │  │          Domain Event Bus                │    │
+              │  │  (NestJS EventEmitter — wildcard events) │    │
+              │  └──────┬──────────────────┬───────────────┘    │
+              │         │                  │                     │
+              └─────────┼──────────────────┼─────────────────────┘
+                        │                  │
+                        ▼                  ▼
+              ┌──────────────┐   ┌──────────────────┐
+              │  PostgreSQL  │   │      Redis        │
+              │              │   │                   │
+              │  - users     │   │  Cache:           │
+              │  - orgs      │   │   user sessions   │
+              │  - tasks     │   │   memberships     │
+              │  - projects  │   │   entitlements    │
+              │  - activity  │   │                   │
+              │  - billing   │   │  Rate Limiting:   │
+              │  - webhooks  │   │   per-user/IP     │
+              │              │   │                   │
+              └──────────────┘   │  Job Queues:      │
+                                 │   activity queue  │
+                                 │   notifications   │
+                                 └────────┬──────────┘
+                                          │
+                                   ┌──────▼──────┐
+                                   │   BullMQ    │
+                                   │   Worker    │
+                                   │  (separate  │
+                                   │   process)  │
+                                   │             │
+                                   │  activity   │
+                                   │  logging    │
+                                   │  → DB write │
+                                   └─────────────┘
+```
+
+### Event Flow Architecture
+
+```
+  Service Mutation (task.create, project.update, etc.)
+         │
+         ▼
+  EventEmitter.emit('task.created', DomainEvent)
+         │
+         ├──────────────────────────┐
+         ▼                          ▼
+  ActivityListener            RealtimeListener
+  (enqueue to BullMQ)        (broadcast via Socket.io)
+         │                          │
+         ▼                          ▼
+  ┌─────────────┐           ┌──────────────┐
+  │ Redis Queue │           │  org:{orgId} │
+  │ (persisted) │           │  WebSocket   │
+  └──────┬──────┘           │  room        │
+         │                  └──────────────┘
+         ▼
+  ┌─────────────┐
+  │   Worker    │
+  │  Process    │
+  └──────┬──────┘
+         │
+         ▼
+  ┌─────────────┐       ┌──────────────────────┐
+  │  Activity   │       │  Billing Listener     │
+  │  Table      │       │  (subscription events │
+  │  (immutable │       │   → Stripe sync)      │
+  │   audit)    │       └──────────────────────┘
+  └─────────────┘
 ```
 
 ---
@@ -127,6 +218,38 @@ TaskForge is not a CRUD app with a database. It is a fully engineered backend sy
 
 ---
 
+## Design Principles
+
+These are the rules the codebase enforces structurally, not by convention:
+
+1. **Tenant isolation is a request boundary concern.** Organization scoping is enforced once at the guard layer. Services never accept `organizationId` as a parameter from user input — they read it from the validated request context. A developer cannot accidentally write a cross-tenant query.
+
+2. **Every write is auditable.** All mutations emit domain events. The activity trail is not opt-in — it is a structural side effect of using the event bus. Skipping audit logging requires actively removing the listener, not forgetting to add it.
+
+3. **Workers are stateless by design.** The BullMQ worker holds no in-memory state between jobs. Any worker instance can process any job. Scaling is horizontal: add more worker containers, BullMQ distributes automatically.
+
+4. **Failures are isolated, not cascading.** Redis failure degrades rate limiting and cache (requests still hit the DB). Worker failure pauses async processing (API keeps serving). Database slowness triggers health check failure (new traffic is rejected, not queued). No single failure takes down the entire system.
+
+5. **Configuration is validated, not assumed.** The app refuses to start if critical environment variables are missing or malformed. There is no "partially configured" runtime state.
+
+6. **Billing is enforcement, not decoration.** Usage limits are checked via atomic database operations at write time, not after the fact. A user cannot exceed plan limits even under concurrent requests.
+
+---
+
+## Security Model
+
+The system operates on a zero-trust-the-client principle:
+
+- **Frontend is untrusted.** Organization IDs in request headers are validated against the user's actual membership in the database (cached, but never assumed). A user cannot access an organization by guessing its ID.
+- **Tenant isolation is enforced at the guard layer, not the query layer.** Services receive `organizationId` from the request context (set by `OrgMembershipGuard`), never from raw user input. There is no way to call a service method with an arbitrary org ID.
+- **Passwords never leave the auth boundary.** Argon2 hashing happens at registration/login only. Tokens are stateless — the API never stores or logs plaintext credentials.
+- **Refresh tokens are hashed at rest.** The database stores SHA-256 hashes, not raw tokens. Token theft from a database breach does not grant session access.
+- **Stripe webhooks are signature-verified.** Raw request body + HMAC validation ensures webhook payloads are from Stripe, not forged. Every event is idempotently tracked to prevent replay.
+- **Rate limiting is per-identity, not per-IP.** Authenticated users are rate-limited by `userId`, preventing legitimate users behind shared NATs from being penalized. Public endpoints (login, register) fall back to IP-based limiting — this doubles as brute force protection on auth endpoints.
+- **Services enforce their own data boundaries.** A service method never accepts a raw `organizationId` parameter from a controller. It reads from the request context, which was validated by the guard. Even if a new endpoint is added without proper decorators, the global guard chain still executes.
+
+---
+
 ## System Design Decisions
 
 ### Why organization-scoped guards instead of query-level filtering?
@@ -172,6 +295,51 @@ Running migrations in `onModuleInit` means every API replica attempts migrations
 - **Queue**: Separate queues per job type (activity, notifications, billing). Add dead-letter queues for exhausted retries. Consider priority lanes for time-sensitive jobs (webhook processing > activity logging).
 - **Multi-region**: The architecture is region-ready. PostgreSQL streaming replication to read-heavy regions. Redis Cluster per region. WebSocket connections pinned to the nearest edge.
 - **What breaks first**: The `activity` table. It's append-only with no archival strategy. At ~1M users generating 50 events/day each, that's ~50M rows/month. Solution: time-based partitioning + cold storage archival to S3.
+
+### Bottleneck order under load:
+
+1. **Activity table** — append-only, no archival. First to cause disk/index pressure.
+2. **WebSocket fanout** — single-process Socket.io can't broadcast across replicas without Redis adapter.
+3. **Database write contention** — task creation under high concurrency hits row-level locks on usage counters.
+4. **Redis memory** — rate limiting keys + cache + BullMQ job data grow with traffic.
+
+### Scaling order of operations (what you change first):
+
+1. Add `@socket.io/redis-adapter` — unblocks horizontal API scaling (currently the ceiling)
+2. Add PostgreSQL read replicas — offloads task/activity queries (highest read volume)
+3. Partition `activity` table by month — prevents index degradation on the fastest-growing table
+4. Separate BullMQ queues per job type — isolates webhook processing latency from audit logging
+5. Move to Redis Cluster — only needed when single Redis approaches memory/ops limits
+
+---
+
+## Failure Modes & System Behavior
+
+| Failure | System Behavior | Recovery |
+|---------|----------------|----------|
+| **Redis down** | Rate limiting degrades (requests pass through). Cache misses hit DB directly. BullMQ jobs queue in memory briefly. | Redis reconnects automatically via ioredis retry. Cached data repopulates on next request. |
+| **Worker down** | Jobs accumulate in Redis queue. No data loss — BullMQ persists jobs. API continues serving requests normally. | Worker restart drains backlog. Jobs retry with exponential backoff (3 attempts). |
+| **Database slow** | API requests timeout at the connection level. Health check reports unhealthy. New requests fail fast. | Connection pool recovers when DB returns. No cascading failure — Redis cache absorbs read load during recovery. |
+| **Stripe webhook fails** | Stripe retries delivery (up to 3 days). Idempotency key in `ProcessedWebhook` prevents duplicate processing on retry. | No manual intervention needed. Subscription state eventually consistent. |
+| **Migration fails in Docker** | `migrate` container exits non-zero. `api` and `worker` never start (`service_completed_successfully` not met). | Fix migration, rebuild, redeploy. System stays on previous version until migration succeeds. |
+| **Config missing at startup** | Joi validation fails. App crashes immediately with all missing variables listed. | Intentional fail-fast. No partial startup with broken config. |
+| **Refresh token replayed** | Token already revoked — request rejected. Entire token family can be invalidated (theft detection). | User must re-authenticate. Legitimate sessions on other devices unaffected (different family). |
+
+---
+
+## Engineering Tradeoffs
+
+These are deliberate choices with known costs:
+
+| Decision | What we gained | What it costs |
+|----------|---------------|---------------|
+| **Event-driven audit trail via BullMQ** | Non-blocking request path. Audit logs don't slow down API responses. Worker scales independently. | Eventual consistency — activity logs appear ~100ms after the mutation, not instantly. Adds Redis as a hard dependency. |
+| **Atomic Redis counters for usage** instead of `COUNT(*)` queries | O(1) enforcement checks. No table scans on every entitlement check. Race-condition-free limit enforcement. | Counters can drift if a bug skips decrement. Requires periodic reconciliation against source tables. |
+| **BullMQ over Kafka** | Simple setup, Redis-backed (already in stack), excellent NestJS integration, sufficient for current throughput. | No consumer groups, no replay, no cross-service event streaming. Would need replacement at ~10K events/sec. |
+| **TypeORM over Prisma** | Mature migration system, decorator-based entities align with NestJS patterns, `QueryBuilder` for complex queries. | Heavier ORM with more runtime overhead. Migration generation can be unpredictable. No type-safe query builder. |
+| **Monolith over microservices** | Single deployable unit. Shared types. No network overhead between modules. Simple local development. | All modules scale together. A billing webhook spike scales the entire API, not just billing. |
+| **JWT over sessions** | Stateless API servers. No session store to scale. Horizontal scaling without sticky sessions. | Token revocation requires Redis check (not truly stateless). Token size larger than session ID. |
+| **Soft deletes on projects/tasks** | Data recovery possible. Audit trail preserved. No cascade deletion surprises. | Table bloat over time. Queries must filter `deletedAt IS NULL` (handled by TypeORM automatically, but indexes include soft-deleted rows). |
 
 ---
 
