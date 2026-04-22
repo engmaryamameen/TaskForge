@@ -7,6 +7,7 @@ export const REALTIME_EVENT_PREFIXES = [
   'task.',
   'project.',
   'member.',
+  'subscription.',
 ] as const;
 
 export function isRealtimeEvent(eventType: string): boolean {

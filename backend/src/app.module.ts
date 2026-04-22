@@ -3,7 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { databaseConfig, redisConfig, authConfig } from './config';
+import { databaseConfig, redisConfig, authConfig, billingConfig } from './config';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { RedisModule } from './infrastructure/redis';
 import { CacheModule } from './infrastructure/cache';
@@ -25,13 +25,14 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { BillingModule } from './modules/billing/billing.module';
 
 @Module({
   imports: [
     // Global config
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, redisConfig, authConfig],
+      load: [databaseConfig, redisConfig, authConfig, billingConfig],
     }),
 
     // Database
@@ -60,6 +61,7 @@ import { RealtimeModule } from './modules/realtime/realtime.module';
     TasksModule,
     ActivityModule,
     RealtimeModule,
+    BillingModule,
 
     // Queue (after ActivityModule — worker depends on ActivityService)
     QueueModule,
