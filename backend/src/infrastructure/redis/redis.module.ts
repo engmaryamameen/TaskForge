@@ -1,6 +1,7 @@
 import { Module, Global } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { RedisShutdownService } from './redis-shutdown.service';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 
@@ -18,6 +19,7 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
         });
       },
     },
+    RedisShutdownService,
   ],
   exports: [REDIS_CLIENT],
 })

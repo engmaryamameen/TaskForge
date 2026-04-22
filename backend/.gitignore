@@ -7,6 +7,8 @@ build/
 
 # Environment
 .env
+!.env.test
+!.env.example
 
 # IDE
 .idea/
