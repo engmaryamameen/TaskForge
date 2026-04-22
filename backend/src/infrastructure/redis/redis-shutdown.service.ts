@@ -1,12 +1,11 @@
 import { Injectable, Inject, Logger, OnModuleDestroy } from '@nestjs/common';
 import Redis from 'ioredis';
-import { REDIS_CLIENT } from './redis.module';
 
 @Injectable()
 export class RedisShutdownService implements OnModuleDestroy {
   private readonly logger = new Logger(RedisShutdownService.name);
 
-  constructor(@Inject(REDIS_CLIENT) private readonly redis: Redis) {}
+  constructor(@Inject('REDIS_CLIENT') private readonly redis: Redis) {}
 
   async onModuleDestroy() {
     this.logger.log('Closing Redis connection...');
