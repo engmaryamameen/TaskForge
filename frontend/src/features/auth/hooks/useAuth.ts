@@ -16,7 +16,7 @@ export function useLogin() {
       const { user, accessToken, refreshToken } = data.data!;
       setAuth(user, accessToken, refreshToken);
 
-      const socket = connectSocket();
+      const socket = connectSocket(accessToken);
       if (user.currentOrganizationId) {
         socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
       }
@@ -35,7 +35,7 @@ export function useRegister() {
     onSuccess: ({ data }) => {
       const { user, accessToken, refreshToken } = data.data!;
       setAuth(user, accessToken, refreshToken);
-      connectSocket();
+      connectSocket(accessToken);
       router.push('/');
     },
   });

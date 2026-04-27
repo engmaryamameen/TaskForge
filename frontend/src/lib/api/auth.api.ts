@@ -1,4 +1,5 @@
 import { apiClient } from './client';
+import { normalizeError } from './errors';
 import type { ApiResponse } from '@/types';
 import type { User } from '@/types';
 
@@ -22,21 +23,24 @@ export interface LoginPayload {
 
 export const authApi = {
   register(payload: RegisterPayload) {
-    return apiClient.post<ApiResponse<AuthTokens>>('/auth/register', payload);
+    return apiClient.post<ApiResponse<AuthTokens>>('/auth/register', payload)
+      .catch(normalizeError);
   },
 
   login(payload: LoginPayload) {
-    return apiClient.post<ApiResponse<AuthTokens>>('/auth/login', payload);
+    return apiClient.post<ApiResponse<AuthTokens>>('/auth/login', payload)
+      .catch(normalizeError);
   },
 
   refresh(refreshToken: string) {
     return apiClient.post<ApiResponse<{ accessToken: string; refreshToken: string }>>(
       '/auth/refresh',
       { refreshToken },
-    );
+    ).catch(normalizeError);
   },
 
   logout() {
-    return apiClient.post('/auth/logout');
+    return apiClient.post('/auth/logout')
+      .catch(normalizeError);
   },
 };
