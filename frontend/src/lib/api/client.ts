@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '@/store/auth.store';
+import { updateToken as updateSocketToken } from '@/lib/socket';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -73,6 +74,7 @@ apiClient.interceptors.response.use(
       const newAccessToken = data.data.accessToken;
       const newRefreshToken = data.data.refreshToken;
       setTokens(newAccessToken, newRefreshToken);
+      updateSocketToken(newAccessToken);
       processQueue(null, newAccessToken);
       originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
       return apiClient(originalRequest);

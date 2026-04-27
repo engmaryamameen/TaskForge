@@ -14,7 +14,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const { isAuthenticated, currentOrganizationId, _hasHydrated } = useAuthStore();
+  const { isAuthenticated, currentOrganizationId, accessToken, _hasHydrated } = useAuthStore();
 
   // Redirect to login if not authenticated (only after store has rehydrated)
   useEffect(() => {
@@ -25,9 +25,9 @@ export default function DashboardLayout({
 
   // Connect socket and join org room
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated || !accessToken) return;
 
-    const socket = connectSocket();
+    const socket = connectSocket(accessToken);
 
     if (currentOrganizationId) {
       socket.on('connect', () => joinOrgRoom(currentOrganizationId));
@@ -35,7 +35,7 @@ export default function DashboardLayout({
         joinOrgRoom(currentOrganizationId);
       }
     }
-  }, [isAuthenticated, currentOrganizationId]);
+  }, [isAuthenticated, accessToken, currentOrganizationId]);
 
   // Wire up socket → React Query cache invalidation
   useSocketEvents();
