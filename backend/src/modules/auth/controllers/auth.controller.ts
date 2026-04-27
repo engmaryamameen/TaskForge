@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from '../services/auth.service';
@@ -33,6 +33,11 @@ export class AuthController {
     const device = req.headers['user-agent'];
     const ip = req.ip;
     return this.authService.refreshTokens(dto.refreshToken, device, ip);
+  }
+
+  @Get('me')
+  async me(@CurrentUser('userId') userId: string) {
+    return this.authService.getMe(userId);
   }
 
   @Post('logout')
