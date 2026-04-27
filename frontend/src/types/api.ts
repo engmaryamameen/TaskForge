@@ -1,3 +1,5 @@
+import { AxiosError } from 'axios';
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -39,6 +41,59 @@ export const ErrorCodes = {
   PLAN_LIMIT_EXCEEDED: 'PLAN_LIMIT_EXCEEDED',
   FEATURE_NOT_AVAILABLE: 'FEATURE_NOT_AVAILABLE',
   SUBSCRIPTION_INACTIVE: 'SUBSCRIPTION_INACTIVE',
+  WEBHOOK_SIGNATURE_INVALID: 'WEBHOOK_SIGNATURE_INVALID',
+  WEBHOOK_ALREADY_PROCESSED: 'WEBHOOK_ALREADY_PROCESSED',
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   INTERNAL_ERROR: 'INTERNAL_ERROR',
 } as const;
+
+export type ApiErrorType = 'AUTH' | 'CLIENT' | 'SERVER' | 'NETWORK' | 'UNKNOWN';
+
+export class ApiError extends Error {
+  public readonly code: string;
+  public readonly status: number;
+  public readonly type: ApiErrorType;
+
+  constructor(code: string, message: string, status: number, type: ApiErrorType) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.status = status;
+    this.type = type;
+  }
+
+  private static classifyStatus(status: number): ApiErrorType {
+    if (status === 401 || status === 403) return 'AUTH';
+    if (status >= 400 && status < 500) return 'CLIENT';
+    if (status >= 500) return 'SERVER';
+    return 'NETWORK';
+  }
+
+  static from(error: unknown): ApiError {
+    if (error instanceof ApiError) return error;
+
+    if (error instanceof AxiosError) {
+      const resp = error.response;
+      if (resp?.data?.error) {
+        const { code, message } = resp.data.error;
+        return new ApiError(code, message, resp.status ?? 500, this.classifyStatus(resp.status ?? 500));
+      }
+      if (error.code === 'ECONNABORTED') {
+        return new ApiError('TIMEOUT', 'Request timed out', 0, 'NETWORK');
+      }
+      if (error.code === 'ERR_NETWORK') {
+        return new ApiError('NETWORK_ERROR', 'Network error', 0, 'NETWORK');
+      }
+      const status = resp?.status ?? 0;
+      return new ApiError(
+        'UNKNOWN_ERROR',
+        error.message || 'An unexpected error occurred',
+        status,
+        status ? this.classifyStatus(status) : 'UNKNOWN',
+      );
+    }
+
+    const message = error instanceof Error ? error.message : 'An unexpected error occurred';
+    return new ApiError('UNKNOWN_ERROR', message, 0, 'UNKNOWN');
+  }
+}
