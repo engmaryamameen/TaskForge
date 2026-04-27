@@ -3,17 +3,72 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRegister } from '@/features/auth/hooks/useAuth';
+import { ApiError } from '@/types';
+
+function getAuthErrorMessage(error: Error): string {
+  if (error instanceof ApiError) {
+    switch (error.code) {
+      case 'EMAIL_ALREADY_EXISTS':
+        return 'An account with this email already exists. Try signing in instead.';
+      case 'ACCOUNT_SUSPENDED':
+        return 'Your account has been suspended. Please contact support.';
+      case 'NETWORK_ERROR':
+        return 'Unable to connect. Please check your internet connection.';
+      case 'TIMEOUT':
+        return 'The request timed out. Please try again.';
+    }
+  }
+  return 'Something went wrong. Please try again.';
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+}
 
 export default function RegisterPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<FormErrors>({});
   const register = useRegister();
+
+  function validate(): boolean {
+    const next: FormErrors = {};
+    if (!firstName.trim()) {
+      next.firstName = 'First name is required';
+    }
+    if (!lastName.trim()) {
+      next.lastName = 'Last name is required';
+    }
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
+      next.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      next.email = 'Enter a valid email address';
+    }
+    if (!password) {
+      next.password = 'Password is required';
+    } else if (password.length < 8) {
+      next.password = 'Password must be at least 8 characters';
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+      next.password = 'Password must include uppercase, lowercase, and a number';
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
+
+  function clearError(field: keyof FormErrors) {
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    register.mutate({ email, password, firstName, lastName });
+    if (!validate()) return;
+    register.mutate({ email: email.trim(), password, firstName: firstName.trim(), lastName: lastName.trim() });
   }
 
   return (
@@ -22,7 +77,7 @@ export default function RegisterPage() {
 
       {register.error && (
         <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-          Registration failed. Please check your details and try again.
+          {getAuthErrorMessage(register.error)}
         </div>
       )}
 
@@ -35,11 +90,11 @@ export default function RegisterPage() {
             <input
               id="firstName"
               type="text"
-              required
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => { setFirstName(e.target.value); clearError('firstName'); }}
               className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
+            {errors.firstName && <p className="mt-1 text-xs text-red-600">{errors.firstName}</p>}
           </div>
           <div>
             <label htmlFor="lastName" className="mb-1 block text-sm font-medium text-gray-700">
@@ -48,11 +103,11 @@ export default function RegisterPage() {
             <input
               id="lastName"
               type="text"
-              required
               value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              onChange={(e) => { setLastName(e.target.value); clearError('lastName'); }}
               className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
+            {errors.lastName && <p className="mt-1 text-xs text-red-600">{errors.lastName}</p>}
           </div>
         </div>
 
@@ -63,11 +118,11 @@ export default function RegisterPage() {
           <input
             id="email"
             type="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
         </div>
 
         <div>
@@ -77,12 +132,11 @@ export default function RegisterPage() {
           <input
             id="password"
             type="password"
-            required
-            minLength={8}
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
         </div>
 
         <button

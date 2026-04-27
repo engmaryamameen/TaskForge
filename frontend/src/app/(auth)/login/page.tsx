@@ -3,15 +3,49 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLogin } from '@/features/auth/hooks/useAuth';
+import { ApiError } from '@/types';
+
+function getAuthErrorMessage(error: Error): string {
+  if (error instanceof ApiError) {
+    switch (error.code) {
+      case 'INVALID_CREDENTIALS':
+        return 'Invalid email or password. Please try again.';
+      case 'ACCOUNT_SUSPENDED':
+        return 'Your account has been suspended. Please contact support.';
+      case 'NETWORK_ERROR':
+        return 'Unable to connect. Please check your internet connection.';
+      case 'TIMEOUT':
+        return 'The request timed out. Please try again.';
+    }
+  }
+  return 'Something went wrong. Please try again.';
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const login = useLogin();
+
+  function validate(): boolean {
+    const next: { email?: string; password?: string } = {};
+    const trimmed = email.trim();
+    if (!trimmed) {
+      next.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      next.email = 'Enter a valid email address';
+    }
+    if (!password) {
+      next.password = 'Password is required';
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    login.mutate({ email, password });
+    if (!validate()) return;
+    login.mutate({ email: email.trim(), password });
   }
 
   return (
@@ -20,7 +54,7 @@ export default function LoginPage() {
 
       {login.error && (
         <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-          Invalid email or password. Please try again.
+          {getAuthErrorMessage(login.error)}
         </div>
       )}
 
@@ -32,11 +66,11 @@ export default function LoginPage() {
           <input
             id="email"
             type="email"
-            required
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
         </div>
 
         <div>
@@ -46,11 +80,11 @@ export default function LoginPage() {
           <input
             id="password"
             type="password"
-            required
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
             className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
           />
+          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
         </div>
 
         <button
