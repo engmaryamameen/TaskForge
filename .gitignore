@@ -6,3 +6,6 @@
 
 # TLS certificates
 nginx/certs/*.pem
+
+# Local development secrets
+.env.development
