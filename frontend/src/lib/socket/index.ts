@@ -2,6 +2,7 @@ export {
   getSocket,
   connectSocket,
   disconnectSocket,
+  updateToken,
   joinOrgRoom,
   leaveOrgRoom,
 } from './client';
