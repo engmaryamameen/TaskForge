@@ -4,3 +4,4 @@ export { organizationsApi } from './organizations.api';
 export { projectsApi } from './projects.api';
 export { tasksApi } from './tasks.api';
 export { activityApi } from './activity.api';
+export { normalizeError } from './errors';
