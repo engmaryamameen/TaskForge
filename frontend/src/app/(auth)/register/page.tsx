@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useRegister } from '@/features/auth/hooks/useAuth';
 import { ApiError } from '@/types';
 
@@ -29,12 +30,14 @@ interface FormErrors {
 }
 
 export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') ?? undefined;
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
-  const register = useRegister();
+  const register = useRegister(redirect);
 
   function validate(): boolean {
     const next: FormErrors = {};

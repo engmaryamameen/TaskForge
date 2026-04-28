@@ -1,12 +1,11 @@
 'use client';
 
 import { useAuthStore } from '@/store/auth.store';
-import { useCurrentOrganization, useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
+import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
   const { data: org } = useCurrentOrganization();
-  const { data: members } = useOrgMembers();
 
   return (
     <div>
@@ -44,29 +43,6 @@ export default function SettingsPage() {
                 <dd className="font-medium text-gray-900">{org.slug}</dd>
               </div>
             </dl>
-          </section>
-        )}
-
-        {members && members.length > 0 && (
-          <section className="rounded-lg bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
-              Members ({members.length})
-            </h2>
-            <ul className="divide-y divide-gray-100">
-              {members.map((member) => (
-                <li
-                  key={member.id}
-                  className="flex items-center justify-between py-3"
-                >
-                  <span className="text-sm text-gray-900">
-                    {member.userId}
-                  </span>
-                  <span className="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                    {member.role}
-                  </span>
-                </li>
-              ))}
-            </ul>
           </section>
         )}
       </div>

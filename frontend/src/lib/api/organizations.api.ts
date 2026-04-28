@@ -44,4 +44,11 @@ export const organizationsApi = {
       payload,
     ).catch(normalizeError);
   },
+
+  acceptInvite(token: string) {
+    return apiClient.post<ApiResponse<Membership>>(
+      '/invitations/accept',
+      { token },
+    ).catch(normalizeError);
+  },
 };

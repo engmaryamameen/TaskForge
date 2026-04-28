@@ -6,7 +6,7 @@ import { authApi, type RegisterPayload, type LoginPayload } from '@/lib/api/auth
 import { useAuthStore } from '@/store/auth.store';
 import { connectSocket, disconnectSocket, joinOrgRoom } from '@/lib/socket';
 
-export function useLogin() {
+export function useLogin(redirectTo?: string) {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
@@ -21,12 +21,12 @@ export function useLogin() {
         socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
       }
 
-      router.push('/');
+      router.push(redirectTo || '/');
     },
   });
 }
 
-export function useRegister() {
+export function useRegister(redirectTo?: string) {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
 
@@ -36,7 +36,7 @@ export function useRegister() {
       const { user, accessToken, refreshToken } = data.data!;
       setAuth(user, accessToken, refreshToken);
       connectSocket(accessToken);
-      router.push('/');
+      router.push(redirectTo || '/');
     },
   });
 }

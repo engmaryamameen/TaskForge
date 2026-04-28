@@ -8,6 +8,7 @@ import {
 } from '@/lib/api/organizations.api';
 import { useAuthStore } from '@/store/auth.store';
 import { leaveOrgRoom, joinOrgRoom } from '@/lib/socket';
+import type { OrganizationWithRole, Membership, Role } from '@/types';
 
 export const orgKeys = {
   all: ['organizations'] as const,
@@ -18,7 +19,7 @@ export const orgKeys = {
 export function useOrganizations() {
   return useQuery({
     queryKey: orgKeys.all,
-    queryFn: () => organizationsApi.list().then((r) => r.data.data!),
+    queryFn: () => organizationsApi.list().then((r) => r.data.data! as OrganizationWithRole[]),
   });
 }
 
@@ -30,10 +31,22 @@ export function useCurrentOrganization() {
 }
 
 export function useOrgMembers() {
+  const currentOrganizationId = useAuthStore((s) => s.currentOrganizationId);
+
   return useQuery({
     queryKey: orgKeys.members,
-    queryFn: () => organizationsApi.getMembers().then((r) => r.data.data!),
+    queryFn: () => organizationsApi.getMembers().then((r) => r.data.data! as Membership[]),
+    enabled: !!currentOrganizationId,
   });
+}
+
+export function useCurrentOrgRole(): Role | null {
+  const currentOrganizationId = useAuthStore((s) => s.currentOrganizationId);
+  const { data: orgs } = useOrganizations();
+
+  if (!orgs || !currentOrganizationId) return null;
+  const current = orgs.find((o) => o.id === currentOrganizationId);
+  return current?.role ?? null;
 }
 
 export function useCreateOrganization() {
@@ -61,7 +74,6 @@ export function useSwitchOrganization() {
       setCurrentOrganization(orgId);
       joinOrgRoom(orgId);
 
-      // Invalidate all org-scoped queries
       queryClient.invalidateQueries({ queryKey: orgKeys.current });
       queryClient.invalidateQueries({ queryKey: orgKeys.members });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -75,5 +87,21 @@ export function useCreateInvite() {
   return useMutation({
     mutationFn: (payload: CreateInvitePayload) =>
       organizationsApi.createInvite(payload),
+  });
+}
+
+export function useAcceptInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (token: string) => organizationsApi.acceptInvite(token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orgKeys.all });
+      queryClient.invalidateQueries({ queryKey: orgKeys.current });
+      queryClient.invalidateQueries({ queryKey: orgKeys.members });
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['activity'] });
+    },
   });
 }
