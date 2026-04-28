@@ -1,24 +1,15 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/store/auth.store';
+import { useSessionGuard } from '@/features/auth/hooks/useSessionGuard';
 
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const { accessToken, _hasHydrated } = useAuthStore();
+  const status = useSessionGuard('guest');
 
-  useEffect(() => {
-    if (_hasHydrated && accessToken) {
-      router.push('/');
-    }
-  }, [_hasHydrated, accessToken, router]);
-
-  if (!_hasHydrated || accessToken) return null;
+  if (status !== 'unauthenticated') return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
