@@ -137,6 +137,14 @@ export class AuthService {
     };
   }
 
+  async getMe(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user || user.status !== 'active') {
+      throw new AppError(ErrorCodes.UNAUTHORIZED, 'User not found', 401);
+    }
+    return { user: UserResponseDto.fromEntity(user) };
+  }
+
   async logout(rawRefreshToken: string): Promise<void> {
     try {
       const token =
