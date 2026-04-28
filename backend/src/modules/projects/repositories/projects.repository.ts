@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Project } from '../entities/project.entity';
 
 @Injectable()
@@ -22,13 +22,22 @@ export class ProjectsRepository {
     return this.repo.findOne({ where: { id, organizationId } });
   }
 
+  // TODO: add pg_trgm index on lower(name), lower(description) for large datasets
   async findByOrg(
     organizationId: string,
     page: number,
     limit: number,
+    search?: string,
   ): Promise<[Project[], number]> {
+    const where: Record<string, unknown>[] = search
+      ? [
+          { organizationId, name: ILike(`%${search}%`) },
+          { organizationId, description: ILike(`%${search}%`) },
+        ]
+      : [{ organizationId }];
+
     return this.repo.findAndCount({
-      where: { organizationId },
+      where,
       order: { createdAt: 'DESC' },
       skip: (page - 1) * limit,
       take: limit,
