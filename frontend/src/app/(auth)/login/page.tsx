@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { useLogin } from '@/features/auth/hooks/useAuth';
 import { ApiError } from '@/types';
 
@@ -22,10 +23,12 @@ function getAuthErrorMessage(error: Error): string {
 }
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect') ?? undefined;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
-  const login = useLogin();
+  const login = useLogin(redirect);
 
   function validate(): boolean {
     const next: { email?: string; password?: string } = {};

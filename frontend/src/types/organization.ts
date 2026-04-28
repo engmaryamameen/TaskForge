@@ -9,11 +9,24 @@ export interface Organization {
   updatedAt: string;
 }
 
+export interface OrganizationWithRole extends Organization {
+  role: Role;
+}
+
+export interface MemberUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  status: string;
+}
+
 export interface Membership {
   id: string;
   userId: string;
   organizationId: string;
   role: Role;
+  user?: MemberUser;
   createdAt: string;
 }
 
