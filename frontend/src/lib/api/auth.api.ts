@@ -39,6 +39,11 @@ export const authApi = {
     ).catch(normalizeError);
   },
 
+  me() {
+    return apiClient.get<ApiResponse<{ user: User }>>('/auth/me')
+      .catch(normalizeError);
+  },
+
   logout() {
     return apiClient.post('/auth/logout')
       .catch(normalizeError);

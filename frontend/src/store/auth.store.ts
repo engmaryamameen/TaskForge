@@ -2,18 +2,19 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/types';
 
+export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
+
 interface AuthState {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;
   currentOrganizationId: string | null;
-  isAuthenticated: boolean;
-  _hasHydrated: boolean;
+  status: AuthStatus;
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   setCurrentOrganization: (orgId: string) => void;
-  setHasHydrated: (v: boolean) => void;
+  setStatus: (status: AuthStatus) => void;
   logout: () => void;
 }
 
@@ -24,8 +25,7 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       refreshToken: null,
       currentOrganizationId: null,
-      isAuthenticated: false,
-      _hasHydrated: false,
+      status: 'loading' as AuthStatus,
 
       setAuth: (user, accessToken, refreshToken) =>
         set({
@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthState>()(
           accessToken,
           refreshToken,
           currentOrganizationId: user.currentOrganizationId,
-          isAuthenticated: true,
+          status: 'authenticated',
         }),
 
       setTokens: (accessToken, refreshToken) =>
@@ -42,8 +42,8 @@ export const useAuthStore = create<AuthState>()(
       setCurrentOrganization: (orgId) =>
         set({ currentOrganizationId: orgId }),
 
-      setHasHydrated: (v) =>
-        set({ _hasHydrated: v }),
+      setStatus: (status) =>
+        set({ status }),
 
       logout: () =>
         set({
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           refreshToken: null,
           currentOrganizationId: null,
-          isAuthenticated: false,
+          status: 'unauthenticated',
         }),
     }),
     {
@@ -62,8 +62,12 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         currentOrganizationId: state.currentOrganizationId,
       }),
-      onRehydrateStorage: () => () => {
-        useAuthStore.getState().setHasHydrated(true);
+      onRehydrateStorage: () => (state) => {
+        if (state?.accessToken) {
+          useAuthStore.setState({ status: 'loading' });
+        } else {
+          useAuthStore.setState({ status: 'unauthenticated' });
+        }
       },
     },
   ),
