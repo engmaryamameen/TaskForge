@@ -7,6 +7,7 @@ export class UserResponseDto {
   lastName: string;
   isEmailVerified: boolean;
   status: string;
+  currentOrganizationId: string | null;
   createdAt: Date;
 
   static fromEntity(user: User): UserResponseDto {
@@ -17,6 +18,7 @@ export class UserResponseDto {
     dto.lastName = user.lastName;
     dto.isEmailVerified = user.isEmailVerified;
     dto.status = user.status;
+    dto.currentOrganizationId = user.currentOrganizationId;
     dto.createdAt = user.createdAt;
     return dto;
   }
