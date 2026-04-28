@@ -5,31 +5,40 @@ import {
   useOrganizations,
   useCurrentOrganization,
   useSwitchOrganization,
-  useCreateOrganization,
+  useOrgMembers,
+  useCurrentOrgRole,
 } from '@/features/organizations/hooks/useOrganizations';
+import { CreateOrgModal } from '@/features/organizations/components/create-org-modal';
+import { InviteMemberModal } from '@/features/organizations/components/invite-member-modal';
+import { Role } from '@/types';
 import { formatRelative } from '@/lib/utils';
 
 export default function OrganizationsPage() {
   const { data: orgs, isLoading } = useOrganizations();
   const { data: currentOrg } = useCurrentOrganization();
+  const { data: members } = useOrgMembers();
   const switchOrg = useSwitchOrganization();
-  const createOrg = useCreateOrganization();
+  const currentRole = useCurrentOrgRole();
 
-  const [newOrgName, setNewOrgName] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
-  function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    const name = newOrgName.trim();
-    if (!name) return;
-    createOrg.mutate({ name }, {
-      onSuccess: () => setNewOrgName(''),
-    });
-  }
+  const isAdmin = currentRole === Role.ADMIN;
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Organizations</h1>
+      {/* Header */}
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          Create Organization
+        </button>
+      </div>
 
+      {/* Org list */}
       {isLoading && (
         <p className="text-sm text-gray-500">Loading organizations...</p>
       )}
@@ -46,7 +55,16 @@ export default function OrganizationsPage() {
                 }`}
               >
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-900">{org.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-gray-900">{org.name}</h3>
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      org.role === Role.ADMIN
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {org.role}
+                    </span>
+                  </div>
                   <p className="mt-1 text-xs text-gray-500">
                     {org.slug} &middot; Created {formatRelative(org.createdAt)}
                   </p>
@@ -71,29 +89,76 @@ export default function OrganizationsPage() {
       )}
 
       {orgs?.length === 0 && (
-        <p className="text-sm text-gray-500">No organizations yet.</p>
+        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-500">No organizations yet.</p>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+          >
+            Create your first organization
+          </button>
+        </div>
       )}
 
-      {/* Create organization */}
-      <div className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Create Organization</h2>
-        <form onSubmit={handleCreate} className="flex gap-3">
-          <input
-            type="text"
-            value={newOrgName}
-            onChange={(e) => setNewOrgName(e.target.value)}
-            placeholder="Organization name"
-            className="flex-1 rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            disabled={createOrg.isPending || !newOrgName.trim()}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-          >
-            {createOrg.isPending ? 'Creating...' : 'Create'}
-          </button>
-        </form>
-      </div>
+      {/* Current org members */}
+      {currentOrg && (
+        <div className="mt-8">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Members &mdash; {currentOrg.name}
+            </h2>
+            {isAdmin && (
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Invite Member
+              </button>
+            )}
+          </div>
+
+          {members && members.length > 0 ? (
+            <div className="rounded-lg bg-white shadow-sm">
+              {members.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between border-b border-gray-100 px-5 py-4 last:border-0"
+                >
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      {member.user
+                        ? `${member.user.firstName} ${member.user.lastName}`
+                        : member.userId}
+                    </p>
+                    {member.user && (
+                      <p className="text-xs text-gray-500">{member.user.email}</p>
+                    )}
+                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    member.role === Role.ADMIN
+                      ? 'bg-purple-100 text-purple-700'
+                      : 'bg-gray-100 text-gray-600'
+                  }`}>
+                    {member.role}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No members found.</p>
+          )}
+        </div>
+      )}
+
+      {/* Modals */}
+      <CreateOrgModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+      <InviteMemberModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+      />
     </div>
   );
 }
