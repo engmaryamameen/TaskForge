@@ -1,9 +1,14 @@
 'use client';
 
-import { use } from 'react';
-import { useProject } from '@/features/projects/hooks/useProjects';
+import { use, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useProject, useUpdateProject, useDeleteProject } from '@/features/projects/hooks/useProjects';
 import { useTasksByProject } from '@/features/tasks/hooks/useTasks';
+import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { useAuthStore } from '@/store/auth.store';
 import { formatTaskStatus, formatTaskPriority, formatRelative } from '@/lib/utils';
+import { Role } from '@/types';
 
 export default function ProjectDetailPage({
   params,
@@ -11,33 +16,110 @@ export default function ProjectDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const router = useRouter();
   const { data: project, isLoading: projectLoading } = useProject(id);
   const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id);
+  const updateProject = useUpdateProject();
+  const deleteProject = useDeleteProject();
+  const currentRole = useCurrentOrgRole();
+  const userId = useAuthStore((s) => s.user?.id);
 
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+
+  const canEdit = currentRole === Role.ADMIN || project?.createdBy === userId;
+
+  function openEditModal() {
+    if (!project) return;
+    setEditName(project.name);
+    setEditDescription(project.description || '');
+    setShowEditModal(true);
+  }
+
+  function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmed = editName.trim();
+    if (!trimmed) return;
+    updateProject.mutate(
+      { id, payload: { name: trimmed, description: editDescription.trim() || undefined } },
+      { onSuccess: () => setShowEditModal(false) },
+    );
+  }
+
+  async function handleDelete() {
+    await deleteProject.mutateAsync(id);
+    router.replace('/projects');
+  }
+
+  // Loading skeleton
   if (projectLoading) {
-    return <p className="text-sm text-gray-500">Loading project...</p>;
+    return (
+      <div className="animate-pulse">
+        <div className="h-4 w-32 rounded bg-gray-200 mb-4" />
+        <div className="h-8 w-2/3 rounded bg-gray-200 mb-2" />
+        <div className="h-4 w-1/2 rounded bg-gray-200" />
+      </div>
+    );
   }
 
   if (!project) {
-    return <p className="text-sm text-red-500">Project not found.</p>;
+    return (
+      <div className="text-center py-12">
+        <p className="text-sm text-red-500">Project not found.</p>
+        <Link href="/projects" className="mt-2 text-sm text-blue-600 hover:underline">
+          Back to Projects
+        </Link>
+      </div>
+    );
   }
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-        {project.description && (
-          <p className="mt-1 text-gray-600">{project.description}</p>
+      {/* Back link */}
+      <Link href="/projects" className="mb-4 inline-block text-sm text-gray-500 hover:text-gray-700">
+        &larr; Back to Projects
+      </Link>
+
+      {/* Header */}
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          {project.description && (
+            <p className="mt-1 text-gray-600">{project.description}</p>
+          )}
+        </div>
+        {canEdit && (
+          <div className="flex gap-2">
+            <button
+              onClick={openEditModal}
+              className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="rounded bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100"
+            >
+              Delete
+            </button>
+          </div>
         )}
       </div>
 
+      {/* Tasks */}
       <h2 className="mb-4 text-lg font-semibold text-gray-900">Tasks</h2>
 
       {tasksLoading && (
-        <p className="text-sm text-gray-500">Loading tasks...</p>
+        <div className="animate-pulse space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-16 rounded-lg bg-gray-100" />
+          ))}
+        </div>
       )}
 
-      {tasksData?.data && tasksData.data.length > 0 && (
+      {!tasksLoading && tasksData?.data && tasksData.data.length > 0 && (
         <div className="rounded-lg bg-white shadow-sm">
           {tasksData.data.map((task) => (
             <div
@@ -45,12 +127,9 @@ export default function ProjectDetailPage({
               className="flex items-center justify-between border-b border-gray-100 px-6 py-4 last:border-0"
             >
               <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {task.title}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{task.title}</p>
                 <p className="mt-1 text-xs text-gray-500">
-                  {formatTaskStatus(task.status)} &middot;{' '}
-                  {formatRelative(task.createdAt)}
+                  {formatTaskStatus(task.status)} &middot; {formatRelative(task.createdAt)}
                 </p>
               </div>
               <span className="text-xs font-medium text-gray-600">
@@ -61,10 +140,66 @@ export default function ProjectDetailPage({
         </div>
       )}
 
-      {tasksData?.data?.length === 0 && (
-        <p className="text-sm text-gray-500">
-          No tasks in this project yet.
-        </p>
+      {!tasksLoading && tasksData?.data?.length === 0 && (
+        <p className="text-sm text-gray-500">No tasks in this project yet.</p>
+      )}
+
+      {/* Edit modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setShowEditModal(false)} />
+          <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Edit Project</h2>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div>
+                <label htmlFor="edit-name" className="mb-1 block text-sm font-medium text-gray-700">Name</label>
+                <input
+                  id="edit-name"
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  autoFocus
+                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label htmlFor="edit-desc" className="mb-1 block text-sm font-medium text-gray-700">Description</label>
+                <textarea
+                  id="edit-desc"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={3}
+                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <button type="button" onClick={() => setShowEditModal(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
+                <button type="submit" disabled={updateProject.isPending || !editName.trim()} className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                  {updateProject.isPending ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="fixed inset-0 bg-black/50" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative z-10 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-2 text-lg font-semibold text-gray-900">Delete Project</h2>
+            <p className="mb-4 text-sm text-gray-600">
+              Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setShowDeleteConfirm(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
+              <button onClick={handleDelete} disabled={deleteProject.isPending} className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
+                {deleteProject.isPending ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

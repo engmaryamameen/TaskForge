@@ -8,16 +8,29 @@ import {
 } from '@/lib/api/projects.api';
 import type { PaginationParams } from '@/types';
 
+export interface ProjectListParams extends PaginationParams {
+  search?: string;
+}
+
+function normalizeParams(params?: ProjectListParams): ProjectListParams | undefined {
+  if (!params) return undefined;
+  return {
+    ...params,
+    search: params.search?.trim() || undefined,
+  };
+}
+
 export const projectKeys = {
   all: ['projects'] as const,
-  list: (params?: PaginationParams) => ['projects', 'list', params] as const,
+  list: (params?: ProjectListParams) => ['projects', 'list', normalizeParams(params)] as const,
   detail: (id: string) => ['projects', 'detail', id] as const,
 };
 
-export function useProjects(params?: PaginationParams) {
+export function useProjects(params?: ProjectListParams) {
+  const normalized = normalizeParams(params);
   return useQuery({
-    queryKey: projectKeys.list(params),
-    queryFn: () => projectsApi.list(params).then((r) => r.data),
+    queryKey: projectKeys.list(normalized),
+    queryFn: () => projectsApi.list(normalized).then((r) => r.data),
   });
 }
 
