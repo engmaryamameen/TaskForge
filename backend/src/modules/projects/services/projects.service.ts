@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ProjectsRepository } from '../repositories/projects.repository';
-import { CreateProjectDto, UpdateProjectDto } from '../dto';
+import { CreateProjectDto, UpdateProjectDto, ListProjectsDto } from '../dto';
 import { Project } from '../entities/project.entity';
 import { AppError } from '../../../shared/errors/app-error';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
 import { EventType, Role } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces';
-import { PaginationDto } from '../../../shared/dto/pagination.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -45,14 +44,16 @@ export class ProjectsService {
     return project;
   }
 
-  async findAll(organizationId: string, pagination: PaginationDto) {
-    const page = pagination.page ?? 1;
-    const limit = pagination.limit ?? 20;
+  async findAll(organizationId: string, query: ListProjectsDto) {
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 20;
+    const search = query.search?.trim() || undefined;
 
     const [data, total] = await this.projectsRepository.findByOrg(
       organizationId,
       page,
       limit,
+      search,
     );
 
     return { data, meta: { page, total } };

@@ -10,13 +10,12 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { ProjectsService } from '../services/projects.service';
-import { CreateProjectDto, UpdateProjectDto } from '../dto';
+import { CreateProjectDto, UpdateProjectDto, ListProjectsDto } from '../dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { OrgScoped } from '../../../common/decorators/org-scoped.decorator';
 import { Roles } from '../../../common/decorators/roles.decorator';
 import { RequestContext } from '../../../shared/interfaces';
 import { Role } from '../../../shared/enums';
-import { PaginationDto } from '../../../shared/dto/pagination.dto';
 
 @Controller('projects')
 export class ProjectsController {
@@ -35,9 +34,9 @@ export class ProjectsController {
   @Get()
   async findAll(
     @CurrentUser() user: RequestContext,
-    @Query() pagination: PaginationDto,
+    @Query() query: ListProjectsDto,
   ) {
-    return this.projectsService.findAll(user.organizationId!, pagination);
+    return this.projectsService.findAll(user.organizationId!, query);
   }
 
   @OrgScoped()
