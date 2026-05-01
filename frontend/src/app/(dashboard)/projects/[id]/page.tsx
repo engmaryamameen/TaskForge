@@ -11,6 +11,9 @@ import { TaskList } from '@/features/tasks/components/task-list';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
 import { TaskBoard } from '@/features/tasks/components/task-board';
 import { TaskModal } from '@/features/tasks/components/task-modal';
+import { Modal } from '@/components/ui/modal';
+import { Button } from '@/components/ui/button';
+import { Input, Textarea } from '@/components/ui/input';
 import { Role, TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
@@ -115,18 +118,8 @@ export default function ProjectDetailPage({
         </div>
         {canEdit && (
           <div className="flex gap-2">
-            <button
-              onClick={openEditModal}
-              className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="rounded bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100"
-            >
-              Delete
-            </button>
+            <Button variant="secondary" size="sm" onClick={openEditModal}>Edit</Button>
+            <Button variant="danger" size="sm" onClick={() => setShowDeleteConfirm(true)}>Delete</Button>
           </div>
         )}
       </div>
@@ -150,12 +143,7 @@ export default function ProjectDetailPage({
             </button>
           </div>
         </div>
-        <button
-          onClick={() => setShowTaskModal(true)}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Add Task
-        </button>
+        <Button size="sm" onClick={() => setShowTaskModal(true)}>Add Task</Button>
       </div>
 
       {/* Task filters (table view only — board IS the status view) */}
@@ -214,62 +202,56 @@ export default function ProjectDetailPage({
       />
 
       {/* Project edit modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowEditModal(false)} />
-          <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Edit Project</h2>
-            <form onSubmit={handleEdit} className="space-y-4">
-              <div>
-                <label htmlFor="edit-name" className="mb-1 block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  id="edit-name"
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  autoFocus
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-desc" className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  id="edit-desc"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  rows={3}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setShowEditModal(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
-                <button type="submit" disabled={updateProject.isPending || !editName.trim()} className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
-                  {updateProject.isPending ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Project"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>Cancel</Button>
+            <Button type="submit" form="edit-project-form" loading={updateProject.isPending} disabled={!editName.trim()}>
+              Save
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-project-form" onSubmit={handleEdit} className="space-y-4">
+          <Input
+            id="edit-name"
+            label="Name"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            autoFocus
+          />
+          <Textarea
+            id="edit-desc"
+            label="Description"
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+            rows={3}
+          />
+        </form>
+      </Modal>
 
       {/* Delete confirmation modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="relative z-10 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold text-gray-900">Delete Project</h2>
-            <p className="mb-4 text-sm text-gray-600">
-              Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
-              <button onClick={handleDelete} disabled={deleteProject.isPending} className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
-                {deleteProject.isPending ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Delete Project"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleteProject.isPending}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-gray-600">
+          Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }

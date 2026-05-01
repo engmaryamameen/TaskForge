@@ -76,7 +76,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   <select
                     value={task.status}
                     onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${statusColor(task.status)}`}
+                    className={`appearance-none rounded-lg px-2.5 py-1 text-xs font-medium border border-transparent cursor-pointer transition-all hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-100 ${statusColor(task.status)}`}
                   >
                     {Object.values(TaskStatus).map((s) => (
                       <option key={s} value={s}>{formatTaskStatus(s)}</option>
@@ -87,7 +87,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   <select
                     value={task.priority}
                     onChange={(e) => handlePriorityChange(task, e.target.value as TaskPriority)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${priorityColor(task.priority)}`}
+                    className={`appearance-none rounded-lg px-2.5 py-1 text-xs font-medium border border-transparent cursor-pointer transition-all hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-100 ${priorityColor(task.priority)}`}
                   >
                     {Object.values(TaskPriority).map((p) => (
                       <option key={p} value={p}>{formatTaskPriority(p)}</option>
