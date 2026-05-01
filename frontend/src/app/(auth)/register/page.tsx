@@ -32,9 +32,10 @@ interface FormErrors {
 export default function RegisterPage() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') ?? undefined;
+  const prefillEmail = searchParams.get('email') ?? '';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
   const register = useRegister(redirect);

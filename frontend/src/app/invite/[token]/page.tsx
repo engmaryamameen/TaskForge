@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { useAcceptInvite } from '@/features/organizations/hooks/useOrganizations';
+import { organizationsApi } from '@/lib/api/organizations.api';
 import { ApiError } from '@/types';
 
 function getInviteErrorMessage(error: Error): string {
   if (error instanceof ApiError) {
     switch (error.code) {
       case 'INVITE_NOT_FOUND':
-        // Backend sends specific message (e.g. "not issued to your email")
         return error.message || 'This invite link is invalid.';
       case 'INVITE_EXPIRED':
         return 'This invite has expired. Ask the admin to send a new one.';
@@ -24,6 +24,12 @@ function getInviteErrorMessage(error: Error): string {
   return 'Failed to accept invite. Please try again.';
 }
 
+interface InviteInfo {
+  organizationName: string;
+  email: string | null;
+  role: string;
+}
+
 export default function AcceptInvitePage({
   params,
 }: {
@@ -33,23 +39,37 @@ export default function AcceptInvitePage({
   const router = useRouter();
   const acceptInvite = useAcceptInvite();
 
-  // Track hydration locally — don't depend on status (requires useSessionGuard)
   const [hydrated, setHydrated] = useState(false);
   const accessToken = useAuthStore((s) => s.accessToken);
 
+  const [inviteInfo, setInviteInfo] = useState<InviteInfo | null>(null);
+  const [validateError, setValidateError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(true);
+
+  // Wait for store hydration
   useEffect(() => {
-    // Subscribe to store — once any state change fires after rehydration, we're ready
     const unsub = useAuthStore.subscribe(() => {
       setHydrated(true);
       unsub();
     });
-    // If already hydrated (status !== initial default), set immediately
     if (useAuthStore.getState().status !== 'loading' || useAuthStore.getState().accessToken) {
       setHydrated(true);
       unsub();
     }
     return unsub;
   }, []);
+
+  // Validate invite token (public, no auth needed)
+  useEffect(() => {
+    organizationsApi.validateInvite(token)
+      .then(({ data }) => {
+        setInviteInfo(data.data!);
+      })
+      .catch((err) => {
+        setValidateError(err instanceof ApiError ? err.message : 'This invite link is invalid.');
+      })
+      .finally(() => setValidating(false));
+  }, [token]);
 
   async function handleAccept() {
     try {
@@ -60,7 +80,8 @@ export default function AcceptInvitePage({
     }
   }
 
-  if (!hydrated) {
+  // Loading
+  if (validating || !hydrated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
@@ -68,44 +89,74 @@ export default function AcceptInvitePage({
     );
   }
 
-  // Not authenticated
-  if (!accessToken) {
-    const redirectUrl = `/invite/${token}`;
+  // Invalid/expired invite
+  if (validateError) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="w-full max-w-md px-4">
           <div className="rounded-lg bg-white p-8 shadow text-center">
-            <h1 className="mb-4 text-2xl font-bold text-gray-900">You&apos;ve been invited</h1>
-            <p className="mb-6 text-sm text-gray-600">
-              Sign in to accept this invitation and join the organization.
-            </p>
-            <Link
-              href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}
-              className="inline-block rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Sign in
+            <h1 className="mb-4 text-2xl font-bold text-gray-900">Invalid Invite</h1>
+            <p className="text-sm text-red-600">{validateError}</p>
+            <Link href="/login" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+              Go to sign in
             </Link>
-            <p className="mt-3 text-xs text-gray-500">
-              Don&apos;t have an account?{' '}
-              <Link
-                href={`/register?redirect=${encodeURIComponent(redirectUrl)}`}
-                className="text-blue-600 hover:underline"
-              >
-                Register
-              </Link>
-            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Authenticated
+  // Not authenticated — show sign in / register with pre-filled email
+  if (!accessToken) {
+    const redirectUrl = `/invite/${token}`;
+    const registerParams = new URLSearchParams({ redirect: redirectUrl });
+    if (inviteInfo?.email) {
+      registerParams.set('email', inviteInfo.email);
+    }
+
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md px-4">
+          <div className="rounded-lg bg-white p-8 shadow text-center">
+            <h1 className="mb-2 text-2xl font-bold text-gray-900">You&apos;ve been invited</h1>
+            <p className="mb-1 text-sm text-gray-600">
+              Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
+            </p>
+            {inviteInfo?.email && (
+              <p className="mb-6 text-xs text-gray-500">
+                This invite is for <strong>{inviteInfo.email}</strong>
+              </p>
+            )}
+
+            <div className="space-y-3">
+              <Link
+                href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}
+                className="block w-full rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                Sign in to accept
+              </Link>
+              <Link
+                href={`/register?${registerParams.toString()}`}
+                className="block w-full rounded border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Create an account
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated — show accept button
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-md px-4">
         <div className="rounded-lg bg-white p-8 shadow text-center">
-          <h1 className="mb-4 text-2xl font-bold text-gray-900">Accept Invitation</h1>
+          <h1 className="mb-2 text-2xl font-bold text-gray-900">Accept Invitation</h1>
+          <p className="mb-6 text-sm text-gray-600">
+            Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
+          </p>
 
           {acceptInvite.error && (
             <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
@@ -124,18 +175,13 @@ export default function AcceptInvitePage({
               </Link>
             </div>
           ) : (
-            <>
-              <p className="mb-6 text-sm text-gray-600">
-                Click below to join the organization.
-              </p>
-              <button
-                onClick={handleAccept}
-                disabled={acceptInvite.isPending}
-                className="rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {acceptInvite.isPending ? 'Accepting...' : 'Accept Invite'}
-              </button>
-            </>
+            <button
+              onClick={handleAccept}
+              disabled={acceptInvite.isPending}
+              className="rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {acceptInvite.isPending ? 'Accepting...' : 'Accept Invite'}
+            </button>
           )}
         </div>
       </div>
