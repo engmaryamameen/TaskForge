@@ -1,94 +1,159 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { TaskStatus, TaskPriority } from '@/types';
-import { formatTaskStatus, formatTaskPriority, formatRelative } from '@/lib/utils';
+import { useProjects } from '@/features/projects/hooks/useProjects';
+import { TaskList } from '@/features/tasks/components/task-list';
+import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
+import { TaskFilters } from '@/features/tasks/components/task-filters';
+import { TaskModal } from '@/features/tasks/components/task-modal';
+import type { TaskStatus, TaskPriority } from '@/types';
 
 export default function TasksPage() {
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
-  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | ''>('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const page = Number(searchParams.get('page')) || 1;
+  const search = searchParams.get('search') || '';
+  const status = (searchParams.get('status') || '') as TaskStatus | '';
+  const priority = (searchParams.get('priority') || '') as TaskPriority | '';
 
   const { data, isLoading } = useTasks({
-    ...(statusFilter && { status: statusFilter }),
-    ...(priorityFilter && { priority: priorityFilter }),
+    page,
+    search: search || undefined,
+    status: status || undefined,
+    priority: priority || undefined,
   });
+
+  const { data: projectsData } = useProjects();
+  const hasProjects = projectsData?.data && projectsData.data.length > 0;
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  function updateURL(updates: Record<string, string>) {
+    const params = new URLSearchParams();
+    const merged = {
+      search,
+      status,
+      priority,
+      page: String(page),
+      ...updates,
+    };
+    if (!('page' in updates)) merged.page = '1';
+
+    if (merged.search) params.set('search', merged.search);
+    if (merged.status) params.set('status', merged.status);
+    if (merged.priority) params.set('priority', merged.priority);
+    if (merged.page !== '1') params.set('page', merged.page);
+    const qs = params.toString();
+
+    if ('page' in updates) {
+      router.push(qs ? `?${qs}` : '/tasks');
+    } else {
+      router.replace(qs ? `?${qs}` : '/tasks');
+    }
+  }
+
+  const handleSearchChange = useCallback((value: string) => {
+    updateURL({ search: value });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, status, priority]);
+
+  const tasks = data?.data;
+  const total = data?.meta?.total ?? 0;
+  const limit = 20;
+  const totalPages = Math.ceil(total / limit);
+  const hasTasks = tasks && tasks.length > 0;
+  const hasActiveFilters = !!search || !!status || !!priority;
 
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          disabled={!hasProjects}
+          title={!hasProjects ? 'Create a project first' : undefined}
+          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Create Task
+        </button>
       </div>
 
-      <div className="mb-4 flex gap-3">
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as TaskStatus | '')}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          <option value="">All statuses</option>
-          {Object.values(TaskStatus).map((s) => (
-            <option key={s} value={s}>
-              {formatTaskStatus(s)}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={priorityFilter}
-          onChange={(e) =>
-            setPriorityFilter(e.target.value as TaskPriority | '')
-          }
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          <option value="">All priorities</option>
-          {Object.values(TaskPriority).map((p) => (
-            <option key={p} value={p}>
-              {formatTaskPriority(p)}
-            </option>
-          ))}
-        </select>
+      <div className="mb-6">
+        <TaskFilters
+          search={search}
+          status={status}
+          priority={priority}
+          onSearchChange={handleSearchChange}
+          onStatusChange={(v) => updateURL({ status: v })}
+          onPriorityChange={(v) => updateURL({ priority: v })}
+        />
       </div>
 
-      {isLoading && <p className="text-sm text-gray-500">Loading tasks...</p>}
+      {isLoading && <TaskListSkeleton />}
 
-      {data?.data && data.data.length > 0 && (
-        <div className="rounded-lg bg-white shadow-sm">
-          {data.data.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between border-b border-gray-100 px-6 py-4 last:border-0"
-            >
-              <div>
-                <p className="text-sm font-medium text-gray-900">
-                  {task.title}
-                </p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {formatTaskStatus(task.status)} &middot;{' '}
-                  {formatRelative(task.createdAt)}
-                </p>
-              </div>
-              <span
-                className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                  task.priority === 'urgent'
-                    ? 'bg-red-100 text-red-700'
-                    : task.priority === 'high'
-                      ? 'bg-orange-100 text-orange-700'
-                      : task.priority === 'medium'
-                        ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-700'
-                }`}
+      {!isLoading && hasTasks && (
+        <>
+          <TaskList tasks={tasks} />
+
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                onClick={() => updateURL({ page: String(page - 1) })}
+                disabled={page <= 1}
+                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {formatTaskPriority(task.priority)}
-              </span>
+                Previous
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => updateURL({ page: String(p) })}
+                  className={`rounded px-3 py-1.5 text-sm font-medium ${
+                    p === page ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                onClick={() => updateURL({ page: String(page + 1) })}
+                disabled={page >= totalPages}
+                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
             </div>
-          ))}
+          )}
+        </>
+      )}
+
+      {!isLoading && !hasTasks && !hasActiveFilters && (
+        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-500">No tasks yet.</p>
+          {hasProjects && (
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+            >
+              Create your first task
+            </button>
+          )}
         </div>
       )}
 
-      {data?.data?.length === 0 && (
-        <p className="text-sm text-gray-500">No tasks match your filters.</p>
+      {!isLoading && !hasTasks && hasActiveFilters && (
+        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-500">No tasks match your filters.</p>
+        </div>
       )}
+
+      <TaskModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
     </div>
   );
 }

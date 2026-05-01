@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
 
 interface TaskFilterParams {
+  search?: string;
   status?: string;
   priority?: string;
   assignedTo?: string;
@@ -78,10 +79,14 @@ export class TasksRepository {
     await this.repo.softDelete(id);
   }
 
+  // TODO: add pg_trgm index on lower(title) for large datasets
   private applyFilters(
     qb: ReturnType<Repository<Task>['createQueryBuilder']>,
     filters: TaskFilterParams,
   ): void {
+    if (filters.search) {
+      qb.andWhere('task.title ILIKE :search', { search: `%${filters.search}%` });
+    }
     if (filters.status) {
       qb.andWhere('task.status = :status', { status: filters.status });
     }

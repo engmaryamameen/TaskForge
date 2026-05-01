@@ -79,6 +79,25 @@ export class InvitesService {
     return { token: rawToken };
   }
 
+  async validateInvite(rawToken: string) {
+    const tokenHash = this.hashToken(rawToken);
+    const invite = await this.invitesRepository.findValidByTokenHash(tokenHash);
+
+    if (!invite) {
+      throw new AppError(
+        ErrorCodes.INVITE_NOT_FOUND,
+        'Invalid, expired, or already used invite token',
+        400,
+      );
+    }
+
+    return {
+      organizationName: invite.organization?.name ?? 'Unknown',
+      email: invite.email ?? null,
+      role: invite.role,
+    };
+  }
+
   async acceptInvite(
     userId: string,
     userEmail: string,
