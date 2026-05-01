@@ -10,7 +10,7 @@ export function ErrorState({
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+    <div className="rounded-xl border border-gray-100 bg-white p-10 text-center shadow-soft">
       <div className="mb-3 flex justify-center text-red-400">
         <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />

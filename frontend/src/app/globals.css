@@ -1,1 +1,44 @@
 @import 'tailwindcss';
+
+/* ─── Design Tokens (Tailwind v4 CSS-first config) ─── */
+@theme {
+  /* Primary palette (indigo-violet, Linear-inspired) */
+  --color-primary-50: #EDEDFC;
+  --color-primary-100: #D4D4F7;
+  --color-primary-200: #ABABEF;
+  --color-primary-300: #8282E7;
+  --color-primary-400: #6B6BDE;
+  --color-primary-500: #5B5BD6;
+  --color-primary-600: #4F4FC4;
+  --color-primary-700: #4242A8;
+  --color-primary-800: #35358C;
+  --color-primary-900: #2A2A6E;
+
+  /* Surface */
+  --color-surface: #FAFAFA;
+
+  /* Shadows (depth system) */
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* ─── Base Styles ─── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-900);
+  }
+
+  /* Global focus-visible ring */
+  *:focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+}

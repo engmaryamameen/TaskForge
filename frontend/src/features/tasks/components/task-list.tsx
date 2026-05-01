@@ -54,10 +54,10 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 bg-white shadow-soft">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase text-gray-500">
+            <tr className="border-b border-gray-100 bg-gray-50/50 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Priority</th>
@@ -76,7 +76,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   <select
                     value={task.status}
                     onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${statusColor(task.status)}`}
+                    className={`appearance-none rounded-lg px-2.5 py-1 text-xs font-medium border border-transparent cursor-pointer transition-all hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-100 ${statusColor(task.status)}`}
                   >
                     {Object.values(TaskStatus).map((s) => (
                       <option key={s} value={s}>{formatTaskStatus(s)}</option>
@@ -87,7 +87,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   <select
                     value={task.priority}
                     onChange={(e) => handlePriorityChange(task, e.target.value as TaskPriority)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${priorityColor(task.priority)}`}
+                    className={`appearance-none rounded-lg px-2.5 py-1 text-xs font-medium border border-transparent cursor-pointer transition-all hover:border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-100 ${priorityColor(task.priority)}`}
                   >
                     {Object.values(TaskPriority).map((p) => (
                       <option key={p} value={p}>{formatTaskPriority(p)}</option>

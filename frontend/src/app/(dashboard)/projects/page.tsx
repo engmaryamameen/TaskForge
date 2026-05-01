@@ -9,6 +9,7 @@ import { ProjectCardSkeleton } from '@/features/projects/components/project-card
 import { ProjectFilters } from '@/features/projects/components/project-filters';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Button } from '@/components/ui/button';
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -46,12 +47,7 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Create Project
-        </button>
+        <Button onClick={() => setShowCreateModal(true)}>Create Project</Button>
       </div>
 
       {/* Filters */}

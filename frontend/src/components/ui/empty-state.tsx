@@ -10,7 +10,7 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, icon, action }: EmptyStateProps) {
   return (
-    <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+    <div className="rounded-xl border border-gray-100 bg-white p-10 text-center shadow-soft">
       {icon && <div className="mb-3 flex justify-center text-gray-400">{icon}</div>}
       <p className="text-sm font-medium text-gray-900">{title}</p>
       {description && (
