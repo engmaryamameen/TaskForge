@@ -43,13 +43,13 @@ export function Sidebar() {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-gray-100 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex h-16 flex-shrink-0 items-center border-b border-gray-200 px-6">
-          <Link href="/" className="text-xl font-bold text-gray-900">
+        <div className="flex h-16 flex-shrink-0 items-center border-b border-gray-100 px-6">
+          <Link href="/" className="text-xl font-bold tracking-tight text-gray-900">
             TaskForge
           </Link>
         </div>

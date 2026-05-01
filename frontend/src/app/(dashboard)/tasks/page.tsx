@@ -10,6 +10,7 @@ import { TaskFilters } from '@/features/tasks/components/task-filters';
 import { TaskModal } from '@/features/tasks/components/task-modal';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
+import { Button } from '@/components/ui/button';
 import type { TaskStatus, TaskPriority } from '@/types';
 
 export default function TasksPage() {
@@ -73,14 +74,13 @@ export default function TasksPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-        <button
+        <Button
           onClick={() => setShowCreateModal(true)}
           disabled={!hasProjects}
           title={!hasProjects ? 'Create a project first' : undefined}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Create Task
-        </button>
+        </Button>
       </div>
 
       <div className="mb-6">
