@@ -12,12 +12,12 @@ interface TaskBoardCardProps {
   onEdit: (task: Task) => void;
 }
 
-function priorityColor(priority: TaskPriority): string {
+function priorityIcon(priority: TaskPriority): { color: string; arrow: string } {
   switch (priority) {
-    case TaskPriority.URGENT: return 'bg-red-100 text-red-700';
-    case TaskPriority.HIGH: return 'bg-orange-100 text-orange-700';
-    case TaskPriority.MEDIUM: return 'bg-yellow-100 text-yellow-700';
-    case TaskPriority.LOW: return 'bg-gray-100 text-gray-600';
+    case TaskPriority.URGENT: return { color: 'text-red-500', arrow: '↑↑' };
+    case TaskPriority.HIGH: return { color: 'text-orange-500', arrow: '↑' };
+    case TaskPriority.MEDIUM: return { color: 'text-yellow-600', arrow: '→' };
+    case TaskPriority.LOW: return { color: 'text-blue-400', arrow: '↓' };
   }
 }
 
@@ -35,12 +35,14 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   const assignee = task.assignedTo
     ? members?.find((m) => m.userId === task.assignedTo)
     : null;
+
+  const pi = priorityIcon(task.priority);
 
   return (
     <div
@@ -49,27 +51,27 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
       {...attributes}
       {...listeners}
       onClick={() => onEdit(task)}
-      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition hover:shadow-md"
+      className="cursor-pointer rounded-md border border-gray-200 bg-white px-3 py-2.5 shadow-soft transition-shadow hover:shadow-medium"
     >
-      <p className="text-sm font-medium text-gray-900 line-clamp-2">{task.title}</p>
+      <p className="text-[13px] font-medium text-gray-900 leading-snug">{task.title}</p>
 
       <div className="mt-2 flex items-center justify-between">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor(task.priority)}`}>
-          {formatTaskPriority(task.priority)}
-        </span>
-
         <div className="flex items-center gap-2">
+          <span className={`text-sm font-bold ${pi.color}`} title={formatTaskPriority(task.priority)}>
+            {pi.arrow}
+          </span>
           {task.dueDate && (
-            <span className={`text-xs ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+            <span className={`text-[11px] ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
               {formatDate(task.dueDate)}
             </span>
           )}
-          {assignee?.user && (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
-              {getInitials(assignee.user.firstName, assignee.user.lastName)}
-            </div>
-          )}
         </div>
+
+        {assignee?.user && (
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-[10px] font-bold text-primary-700" title={`${assignee.user.firstName} ${assignee.user.lastName}`}>
+            {getInitials(assignee.user.firstName, assignee.user.lastName)}
+          </div>
+        )}
       </div>
     </div>
   );

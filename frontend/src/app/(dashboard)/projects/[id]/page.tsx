@@ -35,9 +35,9 @@ export default function ProjectDetailPage({
   const [taskPriorityFilter, setTaskPriorityFilter] = useState<TaskPriority | ''>('');
   const [viewMode, setViewMode] = useState<'table' | 'board'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('taskViewMode') as 'table' | 'board') || 'table';
+      return (localStorage.getItem('taskViewMode') as 'table' | 'board') || 'board';
     }
-    return 'table';
+    return 'board';
   });
 
   const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id, {
