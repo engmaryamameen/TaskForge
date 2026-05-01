@@ -27,6 +27,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
   const updateTask = useUpdateTask();
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [createInStatus, setCreateInStatus] = useState<TaskStatus | null>(null);
 
   const grouped = useMemo(() => {
     const map: Record<TaskStatus, Task[]> = {
@@ -94,13 +95,13 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
               </div>
 
               {/* Column body */}
-              <div className="min-h-[150px] rounded-lg bg-gray-100 p-2">
+              <div className="min-h-[200px] rounded-lg bg-gray-100 p-1.5">
                 <SortableContext
                   id={status}
                   items={grouped[status].map((t) => t.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {grouped[status].map((task) => (
                       <TaskBoardCard
                         key={task.id}
@@ -108,13 +109,19 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
                         onEdit={setEditingTask}
                       />
                     ))}
-                    {grouped[status].length === 0 && (
-                      <div className="rounded-md border-2 border-dashed border-gray-300 p-6 text-center text-xs text-gray-400">
-                        Drag tasks here
-                      </div>
-                    )}
                   </div>
                 </SortableContext>
+
+                {/* + Create button at bottom of every column (Jira pattern) */}
+                <button
+                  onClick={() => setCreateInStatus(status)}
+                  className="mt-1.5 flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  Create
+                </button>
               </div>
             </div>
           ))}
@@ -134,6 +141,13 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
         onClose={() => setEditingTask(null)}
         projectId={projectId || editingTask?.projectId}
         task={editingTask ?? undefined}
+      />
+
+      <TaskModal
+        isOpen={!!createInStatus}
+        onClose={() => setCreateInStatus(null)}
+        projectId={projectId}
+        defaultStatus={createInStatus ?? undefined}
       />
     </>
   );
