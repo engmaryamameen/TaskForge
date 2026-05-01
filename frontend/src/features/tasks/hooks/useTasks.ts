@@ -6,28 +6,41 @@ import {
   type CreateTaskPayload,
   type UpdateTaskPayload,
 } from '@/lib/api/tasks.api';
-import type { TaskFilters } from '@/types';
+import type { TaskFilters, Task, ApiResponse } from '@/types';
+
+function normalizeFilters(filters?: TaskFilters): TaskFilters | undefined {
+  if (!filters) return undefined;
+  return {
+    ...filters,
+    search: filters.search?.trim() || undefined,
+    status: filters.status || undefined,
+    priority: filters.priority || undefined,
+    assignedTo: filters.assignedTo || undefined,
+  };
+}
 
 export const taskKeys = {
   all: ['tasks'] as const,
-  list: (filters?: TaskFilters) => ['tasks', 'list', filters] as const,
+  list: (filters?: TaskFilters) => ['tasks', 'list', normalizeFilters(filters)] as const,
   byProject: (projectId: string, filters?: TaskFilters) =>
-    ['tasks', 'project', projectId, filters] as const,
+    ['tasks', 'project', projectId, normalizeFilters(filters)] as const,
   detail: (id: string) => ['tasks', 'detail', id] as const,
 };
 
 export function useTasks(filters?: TaskFilters) {
+  const normalized = normalizeFilters(filters);
   return useQuery({
-    queryKey: taskKeys.list(filters),
-    queryFn: () => tasksApi.listAll(filters).then((r) => r.data),
+    queryKey: taskKeys.list(normalized),
+    queryFn: () => tasksApi.listAll(normalized).then((r) => r.data),
   });
 }
 
 export function useTasksByProject(projectId: string, filters?: TaskFilters) {
+  const normalized = normalizeFilters(filters);
   return useQuery({
-    queryKey: taskKeys.byProject(projectId, filters),
+    queryKey: taskKeys.byProject(projectId, normalized),
     queryFn: () =>
-      tasksApi.listByProject(projectId, filters).then((r) => r.data),
+      tasksApi.listByProject(projectId, normalized).then((r) => r.data),
     enabled: !!projectId,
   });
 }
@@ -63,7 +76,41 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: UpdateTaskPayload }) =>
       tasksApi.update(id, payload),
-    onSuccess: (_, { id }) => {
+    onMutate: async ({ id, payload }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: taskKeys.all });
+
+      // Snapshot all task caches for rollback
+      const previousData = queryClient.getQueriesData<ApiResponse<Task[]>>({
+        queryKey: taskKeys.all,
+      });
+
+      // Optimistically update task across all matching caches
+      queryClient.setQueriesData<ApiResponse<Task[]>>(
+        { queryKey: taskKeys.all },
+        (old) => {
+          if (!old?.data) return old;
+          return {
+            ...old,
+            data: old.data.map((t) =>
+              t.id === id ? { ...t, ...payload } : t,
+            ),
+          };
+        },
+      );
+
+      return { previousData };
+    },
+    onError: (_err, _vars, context) => {
+      // Rollback all caches on error
+      if (context?.previousData) {
+        for (const [key, data] of context.previousData) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+    },
+    onSettled: (_data, _err, { id }) => {
+      // Reconcile with server
       queryClient.invalidateQueries({ queryKey: taskKeys.all });
       queryClient.invalidateQueries({ queryKey: taskKeys.detail(id) });
     },
