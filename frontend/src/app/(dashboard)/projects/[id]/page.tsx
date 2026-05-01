@@ -7,8 +7,11 @@ import { useProject, useUpdateProject, useDeleteProject } from '@/features/proje
 import { useTasksByProject } from '@/features/tasks/hooks/useTasks';
 import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { useAuthStore } from '@/store/auth.store';
-import { formatTaskStatus, formatTaskPriority, formatRelative } from '@/lib/utils';
-import { Role } from '@/types';
+import { TaskList } from '@/features/tasks/components/task-list';
+import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
+import { TaskModal } from '@/features/tasks/components/task-modal';
+import { Role, TaskStatus, TaskPriority } from '@/types';
+import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
 export default function ProjectDetailPage({
   params,
@@ -17,13 +20,24 @@ export default function ProjectDetailPage({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const { data: project, isLoading: projectLoading } = useProject(id);
-  const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id);
-  const updateProject = useUpdateProject();
-  const deleteProject = useDeleteProject();
   const currentRole = useCurrentOrgRole();
   const userId = useAuthStore((s) => s.user?.id);
 
+  const { data: project, isLoading: projectLoading } = useProject(id);
+
+  // Task state (must be before useTasksByProject)
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [taskStatusFilter, setTaskStatusFilter] = useState<TaskStatus | ''>('');
+  const [taskPriorityFilter, setTaskPriorityFilter] = useState<TaskPriority | ''>('');
+
+  const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id, {
+    status: taskStatusFilter || undefined,
+    priority: taskPriorityFilter || undefined,
+  });
+
+  // Project edit/delete state
+  const updateProject = useUpdateProject();
+  const deleteProject = useDeleteProject();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editName, setEditName] = useState('');
@@ -53,7 +67,6 @@ export default function ProjectDetailPage({
     router.replace('/projects');
   }
 
-  // Loading skeleton
   if (projectLoading) {
     return (
       <div className="animate-pulse">
@@ -75,6 +88,9 @@ export default function ProjectDetailPage({
     );
   }
 
+  const tasks = tasksData?.data;
+  const hasTasks = tasks && tasks.length > 0;
+
   return (
     <div>
       {/* Back link */}
@@ -82,7 +98,7 @@ export default function ProjectDetailPage({
         &larr; Back to Projects
       </Link>
 
-      {/* Header */}
+      {/* Project header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
@@ -108,43 +124,67 @@ export default function ProjectDetailPage({
         )}
       </div>
 
-      {/* Tasks */}
-      <h2 className="mb-4 text-lg font-semibold text-gray-900">Tasks</h2>
+      {/* Tasks section */}
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+        <button
+          onClick={() => setShowTaskModal(true)}
+          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          Add Task
+        </button>
+      </div>
 
-      {tasksLoading && (
-        <div className="animate-pulse space-y-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-lg bg-gray-100" />
+      {/* Task filters (compact, no search — project-scoped) */}
+      <div className="mb-4 flex gap-3">
+        <select
+          value={taskStatusFilter}
+          onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+        >
+          <option value="">All statuses</option>
+          {Object.values(TaskStatus).map((s) => (
+            <option key={s} value={s}>{formatTaskStatus(s)}</option>
           ))}
+        </select>
+        <select
+          value={taskPriorityFilter}
+          onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
+          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+        >
+          <option value="">All priorities</option>
+          {Object.values(TaskPriority).map((p) => (
+            <option key={p} value={p}>{formatTaskPriority(p)}</option>
+          ))}
+        </select>
+      </div>
+
+      {tasksLoading && <TaskListSkeleton rows={3} />}
+
+      {!tasksLoading && hasTasks && (
+        <TaskList tasks={tasks} projectId={id} />
+      )}
+
+      {!tasksLoading && !hasTasks && (
+        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+          <p className="text-sm text-gray-500">No tasks in this project yet.</p>
+          <button
+            onClick={() => setShowTaskModal(true)}
+            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+          >
+            Add your first task
+          </button>
         </div>
       )}
 
-      {!tasksLoading && tasksData?.data && tasksData.data.length > 0 && (
-        <div className="rounded-lg bg-white shadow-sm">
-          {tasksData.data.map((task) => (
-            <div
-              key={task.id}
-              className="flex items-center justify-between border-b border-gray-100 px-6 py-4 last:border-0"
-            >
-              <div>
-                <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                <p className="mt-1 text-xs text-gray-500">
-                  {formatTaskStatus(task.status)} &middot; {formatRelative(task.createdAt)}
-                </p>
-              </div>
-              <span className="text-xs font-medium text-gray-600">
-                {formatTaskPriority(task.priority)}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Task create modal */}
+      <TaskModal
+        isOpen={showTaskModal}
+        onClose={() => setShowTaskModal(false)}
+        projectId={id}
+      />
 
-      {!tasksLoading && tasksData?.data?.length === 0 && (
-        <p className="text-sm text-gray-500">No tasks in this project yet.</p>
-      )}
-
-      {/* Edit modal */}
+      {/* Project edit modal */}
       {showEditModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShowEditModal(false)} />
