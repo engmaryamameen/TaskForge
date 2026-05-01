@@ -11,11 +11,11 @@ export function Topbar() {
   const { connected } = useSocketStatus();
 
   return (
-    <header className="flex h-12 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4">
+    <header className="flex h-12 flex-shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
-          className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 md:hidden"
+          className="rounded p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 md:hidden"
           aria-label="Toggle sidebar"
         >
           <IconMenu className="h-4 w-4" />

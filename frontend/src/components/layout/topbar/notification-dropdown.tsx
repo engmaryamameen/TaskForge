@@ -36,7 +36,7 @@ export function NotificationDropdown() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="relative rounded-md p-2 text-gray-500 hover:bg-gray-100 transition-colors"
+        className="relative rounded-md p-2 text-neutral-500 hover:bg-neutral-100 transition-colors"
         aria-label="Notifications"
       >
         <IconBell />
@@ -48,13 +48,13 @@ export function NotificationDropdown() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+        <div className="absolute right-0 z-50 mt-2 w-80 rounded-lg border border-neutral-200 bg-white shadow-lg">
+          <div className="flex items-center justify-between border-b border-neutral-100 px-4 py-3">
+            <h3 className="text-sm font-semibold text-neutral-900">Notifications</h3>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-primary-600 hover:underline"
               >
                 Mark all read
               </button>
@@ -63,7 +63,7 @@ export function NotificationDropdown() {
 
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <div className="px-4 py-6 text-center text-sm text-gray-500">
+              <div className="px-4 py-6 text-center text-sm text-neutral-500">
                 No notifications yet
               </div>
             ) : (
@@ -71,18 +71,18 @@ export function NotificationDropdown() {
                 <button
                   key={n.id}
                   onClick={() => handleClick(n.entityType, n.entityId)}
-                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50 ${
-                    !n.read ? 'bg-blue-50/50' : ''
+                  className={`flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-neutral-50 ${
+                    !n.read ? 'bg-primary-50/50' : ''
                   }`}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">{n.message}</p>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="text-sm text-neutral-900">{n.message}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500">
                       {formatRelative(n.createdAt)}
                     </p>
                   </div>
                   {!n.read && (
-                    <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500" />
+                    <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary-500" />
                   )}
                 </button>
               ))

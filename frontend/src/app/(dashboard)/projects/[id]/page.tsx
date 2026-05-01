@@ -80,9 +80,9 @@ export default function ProjectDetailPage({
   if (projectLoading) {
     return (
       <div className="animate-pulse">
-        <div className="h-4 w-32 rounded bg-gray-200 mb-4" />
-        <div className="h-8 w-2/3 rounded bg-gray-200 mb-2" />
-        <div className="h-4 w-1/2 rounded bg-gray-200" />
+        <div className="h-4 w-32 rounded bg-neutral-200 mb-4" />
+        <div className="h-8 w-2/3 rounded bg-neutral-200 mb-2" />
+        <div className="h-4 w-1/2 rounded bg-neutral-200" />
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function ProjectDetailPage({
     return (
       <div className="text-center py-12">
         <p className="text-sm text-red-500">Project not found.</p>
-        <Link href="/projects" className="mt-2 text-sm text-blue-600 hover:underline">
+        <Link href="/projects" className="mt-2 text-sm text-primary-600 hover:underline">
           Back to Projects
         </Link>
       </div>
@@ -104,16 +104,16 @@ export default function ProjectDetailPage({
   return (
     <div>
       {/* Back link */}
-      <Link href="/projects" className="mb-4 inline-block text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/projects" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-700">
         &larr; Back to Projects
       </Link>
 
       {/* Project header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">{project.name}</h1>
           {project.description && (
-            <p className="mt-1 text-gray-600">{project.description}</p>
+            <p className="mt-1 text-neutral-600">{project.description}</p>
           )}
         </div>
         {canEdit && (
@@ -127,17 +127,17 @@ export default function ProjectDetailPage({
       {/* Tasks section */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
-          <div className="flex rounded-md border border-gray-300">
+          <h2 className="text-lg font-semibold text-neutral-900">Tasks</h2>
+          <div className="flex rounded-md border border-neutral-200">
             <button
               onClick={() => { setViewMode('table'); localStorage.setItem('taskViewMode', 'table'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Table
             </button>
             <button
               onClick={() => { setViewMode('board'); localStorage.setItem('taskViewMode', 'board'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Board
             </button>
@@ -152,7 +152,7 @@ export default function ProjectDetailPage({
           <select
             value={taskStatusFilter}
             onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded border border-neutral-200 px-3 py-1.5 text-sm"
           >
             <option value="">All statuses</option>
             {Object.values(TaskStatus).map((s) => (
@@ -162,7 +162,7 @@ export default function ProjectDetailPage({
           <select
             value={taskPriorityFilter}
             onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+            className="rounded border border-neutral-200 px-3 py-1.5 text-sm"
           >
             <option value="">All priorities</option>
             {Object.values(TaskPriority).map((p) => (
@@ -183,11 +183,11 @@ export default function ProjectDetailPage({
       )}
 
       {!tasksLoading && !hasTasks && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No tasks in this project yet.</p>
+        <div className="rounded-lg bg-white p-8 text-center shadow-soft">
+          <p className="text-sm text-neutral-500">No tasks in this project yet.</p>
           <button
             onClick={() => setShowTaskModal(true)}
-            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+            className="mt-3 text-sm font-medium text-primary-600 hover:underline"
           >
             Add your first task
           </button>
@@ -248,7 +248,7 @@ export default function ProjectDetailPage({
           </>
         }
       >
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-neutral-600">
           Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
         </p>
       </Modal>

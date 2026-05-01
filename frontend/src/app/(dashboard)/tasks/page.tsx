@@ -22,7 +22,7 @@ export default function TasksPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Board</h1>
+        <h1 className="text-xl font-bold text-neutral-900">Board</h1>
         <Button
           onClick={() => setShowCreateModal(true)}
           disabled={!hasProjects}

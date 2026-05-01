@@ -73,7 +73,7 @@ export default function ActivityPage() {
   if (!activities || activities.length === 0) {
     return (
       <div>
-        <h1 className="mb-6 text-2xl font-bold text-gray-900">Activity</h1>
+        <h1 className="mb-6 text-2xl font-bold text-neutral-900">Activity</h1>
         <EmptyState
           title="No activity yet"
           description="Activity will appear here as your team creates projects and tasks."
@@ -86,26 +86,26 @@ export default function ActivityPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Activity</h1>
+      <h1 className="mb-6 text-2xl font-bold text-neutral-900">Activity</h1>
 
       <div className="space-y-6">
         {groups.map((group) => (
           <div key={group.label}>
-            <h2 className="mb-3 text-sm font-medium text-gray-500">{group.label}</h2>
-            <div className="rounded-lg bg-white shadow-sm">
+            <h2 className="mb-3 text-sm font-medium text-neutral-500">{group.label}</h2>
+            <div className="rounded-lg bg-white shadow-soft">
               {group.items.map((activity) => (
                 <div
                   key={activity.id}
-                  className="flex items-start gap-3 border-b border-gray-100 px-5 py-4 last:border-0"
+                  className="flex items-start gap-3 border-b border-neutral-100 px-5 py-4 last:border-0"
                 >
-                  <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
+                  <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-medium text-primary-700">
                     {getActivityEntityType(activity)?.charAt(0).toUpperCase() || '?'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-900">
+                    <p className="text-sm text-neutral-900">
                       {getActivityMessage(activity)}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-500">
+                    <p className="mt-0.5 text-xs text-neutral-500">
                       {formatRelative(activity.createdAt)}
                     </p>
                   </div>

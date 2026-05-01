@@ -46,7 +46,7 @@ export default function ProjectsPage() {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">Projects</h1>
         <Button onClick={() => setShowCreateModal(true)}>Create Project</Button>
       </div>
 
@@ -82,7 +82,7 @@ export default function ProjectsPage() {
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1}
-                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
@@ -92,8 +92,8 @@ export default function ProjectsPage() {
                   onClick={() => handlePageChange(p)}
                   className={`rounded px-3 py-1.5 text-sm font-medium ${
                     p === page
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-600 text-white'
+                      : 'text-neutral-700 hover:bg-neutral-100'
                   }`}
                 >
                   {p}
@@ -102,7 +102,7 @@ export default function ProjectsPage() {
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
-                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

@@ -17,7 +17,7 @@ function priorityIcon(priority: TaskPriority): { color: string; arrow: string } 
     case TaskPriority.URGENT: return { color: 'text-red-500', arrow: '↑↑' };
     case TaskPriority.HIGH: return { color: 'text-orange-500', arrow: '↑' };
     case TaskPriority.MEDIUM: return { color: 'text-yellow-600', arrow: '→' };
-    case TaskPriority.LOW: return { color: 'text-blue-400', arrow: '↓' };
+    case TaskPriority.LOW: return { color: 'text-primary-400', arrow: '↓' };
   }
 }
 
@@ -52,12 +52,12 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
       className={`group rounded-md border bg-white px-3 py-2.5 transition-shadow select-none ${
         isDragging
           ? 'border-primary-300 shadow-medium ring-2 ring-primary-100'
-          : 'border-gray-200 shadow-soft hover:shadow-medium hover:border-gray-300'
+          : 'border-neutral-200 shadow-soft hover:shadow-medium hover:border-neutral-200'
       }`}
     >
       {/* Drag handle — the whole card is draggable */}
       <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <p className="text-[13px] font-medium text-gray-900 leading-snug">{task.title}</p>
+        <p className="text-[13px] font-medium text-neutral-900 leading-snug">{task.title}</p>
 
         <div className="mt-2 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -65,7 +65,7 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
               {pi.arrow}
             </span>
             {task.dueDate && (
-              <span className={`text-[11px] ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-semibold' : 'text-gray-400'}`}>
+              <span className={`text-[11px] ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-semibold' : 'text-neutral-400'}`}>
                 {formatDate(task.dueDate)}
               </span>
             )}
@@ -84,7 +84,7 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
       {/* Click to edit — separate from drag area, appears on hover */}
       <button
         onClick={(e) => { e.stopPropagation(); onEdit(task); }}
-        className="mt-1.5 w-full rounded py-0.5 text-[11px] text-gray-400 opacity-0 group-hover:opacity-100 hover:bg-gray-100 hover:text-gray-600 transition-all"
+        className="mt-1.5 w-full rounded py-0.5 text-[11px] text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-neutral-100 hover:text-neutral-600 transition-all"
       >
         View details
       </button>

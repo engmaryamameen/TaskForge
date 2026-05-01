@@ -1,3 +1,5 @@
+import { IconAlertCircle } from '@/components/icons';
+
 interface ErrorStateProps {
   title?: string;
   message?: string;
@@ -12,9 +14,7 @@ export function ErrorState({
   return (
     <div className="rounded-xl border border-neutral-200 bg-white p-12 text-center">
       <div className="mb-4 flex justify-center text-neutral-300">
-        <svg className="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-        </svg>
+        <IconAlertCircle className="h-10 w-10" />
       </div>
       <p className="text-sm font-medium text-neutral-800">{title}</p>
       <p className="mt-1 text-sm text-neutral-500">{message}</p>

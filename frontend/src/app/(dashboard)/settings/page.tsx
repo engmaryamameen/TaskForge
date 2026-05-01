@@ -14,38 +14,38 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Settings</h1>
+      <h1 className="mb-6 text-2xl font-bold text-neutral-900">Settings</h1>
 
       <div className="space-y-6">
-        <section className="rounded-lg bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile</h2>
+        <section className="rounded-lg bg-white p-6 shadow-soft">
+          <h2 className="mb-4 text-lg font-semibold text-neutral-900">Profile</h2>
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-gray-500">Name</dt>
-              <dd className="font-medium text-gray-900">
+              <dt className="text-neutral-500">Name</dt>
+              <dd className="font-medium text-neutral-900">
                 {user?.firstName} {user?.lastName}
               </dd>
             </div>
             <div>
-              <dt className="text-gray-500">Email</dt>
-              <dd className="font-medium text-gray-900">{user?.email}</dd>
+              <dt className="text-neutral-500">Email</dt>
+              <dd className="font-medium text-neutral-900">{user?.email}</dd>
             </div>
           </dl>
         </section>
 
         {org && (
-          <section className="rounded-lg bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          <section className="rounded-lg bg-white p-6 shadow-soft">
+            <h2 className="mb-4 text-lg font-semibold text-neutral-900">
               Organization
             </h2>
             <dl className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <dt className="text-gray-500">Name</dt>
-                <dd className="font-medium text-gray-900">{org.name}</dd>
+                <dt className="text-neutral-500">Name</dt>
+                <dd className="font-medium text-neutral-900">{org.name}</dd>
               </div>
               <div>
-                <dt className="text-gray-500">Slug</dt>
-                <dd className="font-medium text-gray-900">{org.slug}</dd>
+                <dt className="text-neutral-500">Slug</dt>
+                <dd className="font-medium text-neutral-900">{org.slug}</dd>
               </div>
             </dl>
           </section>

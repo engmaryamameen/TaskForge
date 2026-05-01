@@ -12,6 +12,7 @@ import {
   IconUsers,
   IconActivity,
   IconSettings,
+  IconBolt,
 } from '@/components/icons';
 
 const navItems = [
@@ -43,18 +44,16 @@ export function Sidebar() {
 
       {/* Sidebar — clean white like Jira */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-neutral-200 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
         <div className="flex h-14 flex-shrink-0 items-center gap-2 px-4">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600">
-            <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            <IconBolt className="h-4 w-4 text-white" />
           </div>
-          <Link href="/" className="text-base font-bold text-gray-900">
+          <Link href="/" className="text-base font-bold text-neutral-900">
             TaskForge
           </Link>
         </div>
@@ -64,7 +63,7 @@ export function Sidebar() {
           <OrgSwitcher />
         </div>
 
-        <div className="mx-3 border-t border-gray-100" />
+        <div className="mx-3 border-t border-neutral-100" />
 
         {/* Navigation */}
         <nav className="flex-1 space-y-0.5 px-3 pt-3">

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useLogin } from '@/features/auth/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { IconBolt } from '@/components/icons';
 import { ApiError } from '@/types';
 
 function getAuthErrorMessage(error: Error): string {
@@ -58,9 +59,7 @@ export default function LoginPage() {
       {/* Branding */}
       <div className="mb-8 text-center">
         <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
-          <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
+          <IconBolt className="h-5 w-5 text-white" />
         </div>
         <h1 className="text-xl font-bold text-neutral-900">Sign in to TaskForge</h1>
         <p className="mt-1 text-sm text-neutral-500">Welcome back. Enter your credentials to continue.</p>

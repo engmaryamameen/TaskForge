@@ -10,17 +10,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div>
         {label && (
-          <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-gray-700">
+          <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-neutral-700">
             {label}
           </label>
         )}
         <input
           ref={ref}
           id={id}
-          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${
+          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 placeholder:text-neutral-400 focus:outline-none focus:ring-2 ${
             error
               ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-              : 'border-gray-200 focus:border-primary-500 focus:ring-primary-100'
+              : 'border-neutral-200 focus:border-primary-500 focus:ring-primary-100'
           } ${className}`}
           {...props}
         />
@@ -42,17 +42,17 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div>
         {label && (
-          <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-gray-700">
+          <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-neutral-700">
             {label}
           </label>
         )}
         <textarea
           ref={ref}
           id={id}
-          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 placeholder:text-gray-400 focus:outline-none focus:ring-2 ${
+          className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors duration-150 placeholder:text-neutral-400 focus:outline-none focus:ring-2 ${
             error
               ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-              : 'border-gray-200 focus:border-primary-500 focus:ring-primary-100'
+              : 'border-neutral-200 focus:border-primary-500 focus:ring-primary-100'
           } ${className}`}
           {...props}
         />

@@ -33,7 +33,7 @@ export default function OrganizationsPage() {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
+        <h1 className="text-2xl font-bold text-neutral-900">Organizations</h1>
         <Button onClick={() => setShowCreateModal(true)}>Create Organization</Button>
       </div>
 
@@ -49,34 +49,34 @@ export default function OrganizationsPage() {
             return (
               <div
                 key={org.id}
-                className={`flex items-center justify-between rounded-lg bg-white p-5 shadow-sm ${
-                  isCurrent ? 'ring-2 ring-blue-500' : ''
+                className={`flex items-center justify-between rounded-lg bg-white p-5 shadow-soft ${
+                  isCurrent ? 'ring-2 ring-primary-500' : ''
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">{org.name}</h3>
+                    <h3 className="text-sm font-semibold text-neutral-900">{org.name}</h3>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                       org.role === Role.ADMIN
                         ? 'bg-purple-100 text-purple-700'
-                        : 'bg-gray-100 text-gray-600'
+                        : 'bg-neutral-100 text-neutral-600'
                     }`}>
                       {org.role}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-neutral-500">
                     {org.slug} &middot; Created {formatRelative(org.createdAt)}
                   </p>
                 </div>
                 {isCurrent ? (
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                  <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary-700">
                     Current
                   </span>
                 ) : (
                   <button
                     onClick={() => switchOrg.mutate(org.id)}
                     disabled={switchOrg.isPending}
-                    className="rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                    className="rounded bg-neutral-100 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-200 disabled:opacity-50"
                   >
                     Switch
                   </button>
@@ -100,7 +100,7 @@ export default function OrganizationsPage() {
       {currentOrg && (
         <div className="mt-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-neutral-900">
               Members &mdash; {currentOrg.name}
             </h2>
             {isAdmin && (
@@ -109,26 +109,26 @@ export default function OrganizationsPage() {
           </div>
 
           {members && members.length > 0 ? (
-            <div className="rounded-lg bg-white shadow-sm">
+            <div className="rounded-lg bg-white shadow-soft">
               {members.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between border-b border-gray-100 px-5 py-4 last:border-0"
+                  className="flex items-center justify-between border-b border-neutral-100 px-5 py-4 last:border-0"
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-neutral-900">
                       {member.user
                         ? `${member.user.firstName} ${member.user.lastName}`
                         : member.userId}
                     </p>
                     {member.user && (
-                      <p className="text-xs text-gray-500">{member.user.email}</p>
+                      <p className="text-xs text-neutral-500">{member.user.email}</p>
                     )}
                   </div>
                   <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     member.role === Role.ADMIN
                       ? 'bg-purple-100 text-purple-700'
-                      : 'bg-gray-100 text-gray-600'
+                      : 'bg-neutral-100 text-neutral-600'
                   }`}>
                     {member.role}
                   </span>
@@ -136,7 +136,7 @@ export default function OrganizationsPage() {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500">No members found.</p>
+            <p className="text-sm text-neutral-500">No members found.</p>
           )}
         </div>
       )}

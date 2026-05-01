@@ -1,5 +1,7 @@
 'use client';
 
+import { IconX } from '@/components/icons';
+
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,16 +31,14 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
       {/* Modal container */}
       <div className={`relative z-10 w-full ${sizeStyles[size]} rounded-xl bg-white shadow-overlay`}>
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
-          <h2 className="text-lg font-semibold tracking-tight text-gray-900">{title}</h2>
+        <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-4">
+          <h2 className="text-lg font-semibold tracking-tight text-neutral-900">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors"
             aria-label="Close"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <IconX className="h-5 w-5" />
           </button>
         </div>
 
@@ -49,7 +49,7 @@ export function Modal({ isOpen, onClose, title, children, footer, size = 'md' }:
 
         {/* Footer */}
         {footer && (
-          <div className="flex justify-end gap-3 border-t border-gray-100 px-6 py-4">
+          <div className="flex justify-end gap-3 border-t border-neutral-100 px-6 py-4">
             {footer}
           </div>
         )}

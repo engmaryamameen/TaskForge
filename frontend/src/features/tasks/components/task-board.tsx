@@ -19,6 +19,7 @@ import { TaskModal } from './task-modal';
 import type { Task } from '@/types';
 import { TaskStatus } from '@/types';
 import { formatTaskStatus } from '@/lib/utils';
+import { IconPlus } from '@/components/icons';
 
 interface TaskBoardProps {
   tasks: Task[];
@@ -36,7 +37,7 @@ function DroppableColumn({ id, isEmpty, children }: { id: string; isEmpty: boole
       className={`min-h-[200px] rounded-lg p-1.5 transition-all duration-200 ${
         isOver
           ? 'bg-primary-50 ring-2 ring-primary-300 ring-inset'
-          : 'bg-gray-100'
+          : 'bg-neutral-100'
       }`}
     >
       {children}
@@ -120,10 +121,10 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
             <div key={status} className="min-w-[280px] flex-1">
               {/* Column header */}
               <div className="mb-2 flex items-center justify-between px-2 py-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                <span className="text-xs font-bold uppercase tracking-wide text-neutral-500">
                   {formatTaskStatus(status)}
                 </span>
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-200 text-[10px] font-bold text-gray-600">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-neutral-200 text-[10px] font-bold text-neutral-600">
                   {grouped[status].length}
                 </span>
               </div>
@@ -149,11 +150,9 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
                 {/* + Create button */}
                 <button
                   onClick={() => setCreateInStatus(status)}
-                  className="mt-1.5 flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
+                  className="mt-1.5 flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-neutral-500 hover:bg-neutral-200 hover:text-neutral-700 transition-colors"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
+                  <IconPlus className="h-4 w-4" />
                   Create
                 </button>
               </DroppableColumn>
@@ -164,7 +163,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
         <DragOverlay>
           {activeTask && (
             <div className="w-[280px] rounded-md border border-primary-300 bg-white px-3 py-2.5 shadow-medium ring-2 ring-primary-100">
-              <p className="text-[13px] font-medium text-gray-900">{activeTask.title}</p>
+              <p className="text-[13px] font-medium text-neutral-900">{activeTask.title}</p>
             </div>
           )}
         </DragOverlay>
