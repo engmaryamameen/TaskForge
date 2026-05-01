@@ -10,11 +10,14 @@ export const apiClient = axios.create({
   timeout: 15_000,
 });
 
-// Attach JWT token to every request
+// Attach JWT token and organization context to every request
 apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = useAuthStore.getState().accessToken;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const { accessToken, currentOrganizationId } = useAuthStore.getState();
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  if (currentOrganizationId) {
+    config.headers['x-organization-id'] = currentOrganizationId;
   }
   return config;
 });
