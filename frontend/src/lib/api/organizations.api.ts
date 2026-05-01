@@ -45,6 +45,13 @@ export const organizationsApi = {
     ).catch(normalizeError);
   },
 
+  validateInvite(token: string) {
+    return apiClient.get<ApiResponse<{ organizationName: string; email: string | null; role: string }>>(
+      '/invitations/validate',
+      { params: { token } },
+    ).catch(normalizeError);
+  },
+
   acceptInvite(token: string) {
     return apiClient.post<ApiResponse<Membership>>(
       '/invitations/accept',

@@ -1,9 +1,14 @@
-import { IsOptional, IsEnum, IsUUID, IsDateString } from 'class-validator';
+import { IsOptional, IsEnum, IsUUID, IsDateString, IsString, MaxLength } from 'class-validator';
 import { PaginationDto } from '../../../shared/dto/pagination.dto';
 import { TaskStatus } from '../../../shared/enums/task-status.enum';
 import { TaskPriority } from '../../../shared/enums/task-priority.enum';
 
 export class TaskFilterDto extends PaginationDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  search?: string;
+
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
