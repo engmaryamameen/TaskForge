@@ -35,32 +35,39 @@ export function Sidebar() {
     <>
       {/* Mobile backdrop */}
       <div
-        className={`fixed inset-0 z-30 bg-black/50 transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-30 bg-black/40 transition-opacity duration-300 md:hidden ${
           sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         onClick={closeMobileSidebar}
       />
 
-      {/* Sidebar — Jira dark blue */}
+      {/* Sidebar — clean white like Jira */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-[#0C1929] transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[240px] flex-col border-r border-gray-200 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex h-14 flex-shrink-0 items-center px-5">
-          <Link href="/" className="text-lg font-bold tracking-tight text-white">
+        <div className="flex h-14 flex-shrink-0 items-center gap-2 px-4">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary-600">
+            <svg className="h-4 w-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <Link href="/" className="text-base font-bold text-gray-900">
             TaskForge
           </Link>
         </div>
 
         {/* Org switcher */}
-        <div className="px-3 pb-3">
+        <div className="px-3 pb-2">
           <OrgSwitcher />
         </div>
 
+        <div className="mx-3 border-t border-gray-100" />
+
         {/* Navigation */}
-        <nav className="flex-1 space-y-0.5 px-3 py-1">
+        <nav className="flex-1 space-y-0.5 px-3 pt-3">
           {navItems.map((item) => {
             const isActive = item.exact
               ? pathname === item.href

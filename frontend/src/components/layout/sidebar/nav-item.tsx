@@ -13,13 +13,16 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick }: NavItemP
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+      className={`relative flex items-center gap-3 rounded-md px-3 py-[7px] text-[13px] font-medium transition-colors ${
         isActive
-          ? 'bg-primary-700 text-white'
-          : 'text-blue-200 hover:bg-white/10 hover:text-white'
+          ? 'bg-primary-50 text-primary-700'
+          : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
       }`}
     >
-      <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-blue-300'}`} />
+      {isActive && (
+        <div className="absolute left-0 top-1 bottom-1 w-[3px] rounded-r-full bg-primary-600" />
+      )}
+      <Icon className={`h-[18px] w-[18px] ${isActive ? 'text-primary-600' : 'text-gray-400'}`} />
       {label}
     </Link>
   );
