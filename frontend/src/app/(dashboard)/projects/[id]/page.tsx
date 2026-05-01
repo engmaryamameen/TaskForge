@@ -9,6 +9,7 @@ import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizatio
 import { useAuthStore } from '@/store/auth.store';
 import { TaskList } from '@/features/tasks/components/task-list';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
+import { TaskBoard } from '@/features/tasks/components/task-board';
 import { TaskModal } from '@/features/tasks/components/task-modal';
 import { Role, TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
@@ -29,6 +30,12 @@ export default function ProjectDetailPage({
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [taskStatusFilter, setTaskStatusFilter] = useState<TaskStatus | ''>('');
   const [taskPriorityFilter, setTaskPriorityFilter] = useState<TaskPriority | ''>('');
+  const [viewMode, setViewMode] = useState<'table' | 'board'>(() => {
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('taskViewMode') as 'table' | 'board') || 'table';
+    }
+    return 'table';
+  });
 
   const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id, {
     status: taskStatusFilter || undefined,
@@ -126,7 +133,23 @@ export default function ProjectDetailPage({
 
       {/* Tasks section */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
+          <div className="flex rounded-md border border-gray-300">
+            <button
+              onClick={() => { setViewMode('table'); localStorage.setItem('taskViewMode', 'table'); }}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Table
+            </button>
+            <button
+              onClick={() => { setViewMode('board'); localStorage.setItem('taskViewMode', 'board'); }}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              Board
+            </button>
+          </div>
+        </div>
         <button
           onClick={() => setShowTaskModal(true)}
           className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
@@ -135,34 +158,40 @@ export default function ProjectDetailPage({
         </button>
       </div>
 
-      {/* Task filters (compact, no search — project-scoped) */}
-      <div className="mb-4 flex gap-3">
-        <select
-          value={taskStatusFilter}
-          onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          <option value="">All statuses</option>
-          {Object.values(TaskStatus).map((s) => (
-            <option key={s} value={s}>{formatTaskStatus(s)}</option>
-          ))}
-        </select>
-        <select
-          value={taskPriorityFilter}
-          onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
-          className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-        >
-          <option value="">All priorities</option>
-          {Object.values(TaskPriority).map((p) => (
-            <option key={p} value={p}>{formatTaskPriority(p)}</option>
-          ))}
-        </select>
-      </div>
+      {/* Task filters (table view only — board IS the status view) */}
+      {viewMode === 'table' && (
+        <div className="mb-4 flex gap-3">
+          <select
+            value={taskStatusFilter}
+            onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
+            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+          >
+            <option value="">All statuses</option>
+            {Object.values(TaskStatus).map((s) => (
+              <option key={s} value={s}>{formatTaskStatus(s)}</option>
+            ))}
+          </select>
+          <select
+            value={taskPriorityFilter}
+            onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
+            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
+          >
+            <option value="">All priorities</option>
+            {Object.values(TaskPriority).map((p) => (
+              <option key={p} value={p}>{formatTaskPriority(p)}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {tasksLoading && <TaskListSkeleton rows={3} />}
 
-      {!tasksLoading && hasTasks && (
+      {!tasksLoading && hasTasks && viewMode === 'table' && (
         <TaskList tasks={tasks} projectId={id} />
+      )}
+
+      {!tasksLoading && hasTasks && viewMode === 'board' && (
+        <TaskBoard tasks={tasks} projectId={id} />
       )}
 
       {!tasksLoading && !hasTasks && (

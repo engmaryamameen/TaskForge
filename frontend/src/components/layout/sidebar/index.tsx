@@ -10,6 +10,7 @@ import {
   IconFolder,
   IconCheckSquare,
   IconUsers,
+  IconActivity,
   IconSettings,
 } from '@/components/icons';
 
@@ -18,6 +19,7 @@ const navItems = [
   { href: '/projects', label: 'Projects', icon: IconFolder, exact: false },
   { href: '/tasks', label: 'Tasks', icon: IconCheckSquare, exact: false },
   { href: '/organizations', label: 'Organizations', icon: IconUsers, exact: false },
+  { href: '/activity', label: 'Activity', icon: IconActivity, exact: false },
   { href: '/settings', label: 'Settings', icon: IconSettings, exact: false },
 ];
 

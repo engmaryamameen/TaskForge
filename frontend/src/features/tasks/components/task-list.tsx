@@ -47,6 +47,11 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
     updateTask.mutate({ id: task.id, payload: { status: newStatus } });
   }
 
+  function handlePriorityChange(task: Task, newPriority: TaskPriority) {
+    if (newPriority === task.priority) return;
+    updateTask.mutate({ id: task.id, payload: { priority: newPriority } });
+  }
+
   return (
     <>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
@@ -79,9 +84,15 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   </select>
                 </td>
                 <td className="px-4 py-3">
-                  <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${priorityColor(task.priority)}`}>
-                    {formatTaskPriority(task.priority)}
-                  </span>
+                  <select
+                    value={task.priority}
+                    onChange={(e) => handlePriorityChange(task, e.target.value as TaskPriority)}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${priorityColor(task.priority)}`}
+                  >
+                    {Object.values(TaskPriority).map((p) => (
+                      <option key={p} value={p}>{formatTaskPriority(p)}</option>
+                    ))}
+                  </select>
                 </td>
                 <td className="px-4 py-3 text-gray-600">
                   {getMemberName(task.assignedTo)}
