@@ -15,6 +15,7 @@ import { formatRelative } from '@/lib/utils';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
+import { Button } from '@/components/ui/button';
 
 export default function OrganizationsPage() {
   const { data: orgs, isLoading, isError, refetch } = useOrganizations();
@@ -33,12 +34,7 @@ export default function OrganizationsPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Create Organization
-        </button>
+        <Button onClick={() => setShowCreateModal(true)}>Create Organization</Button>
       </div>
 
       {/* Org list */}
@@ -108,12 +104,7 @@ export default function OrganizationsPage() {
               Members &mdash; {currentOrg.name}
             </h2>
             {isAdmin && (
-              <button
-                onClick={() => setShowInviteModal(true)}
-                className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                Invite Member
-              </button>
+              <Button size="sm" onClick={() => setShowInviteModal(true)}>Invite Member</Button>
             )}
           </div>
 
