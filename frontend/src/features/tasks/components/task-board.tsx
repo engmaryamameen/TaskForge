@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import {
   DndContext,
   DragOverlay,
+  useDroppable,
   closestCorners,
   type DragStartEvent,
   type DragEndEvent,
@@ -22,6 +23,21 @@ interface TaskBoardProps {
 }
 
 const COLUMNS: TaskStatus[] = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
+
+/** Droppable column wrapper — ensures empty columns accept drops */
+function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-h-[200px] rounded-lg p-1.5 transition-colors ${
+        isOver ? 'bg-primary-50 ring-2 ring-primary-200' : 'bg-gray-100'
+      }`}
+    >
+      {children}
+    </div>
+  );
+}
 
 export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
   const updateTask = useUpdateTask();
@@ -61,9 +77,11 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
     const overId = over.id as string;
     let targetStatus: TaskStatus | undefined;
 
+    // Check if dropped on a column droppable
     if (COLUMNS.includes(overId as TaskStatus)) {
       targetStatus = overId as TaskStatus;
     } else {
+      // Dropped on another card — find its column
       const overTask = tasks.find((t) => t.id === overId);
       if (overTask) targetStatus = overTask.status;
     }
@@ -84,7 +102,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
         <div className="flex gap-3 overflow-x-auto pb-4">
           {COLUMNS.map((status) => (
             <div key={status} className="min-w-[280px] flex-1">
-              {/* Column header — Jira style */}
+              {/* Column header */}
               <div className="mb-2 flex items-center justify-between px-2 py-1.5">
                 <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
                   {formatTaskStatus(status)}
@@ -94,8 +112,8 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
                 </span>
               </div>
 
-              {/* Column body */}
-              <div className="min-h-[200px] rounded-lg bg-gray-100 p-1.5">
+              {/* Droppable column body */}
+              <DroppableColumn id={status}>
                 <SortableContext
                   id={status}
                   items={grouped[status].map((t) => t.id)}
@@ -112,7 +130,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
                   </div>
                 </SortableContext>
 
-                {/* + Create button at bottom of every column (Jira pattern) */}
+                {/* + Create button */}
                 <button
                   onClick={() => setCreateInStatus(status)}
                   className="mt-1.5 flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
@@ -122,15 +140,15 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
                   </svg>
                   Create
                 </button>
-              </div>
+              </DroppableColumn>
             </div>
           ))}
         </div>
 
         <DragOverlay>
           {activeTask && (
-            <div className="rounded-md border border-primary-300 bg-white p-3 shadow-medium">
-              <p className="text-sm font-medium text-gray-900">{activeTask.title}</p>
+            <div className="w-[280px] rounded-md border border-primary-300 bg-white px-3 py-2.5 shadow-medium ring-2 ring-primary-100">
+              <p className="text-[13px] font-medium text-gray-900">{activeTask.title}</p>
             </div>
           )}
         </DragOverlay>
