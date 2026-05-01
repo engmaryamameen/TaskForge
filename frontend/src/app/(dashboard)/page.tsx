@@ -3,15 +3,17 @@
 import { useAuthStore } from '@/store/auth.store';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
+import { useActivity } from '@/features/activity/hooks/useActivity';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
-import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
+import { formatRelative } from '@/lib/utils';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
   const { data: projectsData, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } = useProjects();
   const { data: tasksData, isLoading: tasksLoading, isError: tasksError, refetch: refetchTasks } = useTasks({ limit: 5 });
+  const { data: activityData } = useActivity({ limit: 5 });
 
   const isLoading = projectsLoading || tasksLoading;
   const isError = projectsError || tasksError;
@@ -61,27 +63,22 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {hasTasks && (
+          {activityData?.data && activityData.data.length > 0 && (
             <div className="mt-8">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Tasks</h2>
+              <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Activity</h2>
               <div className="rounded-lg bg-white shadow-sm">
-                {tasksData!.data!.map((task) => (
+                {activityData.data.map((activity) => (
                   <div
-                    key={task.id}
-                    className="flex items-center justify-between border-b border-gray-100 px-6 py-4 last:border-0"
+                    key={activity.id}
+                    className="flex items-start gap-3 border-b border-gray-100 px-5 py-4 last:border-0"
                   >
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                      <p className="text-xs text-gray-500">{formatTaskStatus(task.status)}</p>
+                    <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
+                      {activity.entityType?.charAt(0).toUpperCase() || '?'}
                     </div>
-                    <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                      task.priority === 'urgent' ? 'bg-red-100 text-red-700'
-                        : task.priority === 'high' ? 'bg-orange-100 text-orange-700'
-                        : task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}>
-                      {formatTaskPriority(task.priority)}
-                    </span>
+                    <div>
+                      <p className="text-sm text-gray-900">{activity.eventType}</p>
+                      <p className="mt-0.5 text-xs text-gray-500">{formatRelative(activity.createdAt)}</p>
+                    </div>
                   </div>
                 ))}
               </div>
