@@ -16,6 +16,7 @@ export interface Task {
 }
 
 export interface TaskFilters {
+  search?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
   assignedTo?: string;
