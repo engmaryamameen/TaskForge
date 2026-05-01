@@ -7,6 +7,8 @@ import { CreateProjectModal } from '@/features/projects/components/create-projec
 import { ProjectCard } from '@/features/projects/components/project-card';
 import { ProjectCardSkeleton } from '@/features/projects/components/project-card-skeleton';
 import { ProjectFilters } from '@/features/projects/components/project-filters';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -15,7 +17,7 @@ export default function ProjectsPage() {
   const page = Number(searchParams.get('page')) || 1;
   const search = searchParams.get('search') || '';
 
-  const { data, isLoading } = useProjects({ page, search: search || undefined });
+  const { data, isLoading, isError, refetch } = useProjects({ page, search: search || undefined });
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleSearchChange = useCallback((value: string) => {
@@ -66,8 +68,11 @@ export default function ProjectsPage() {
         </div>
       )}
 
+      {/* Error state */}
+      {!isLoading && isError && <ErrorState onRetry={refetch} />}
+
       {/* Project grid */}
-      {!isLoading && hasProjects && (
+      {!isLoading && !isError && hasProjects && (
         <>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
@@ -111,25 +116,20 @@ export default function ProjectsPage() {
       )}
 
       {/* Empty state: no projects at all */}
-      {!isLoading && !hasProjects && !isSearching && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No projects yet.</p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
-          >
-            Create your first project
-          </button>
-        </div>
+      {!isLoading && !isError && !hasProjects && !isSearching && (
+        <EmptyState
+          title="No projects yet"
+          description="Create your first project to start organizing your work."
+          action={{ label: 'Create your first project', onClick: () => setShowCreateModal(true) }}
+        />
       )}
 
       {/* Empty state: no search results */}
-      {!isLoading && !hasProjects && isSearching && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">
-            No projects match &ldquo;{search}&rdquo;
-          </p>
-        </div>
+      {!isLoading && !isError && !hasProjects && isSearching && (
+        <EmptyState
+          title={`No projects match \u201c${search}\u201d`}
+          description="Try a different search term."
+        />
       )}
 
       <CreateProjectModal

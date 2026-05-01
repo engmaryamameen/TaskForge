@@ -2,10 +2,15 @@
 
 import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
+import { ErrorState } from '@/components/ui/error-state';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
-  const { data: org } = useCurrentOrganization();
+  const { data: org, isLoading, isError, refetch } = useCurrentOrganization();
+
+  if (isLoading) return <PageSkeleton variant="detail" />;
+  if (isError) return <ErrorState onRetry={refetch} />;
 
   return (
     <div>
