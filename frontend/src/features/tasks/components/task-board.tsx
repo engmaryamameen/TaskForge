@@ -6,6 +6,9 @@ import {
   DragOverlay,
   useDroppable,
   closestCorners,
+  PointerSensor,
+  useSensor,
+  useSensors,
   type DragStartEvent,
   type DragEndEvent,
 } from '@dnd-kit/core';
@@ -25,16 +28,23 @@ interface TaskBoardProps {
 const COLUMNS: TaskStatus[] = [TaskStatus.TODO, TaskStatus.IN_PROGRESS, TaskStatus.DONE];
 
 /** Droppable column wrapper — ensures empty columns accept drops */
-function DroppableColumn({ id, children }: { id: string; children: React.ReactNode }) {
+function DroppableColumn({ id, isEmpty, children }: { id: string; isEmpty: boolean; children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id });
   return (
     <div
       ref={setNodeRef}
-      className={`min-h-[200px] rounded-lg p-1.5 transition-colors ${
-        isOver ? 'bg-primary-50 ring-2 ring-primary-200' : 'bg-gray-100'
+      className={`min-h-[200px] rounded-lg p-1.5 transition-all duration-200 ${
+        isOver
+          ? 'bg-primary-50 ring-2 ring-primary-300 ring-inset'
+          : 'bg-gray-100'
       }`}
     >
       {children}
+      {isOver && isEmpty && (
+        <div className="flex items-center justify-center rounded-md border-2 border-dashed border-primary-300 bg-primary-50/50 p-6 text-xs font-medium text-primary-600">
+          Drop it here
+        </div>
+      )}
     </div>
   );
 }
@@ -44,6 +54,11 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [createInStatus, setCreateInStatus] = useState<TaskStatus | null>(null);
+
+  // Require 8px movement before drag starts — prevents click/drag conflict
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+  );
 
   const grouped = useMemo(() => {
     const map: Record<TaskStatus, Task[]> = {
@@ -95,6 +110,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
   return (
     <>
       <DndContext
+        sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
@@ -113,7 +129,7 @@ export function TaskBoard({ tasks, projectId }: TaskBoardProps) {
               </div>
 
               {/* Droppable column body */}
-              <DroppableColumn id={status}>
+              <DroppableColumn id={status} isEmpty={grouped[status].length === 0}>
                 <SortableContext
                   id={status}
                   items={grouped[status].map((t) => t.id)}
