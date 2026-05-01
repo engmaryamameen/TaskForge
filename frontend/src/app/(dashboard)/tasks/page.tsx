@@ -8,6 +8,8 @@ import { TaskList } from '@/features/tasks/components/task-list';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
 import { TaskFilters } from '@/features/tasks/components/task-filters';
 import { TaskModal } from '@/features/tasks/components/task-modal';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import type { TaskStatus, TaskPriority } from '@/types';
 
 export default function TasksPage() {
@@ -19,7 +21,7 @@ export default function TasksPage() {
   const status = (searchParams.get('status') || '') as TaskStatus | '';
   const priority = (searchParams.get('priority') || '') as TaskPriority | '';
 
-  const { data, isLoading } = useTasks({
+  const { data, isLoading, isError, refetch } = useTasks({
     page,
     search: search || undefined,
     status: status || undefined,
@@ -94,7 +96,9 @@ export default function TasksPage() {
 
       {isLoading && <TaskListSkeleton />}
 
-      {!isLoading && hasTasks && (
+      {!isLoading && isError && <ErrorState onRetry={refetch} />}
+
+      {!isLoading && !isError && hasTasks && (
         <>
           <TaskList tasks={tasks} />
 
@@ -130,24 +134,19 @@ export default function TasksPage() {
         </>
       )}
 
-      {!isLoading && !hasTasks && !hasActiveFilters && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No tasks yet.</p>
-          {hasProjects && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="mt-3 text-sm font-medium text-blue-600 hover:underline"
-            >
-              Create your first task
-            </button>
-          )}
-        </div>
+      {!isLoading && !isError && !hasTasks && !hasActiveFilters && (
+        <EmptyState
+          title="No tasks yet"
+          description="Create your first task to start tracking work."
+          action={hasProjects ? { label: 'Create your first task', onClick: () => setShowCreateModal(true) } : undefined}
+        />
       )}
 
-      {!isLoading && !hasTasks && hasActiveFilters && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No tasks match your filters.</p>
-        </div>
+      {!isLoading && !isError && !hasTasks && hasActiveFilters && (
+        <EmptyState
+          title="No tasks match your filters"
+          description="Try adjusting your search or filter criteria."
+        />
       )}
 
       <TaskModal
