@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLogin } from '@/features/auth/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ApiError } from '@/types';
 
 function getAuthErrorMessage(error: Error): string {
@@ -52,57 +54,56 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Sign in to TaskForge</h1>
-
-      {login.error && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-          {getAuthErrorMessage(login.error)}
+    <div className="w-full">
+      {/* Branding */}
+      <div className="mb-8 text-center">
+        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
+          <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
         </div>
-      )}
+        <h1 className="text-xl font-bold text-neutral-900">Sign in to TaskForge</h1>
+        <p className="mt-1 text-sm text-neutral-500">Welcome back. Enter your credentials to continue.</p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
+      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-soft">
+        {login.error && (
+          <div className="mb-4 rounded-lg border border-danger-600/20 bg-danger-50 px-4 py-3 text-sm text-danger-600">
+            {getAuthErrorMessage(login.error)}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
             id="email"
+            label="Email"
             type="email"
             value={email}
             onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            error={errors.email}
+            placeholder="you@company.com"
           />
-          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
-        </div>
 
-        <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
+          <Input
             id="password"
+            label="Password"
             type="password"
             value={password}
             onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            error={errors.password}
+            placeholder="Enter your password"
           />
-          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
-        </div>
 
-        <button
-          type="submit"
-          disabled={login.isPending}
-          className="w-full rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {login.isPending ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
+          <Button type="submit" loading={login.isPending} className="w-full">
+            Sign in
+          </Button>
+        </form>
+      </div>
 
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-neutral-500">
         Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-blue-600 hover:underline">
-          Register
+        <Link href="/register" className="font-medium text-primary-600 hover:text-primary-700">
+          Create an account
         </Link>
       </p>
     </div>

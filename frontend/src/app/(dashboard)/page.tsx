@@ -8,6 +8,7 @@ import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatRelative } from '@/lib/utils';
+import { IconFolder, IconCheckSquare } from '@/components/icons';
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
@@ -21,7 +22,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div>
-        <div className="h-8 w-64 rounded bg-gray-200 animate-pulse mb-6" />
+        <div className="h-7 w-48 rounded bg-neutral-200 animate-pulse mb-6" />
         <PageSkeleton variant="cards" />
       </div>
     );
@@ -36,7 +37,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">
+      <h1 className="mb-6 text-xl font-bold text-neutral-900">
         Welcome back, {user?.firstName}
       </h1>
 
@@ -48,36 +49,48 @@ export default function DashboardPage() {
         />
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg bg-white p-6 shadow-sm">
-              <h2 className="text-sm font-medium text-gray-500">Projects</h2>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
-                {projectsData?.meta?.total ?? 0}
-              </p>
+          {/* Stats */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-50">
+                <IconFolder className="h-5 w-5 text-primary-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-neutral-500">Projects</p>
+                <p className="text-2xl font-bold text-neutral-900">
+                  {projectsData?.meta?.total ?? 0}
+                </p>
+              </div>
             </div>
-            <div className="rounded-lg bg-white p-6 shadow-sm">
-              <h2 className="text-sm font-medium text-gray-500">Total Tasks</h2>
-              <p className="mt-2 text-3xl font-bold text-gray-900">
-                {tasksData?.meta?.total ?? 0}
-              </p>
+            <div className="flex items-center gap-4 rounded-xl border border-neutral-200 bg-white p-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success-50">
+                <IconCheckSquare className="h-5 w-5 text-success-600" />
+              </div>
+              <div>
+                <p className="text-xs font-medium text-neutral-500">Total Tasks</p>
+                <p className="text-2xl font-bold text-neutral-900">
+                  {tasksData?.meta?.total ?? 0}
+                </p>
+              </div>
             </div>
           </div>
 
+          {/* Recent Activity */}
           {activityData?.data && activityData.data.length > 0 && (
             <div className="mt-8">
-              <h2 className="mb-4 text-lg font-semibold text-gray-900">Recent Activity</h2>
-              <div className="rounded-lg bg-white shadow-sm">
+              <h2 className="mb-3 text-sm font-semibold text-neutral-800">Recent Activity</h2>
+              <div className="rounded-xl border border-neutral-200 bg-white">
                 {activityData.data.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-3 border-b border-gray-100 px-5 py-4 last:border-0"
+                    className="flex items-start gap-3 border-b border-neutral-100 px-4 py-3 last:border-0"
                   >
-                    <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
+                    <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary-50 text-xs font-semibold text-primary-700">
                       {activity.entityType?.charAt(0).toUpperCase() || '?'}
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-900">{activity.eventType}</p>
-                      <p className="mt-0.5 text-xs text-gray-500">{formatRelative(activity.createdAt)}</p>
+                    <div className="min-w-0">
+                      <p className="text-sm text-neutral-800">{activity.eventType}</p>
+                      <p className="mt-0.5 text-xs text-neutral-400">{formatRelative(activity.createdAt)}</p>
                     </div>
                   </div>
                 ))}

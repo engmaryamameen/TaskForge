@@ -1,27 +1,46 @@
 @import 'tailwindcss';
 
-/* ─── Premium Design System (Best of Jira + Linear + Asana) ─── */
+/* ─── TaskForge Design System ─── */
 @theme {
-  /* Primary blue (Jira-inspired, slightly softer) */
-  --color-primary-50: #EBF5FF;
-  --color-primary-100: #CCE5FF;
-  --color-primary-200: #84BDFF;
-  --color-primary-300: #4C9AFF;
-  --color-primary-400: #2684FF;
-  --color-primary-500: #0065FF;
-  --color-primary-600: #0052CC;
-  --color-primary-700: #0747A6;
-  --color-primary-800: #0A3069;
+  /* Primary — Atlassian blue */
+  --color-primary-50: #E9F2FF;
+  --color-primary-100: #CCE0FF;
+  --color-primary-200: #85B8FF;
+  --color-primary-300: #579DFF;
+  --color-primary-400: #388BFF;
+  --color-primary-500: #1D7AFC;
+  --color-primary-600: #0C66E4;
+  --color-primary-700: #0055CC;
+  --color-primary-800: #09326C;
   --color-primary-900: #091E42;
 
-  /* Surface system */
-  --color-surface: #F4F5F7;
-  --color-surface-raised: #FFFFFF;
+  /* Neutral — warm grays */
+  --color-neutral-50: #F7F8F9;
+  --color-neutral-100: #F1F2F4;
+  --color-neutral-200: #DCDFE4;
+  --color-neutral-300: #B3B9C4;
+  --color-neutral-400: #8993A5;
+  --color-neutral-500: #626F86;
+  --color-neutral-600: #44546F;
+  --color-neutral-700: #2C3E5D;
+  --color-neutral-800: #172B4D;
+  --color-neutral-900: #091E42;
 
-  /* Elevation shadows (Atlassian Design System) */
-  --shadow-soft: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px 0 rgba(9, 30, 66, 0.31);
-  --shadow-medium: 0 4px 8px -2px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.31);
-  --shadow-overlay: 0 8px 12px rgba(9, 30, 66, 0.15), 0 0 1px rgba(9, 30, 66, 0.31);
+  /* Semantic */
+  --color-success-50: #DFFCF0;
+  --color-success-600: #1F845A;
+  --color-danger-50: #FFEDEB;
+  --color-danger-600: #E34935;
+  --color-warning-50: #FFF7D6;
+  --color-warning-600: #CF9F02;
+
+  /* Surface */
+  --color-surface: #F7F8F9;
+
+  /* Elevation */
+  --shadow-soft: 0 1px 1px rgba(9,30,66,0.08), 0 0 1px 0 rgba(9,30,66,0.16);
+  --shadow-medium: 0 3px 5px rgba(9,30,66,0.08), 0 0 1px rgba(9,30,66,0.16);
+  --shadow-overlay: 0 8px 12px rgba(9,30,66,0.12), 0 0 1px rgba(9,30,66,0.24);
 }
 
 @layer base {
@@ -32,8 +51,9 @@
   }
 
   body {
-    color: #172B4D;
-    background-color: #F4F5F7;
+    color: var(--color-neutral-800);
+    background-color: var(--color-surface);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   ::selection {
@@ -44,5 +64,10 @@
   *:focus-visible {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
+  }
+
+  /* Remove focus outline on mouse click, keep for keyboard */
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 }
