@@ -1,0 +1,11 @@
+# Production secrets
+.env.production
+
+# Deploy history
+.deploy-history
+
+# TLS certificates
+nginx/certs/*.pem
+
+# Local development secrets
+.env.development
