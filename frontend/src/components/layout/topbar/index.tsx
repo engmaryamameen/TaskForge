@@ -11,7 +11,7 @@ export function Topbar() {
   const { connected } = useSocketStatus();
 
   return (
-    <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-200 bg-white px-6">
+    <header className="flex h-16 flex-shrink-0 items-center justify-between border-b border-gray-100 bg-white px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
