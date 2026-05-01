@@ -41,26 +41,26 @@ export function Sidebar() {
         onClick={closeMobileSidebar}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar — Jira dark blue */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-gray-100 bg-white transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col bg-[#0C1929] transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex h-16 flex-shrink-0 items-center border-b border-gray-100 px-6">
-          <Link href="/" className="text-xl font-bold tracking-tight text-gray-900">
+        <div className="flex h-14 flex-shrink-0 items-center px-5">
+          <Link href="/" className="text-lg font-bold tracking-tight text-white">
             TaskForge
           </Link>
         </div>
 
         {/* Org switcher */}
-        <div className="pt-4">
+        <div className="px-3 pb-3">
           <OrgSwitcher />
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-2">
+        <nav className="flex-1 space-y-0.5 px-3 py-1">
           {navItems.map((item) => {
             const isActive = item.exact
               ? pathname === item.href

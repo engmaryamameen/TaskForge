@@ -1,26 +1,26 @@
 @import 'tailwindcss';
 
-/* ─── Design Tokens (Tailwind v4 CSS-first config) ─── */
+/* ─── Jira-Inspired Design Tokens ─── */
 @theme {
-  /* Primary palette (indigo-violet, Linear-inspired) */
-  --color-primary-50: #EDEDFC;
-  --color-primary-100: #D4D4F7;
-  --color-primary-200: #ABABEF;
-  --color-primary-300: #8282E7;
-  --color-primary-400: #6B6BDE;
-  --color-primary-500: #5B5BD6;
-  --color-primary-600: #4F4FC4;
-  --color-primary-700: #4242A8;
-  --color-primary-800: #35358C;
-  --color-primary-900: #2A2A6E;
+  /* Primary palette (Jira blue) */
+  --color-primary-50: #E9F2FF;
+  --color-primary-100: #CCE0FF;
+  --color-primary-200: #85B8FF;
+  --color-primary-300: #579DFF;
+  --color-primary-400: #388BFF;
+  --color-primary-500: #1D7AFC;
+  --color-primary-600: #0C66E4;
+  --color-primary-700: #0055CC;
+  --color-primary-800: #09326C;
+  --color-primary-900: #091E42;
 
   /* Surface */
-  --color-surface: #FAFAFA;
+  --color-surface: #FAFBFC;
 
-  /* Shadows (depth system) */
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.12);
+  /* Shadows (Jira-style elevation) */
+  --shadow-soft: 0 1px 1px rgba(9, 30, 66, 0.08), 0 0 1px rgba(9, 30, 66, 0.12);
+  --shadow-medium: 0 3px 5px rgba(9, 30, 66, 0.08), 0 0 1px rgba(9, 30, 66, 0.12);
+  --shadow-overlay: 0 0 0 1px rgba(9, 30, 66, 0.08), 0 8px 16px rgba(9, 30, 66, 0.16);
 }
 
 /* ─── Base Styles ─── */
@@ -31,12 +31,16 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  body {
+    color: #172B4D;
+    background-color: #FAFBFC;
+  }
+
   ::selection {
     background-color: var(--color-primary-100);
     color: var(--color-primary-900);
   }
 
-  /* Global focus-visible ring */
   *:focus-visible {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;

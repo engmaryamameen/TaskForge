@@ -26,19 +26,19 @@ export function OrgSwitcher() {
 
   if (currentLoading) {
     return (
-      <div className="mx-3 mb-4 h-10 animate-pulse rounded-md bg-gray-100" />
+      <div className="h-9 animate-pulse rounded-md bg-white/10" />
     );
   }
 
   return (
-    <div ref={ref} className="relative mx-3 mb-4">
+    <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors"
+        className="flex w-full items-center justify-between rounded-md bg-white/10 px-3 py-2 text-sm font-medium text-white hover:bg-white/15 transition-colors"
       >
         <span className="truncate">{currentOrg?.name ?? 'Select organization'}</span>
         <IconChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-4 w-4 text-blue-300 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
