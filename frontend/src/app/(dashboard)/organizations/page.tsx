@@ -12,9 +12,12 @@ import { CreateOrgModal } from '@/features/organizations/components/create-org-m
 import { InviteMemberModal } from '@/features/organizations/components/invite-member-modal';
 import { Role } from '@/types';
 import { formatRelative } from '@/lib/utils';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 
 export default function OrganizationsPage() {
-  const { data: orgs, isLoading } = useOrganizations();
+  const { data: orgs, isLoading, isError, refetch } = useOrganizations();
   const { data: currentOrg } = useCurrentOrganization();
   const { data: members } = useOrgMembers();
   const switchOrg = useSwitchOrganization();
@@ -39,11 +42,11 @@ export default function OrganizationsPage() {
       </div>
 
       {/* Org list */}
-      {isLoading && (
-        <p className="text-sm text-gray-500">Loading organizations...</p>
-      )}
+      {isLoading && <PageSkeleton variant="cards" />}
 
-      {orgs && (
+      {!isLoading && isError && <ErrorState onRetry={refetch} />}
+
+      {!isLoading && !isError && orgs && (
         <div className="space-y-3">
           {orgs.map((org) => {
             const isCurrent = org.id === currentOrg?.id;
@@ -88,17 +91,14 @@ export default function OrganizationsPage() {
         </div>
       )}
 
-      {orgs?.length === 0 && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No organizations yet.</p>
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
-          >
-            Create your first organization
-          </button>
-        </div>
+      {!isLoading && !isError && orgs?.length === 0 && (
+        <EmptyState
+          title="No organizations yet"
+          description="Create your first organization to start collaborating."
+          action={{ label: 'Create your first organization', onClick: () => setShowCreateModal(true) }}
+        />
       )}
+
 
       {/* Current org members */}
       {currentOrg && (
