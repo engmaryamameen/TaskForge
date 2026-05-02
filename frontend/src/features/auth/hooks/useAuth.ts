@@ -49,9 +49,15 @@ export function useRegister() {
   });
 }
 
-export function useVerifyEmail() {
+type VerifyEmailOptions = {
+  /** Default `/`. Set `null` to stay on the page (e.g. verification success UI). */
+  redirectTo?: string | null;
+};
+
+export function useVerifyEmail(options?: VerifyEmailOptions) {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
+  const redirectTo = options?.redirectTo !== undefined ? options.redirectTo : '/';
 
   return useMutation({
     mutationFn: (token: string) => authApi.verifyEmail(token),
@@ -63,7 +69,7 @@ export function useVerifyEmail() {
       if (inner.user.currentOrganizationId) {
         socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
       }
-      router.push('/');
+      if (redirectTo != null) router.push(redirectTo);
     },
   });
 }
