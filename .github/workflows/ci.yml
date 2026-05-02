@@ -103,6 +103,9 @@ jobs:
 
       - run: npm ci
 
+      # Incremental tsbuildinfo must not suppress emit on clean CI checkouts; never commit tsbuildinfo.
+      - run: rm -f tsconfig.build.tsbuildinfo tsconfig.tsbuildinfo
+
       - run: npm run build
 
       - name: Verify build outputs
