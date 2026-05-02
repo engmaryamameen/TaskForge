@@ -5,7 +5,12 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Task } from '@/types';
 import { buildStatusDistribution } from '@/features/dashboard/lib/chart-data';
 
-const COLORS = ['#1E40AF', '#2563EB', '#93C5FD'];
+/** Aligned with Status mix: blue / amber / emerald */
+const KEY_COLORS: Record<string, string> = {
+  todo: '#2563eb',
+  in_progress: '#f59e0b',
+  done: '#059669',
+};
 
 function DonutTooltip({
   active,
@@ -58,7 +63,7 @@ export function TaskCompositionDonut({ tasks, height = 220 }: TaskCompositionDon
                 fill={
                   total === 0 || entry.key === 'empty'
                     ? '#E2E8F0'
-                    : COLORS[i % COLORS.length]
+                    : KEY_COLORS[String(entry.key)] ?? '#64748b'
                 }
               />
             ))}

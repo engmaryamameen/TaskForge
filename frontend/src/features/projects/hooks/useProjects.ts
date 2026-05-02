@@ -6,6 +6,7 @@ import {
   type CreateProjectPayload,
   type UpdateProjectPayload,
 } from '@/lib/api/projects.api';
+import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import type { PaginationParams } from '@/types';
 
 export interface ProjectListParams extends PaginationParams {
@@ -28,17 +29,22 @@ export const projectKeys = {
 
 export function useProjects(params?: ProjectListParams) {
   const normalized = normalizeParams(params);
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: projectKeys.list(normalized),
     queryFn: () => projectsApi.list(normalized).then((r) => r.data),
+    enabled: hasValidOrgContext,
   });
 }
 
 export function useProject(id: string) {
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: projectKeys.detail(id),
     queryFn: () => projectsApi.getById(id).then((r) => r.data.data!),
-    enabled: !!id,
+    enabled: !!id && hasValidOrgContext,
   });
 }
 

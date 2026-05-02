@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { invitationTemplate } from './templates/invitation';
 import { taskAssignedTemplate } from './templates/task-assigned';
+import { verifyEmailTemplate } from './templates/verify-email';
+import { passwordResetTemplate } from './templates/password-reset';
 
 export interface InvitationEmailData {
   recipientEmail: string;
@@ -67,6 +69,35 @@ export class MailService {
     await this.send({
       to: data.recipientEmail,
       subject: `You've been invited to ${data.organizationName} on TaskForge`,
+      html,
+      text,
+    });
+  }
+
+  async sendVerifyEmail(data: {
+    to: string;
+    firstName: string;
+    token: string;
+  }): Promise<void> {
+    const verifyUrl = `${this.frontendUrl}/auth/verify-email?token=${encodeURIComponent(data.token)}`;
+    const { html, text } = verifyEmailTemplate({
+      firstName: data.firstName,
+      verifyUrl,
+    });
+    await this.send({
+      to: data.to,
+      subject: 'Verify your TaskForge account',
+      html,
+      text,
+    });
+  }
+
+  async sendPasswordResetEmail(data: { to: string; token: string }): Promise<void> {
+    const resetUrl = `${this.frontendUrl}/auth/reset-password?token=${encodeURIComponent(data.token)}`;
+    const { html, text } = passwordResetTemplate({ resetUrl });
+    await this.send({
+      to: data.to,
+      subject: 'Reset your TaskForge password',
       html,
       text,
     });

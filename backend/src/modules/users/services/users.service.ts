@@ -29,4 +29,19 @@ export class UsersService {
   ): Promise<void> {
     return this.usersRepository.updateCurrentOrg(userId, organizationId);
   }
+
+  async setEmailVerifiedAt(userId: string, at: Date): Promise<void> {
+    return this.usersRepository.setEmailVerifiedAt(userId, at);
+  }
+
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
+    return this.usersRepository.updatePasswordHash(userId, passwordHash);
+  }
+
+  async updateProfile(
+    userId: string,
+    patch: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    return this.usersRepository.updateProfile(userId, patch);
+  }
 }

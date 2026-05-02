@@ -16,7 +16,7 @@ export class UserResponseDto {
     dto.email = user.email;
     dto.firstName = user.firstName;
     dto.lastName = user.lastName;
-    dto.isEmailVerified = user.isEmailVerified;
+    dto.isEmailVerified = user.emailVerifiedAt != null;
     dto.status = user.status;
     dto.currentOrganizationId = user.currentOrganizationId;
     dto.createdAt = user.createdAt;

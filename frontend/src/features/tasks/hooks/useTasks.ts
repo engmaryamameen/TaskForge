@@ -6,6 +6,7 @@ import {
   type CreateTaskPayload,
   type UpdateTaskPayload,
 } from '@/lib/api/tasks.api';
+import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import type { TaskFilters, Task, ApiResponse } from '@/types';
 
 function normalizeFilters(filters?: TaskFilters): TaskFilters | undefined {
@@ -29,27 +30,34 @@ export const taskKeys = {
 
 export function useTasks(filters?: TaskFilters) {
   const normalized = normalizeFilters(filters);
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: taskKeys.list(normalized),
     queryFn: () => tasksApi.listAll(normalized).then((r) => r.data),
+    enabled: hasValidOrgContext,
   });
 }
 
 export function useTasksByProject(projectId: string, filters?: TaskFilters) {
   const normalized = normalizeFilters(filters);
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: taskKeys.byProject(projectId, normalized),
     queryFn: () =>
       tasksApi.listByProject(projectId, normalized).then((r) => r.data),
-    enabled: !!projectId,
+    enabled: !!projectId && hasValidOrgContext,
   });
 }
 
 export function useTask(id: string) {
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: taskKeys.detail(id),
     queryFn: () => tasksApi.getById(id).then((r) => r.data.data!),
-    enabled: !!id,
+    enabled: !!id && hasValidOrgContext,
   });
 }
 

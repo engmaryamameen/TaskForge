@@ -102,7 +102,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
               placeholder="teammate@company.com"
             />
             <p className="mt-1 text-xs text-neutral-500">
-              We&apos;ll email them a secure link to join—nothing to copy manually.
+              We&apos;ll email them a secure link to join this workspace.
             </p>
           </div>
 

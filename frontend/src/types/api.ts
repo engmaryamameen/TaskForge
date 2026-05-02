@@ -49,17 +49,37 @@ export const ErrorCodes = {
 
 export type ApiErrorType = 'AUTH' | 'CLIENT' | 'SERVER' | 'NETWORK' | 'UNKNOWN';
 
+function normalizeFieldErrors(
+  raw: Record<string, unknown> | undefined,
+): Record<string, string> | undefined {
+  if (!raw || typeof raw !== 'object') return undefined;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(raw)) {
+    if (typeof v === 'string' && v.trim()) out[k] = v;
+    else if (Array.isArray(v) && v.length && typeof v[0] === 'string') out[k] = v[0];
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 export class ApiError extends Error {
   public readonly code: string;
   public readonly status: number;
   public readonly type: ApiErrorType;
+  public readonly fieldErrors?: Record<string, string>;
 
-  constructor(code: string, message: string, status: number, type: ApiErrorType) {
+  constructor(
+    code: string,
+    message: string,
+    status: number,
+    type: ApiErrorType,
+    fieldErrors?: Record<string, string>,
+  ) {
     super(message);
     this.name = 'ApiError';
     this.code = code;
     this.status = status;
     this.type = type;
+    this.fieldErrors = fieldErrors;
   }
 
   private static classifyStatus(status: number): ApiErrorType {
@@ -73,18 +93,60 @@ export class ApiError extends Error {
     if (error instanceof ApiError) return error;
 
     if (error instanceof AxiosError) {
-      const resp = error.response;
-      if (resp?.data?.error) {
-        const { code, message } = resp.data.error;
-        return new ApiError(code, message, resp.status ?? 500, this.classifyStatus(resp.status ?? 500));
-      }
       if (error.code === 'ECONNABORTED') {
         return new ApiError('TIMEOUT', 'Request timed out', 0, 'NETWORK');
       }
       if (error.code === 'ERR_NETWORK') {
         return new ApiError('NETWORK_ERROR', 'Network error', 0, 'NETWORK');
       }
+
+      const resp = error.response;
       const status = resp?.status ?? 0;
+      const raw = resp?.data;
+
+      if (raw && typeof raw === 'object') {
+        const data = raw as Record<string, unknown>;
+        const fieldErrors = normalizeFieldErrors(data.errors as Record<string, unknown> | undefined);
+
+        const errObj = data.error;
+        if (errObj && typeof errObj === 'object' && errObj !== null && 'message' in errObj) {
+          const e = errObj as { code?: string; message: string };
+          const code = typeof e.code === 'string' ? e.code : 'HTTP_ERROR';
+          return new ApiError(code, e.message, status, this.classifyStatus(status), fieldErrors);
+        }
+
+        if (typeof errObj === 'string' && errObj.trim()) {
+          return new ApiError('HTTP_ERROR', errObj, status, this.classifyStatus(status), fieldErrors);
+        }
+
+        if (typeof data.message === 'string' && data.message.trim()) {
+          const code = typeof data.code === 'string' ? data.code : 'HTTP_ERROR';
+          return new ApiError(code, data.message, status, this.classifyStatus(status), fieldErrors);
+        }
+
+        if (Array.isArray(data.message) && data.message.length > 0) {
+          const msg = data.message.filter((m): m is string => typeof m === 'string').join(' ');
+          return new ApiError(
+            'VALIDATION_ERROR',
+            msg,
+            status,
+            this.classifyStatus(status),
+            fieldErrors,
+          );
+        }
+
+        if (fieldErrors && Object.keys(fieldErrors).length > 0) {
+          const msg = Object.values(fieldErrors)[0] ?? 'Validation failed';
+          return new ApiError(
+            'VALIDATION_ERROR',
+            msg,
+            status,
+            this.classifyStatus(status),
+            fieldErrors,
+          );
+        }
+      }
+
       return new ApiError(
         'UNKNOWN_ERROR',
         error.message || 'An unexpected error occurred',

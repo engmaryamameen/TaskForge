@@ -14,7 +14,11 @@ import {
 import type { Task } from '@/types';
 import { buildStatusDistribution } from '@/features/dashboard/lib/chart-data';
 
-const COLORS = ['#1D4ED8', '#3B82F6', '#93C5FD'];
+const KEY_COLORS: Record<string, string> = {
+  todo: '#2563eb',
+  in_progress: '#f59e0b',
+  done: '#059669',
+};
 
 function BarTooltip({
   active,
@@ -61,8 +65,8 @@ export function TaskStatusBarChart({ tasks, height = 220 }: TaskStatusBarChartPr
           />
           <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(13, 95, 217, 0.06)' }} />
           <Bar dataKey="value" radius={[6, 6, 0, 0]} maxBarSize={56}>
-            {data.map((_, i) => (
-              <Cell key={i} fill={COLORS[i % COLORS.length]} />
+            {data.map((row) => (
+              <Cell key={row.key} fill={KEY_COLORS[row.key] ?? '#64748b'} />
             ))}
           </Bar>
         </BarChart>
