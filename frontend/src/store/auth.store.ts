@@ -10,6 +10,7 @@ interface AuthState {
   refreshToken: string | null;
   currentOrganizationId: string | null;
   status: AuthStatus;
+  _hasHydrated: boolean;
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
@@ -26,6 +27,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       currentOrganizationId: null,
       status: 'loading' as AuthStatus,
+      _hasHydrated: false,
 
       setAuth: (user, accessToken, refreshToken) =>
         set({
@@ -64,9 +66,9 @@ export const useAuthStore = create<AuthState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state?.accessToken) {
-          useAuthStore.setState({ status: 'loading' });
+          useAuthStore.setState({ status: 'loading', _hasHydrated: true });
         } else {
-          useAuthStore.setState({ status: 'unauthenticated' });
+          useAuthStore.setState({ status: 'unauthenticated', _hasHydrated: true });
         }
       },
     },
