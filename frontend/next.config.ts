@@ -1,15 +1,6 @@
 import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/:path*`,
-      },
-    ];
-  },
-};
+// API: use NEXT_PUBLIC_API_URL in the client (src/lib/api/client.ts). External rewrites need `https://`.
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
