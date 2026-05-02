@@ -70,39 +70,38 @@ function DetailSkeleton() {
 
 function DashboardSkeleton() {
   return (
-    <div>
-      <Shimmer className="h-8 w-64 mb-2" />
-      <Shimmer className="h-4 w-48 mb-8" />
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+    <div className="space-y-8">
+      <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-xs">
+        <Shimmer className="mb-2 h-4 w-20" />
+        <Shimmer className="mb-2 h-9 w-48" />
+        <Shimmer className="h-4 w-full max-w-lg" />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-neutral-200 bg-white p-5">
-            <div className="flex items-center justify-between mb-3">
+          <div key={i} className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
+            <div className="mb-3 flex items-center justify-between">
               <Shimmer className="h-4 w-24" />
-              <Shimmer className="h-9 w-9 rounded-lg" />
+              <Shimmer className="h-11 w-11 rounded-xl" />
             </div>
-            <Shimmer className="h-8 w-16 mb-1" />
+            <Shimmer className="mb-1 h-9 w-20" />
             <Shimmer className="h-3 w-28" />
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-7">
-        <div className="lg:col-span-4 rounded-xl border border-neutral-200 bg-white p-5">
-          <Shimmer className="h-5 w-32 mb-5" />
-          <Shimmer className="h-48 w-full rounded-lg" />
-        </div>
-        <div className="lg:col-span-3 rounded-xl border border-neutral-200 bg-white p-5">
-          <Shimmer className="h-5 w-32 mb-5" />
-          <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <Shimmer className="h-8 w-8 rounded-full" />
-                <div className="flex-1">
-                  <Shimmer className="h-3.5 w-full mb-1.5" />
-                  <Shimmer className="h-3 w-20" />
-                </div>
-              </div>
-            ))}
+      <div className="grid gap-6 xl:grid-cols-12">
+        <div className="xl:col-span-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
+          <div className="border-b border-neutral-100 px-6 py-5">
+            <Shimmer className="mb-2 h-5 w-40" />
+            <Shimmer className="h-4 w-56" />
           </div>
+          <Shimmer className="m-4 h-[300px] w-[calc(100%-2rem)] rounded-lg" />
+        </div>
+        <div className="xl:col-span-4 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
+          <div className="border-b border-neutral-100 px-6 py-5">
+            <Shimmer className="mb-2 h-5 w-32" />
+            <Shimmer className="h-4 w-44" />
+          </div>
+          <Shimmer className="m-6 mx-auto h-56 max-w-[220px] rounded-full" />
         </div>
       </div>
     </div>

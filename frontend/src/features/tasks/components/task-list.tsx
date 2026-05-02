@@ -6,6 +6,7 @@ import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
 import { TaskModal } from './task-modal';
 import type { Task } from '@/types';
 import { TaskStatus, TaskPriority } from '@/types';
+import { Select } from '@/components/ui/select';
 import { formatTaskStatus, formatTaskPriority, formatDate, isOverdue } from '@/lib/utils';
 
 interface TaskListProps {
@@ -15,20 +16,30 @@ interface TaskListProps {
 
 function statusColor(status: TaskStatus): string {
   switch (status) {
-    case TaskStatus.TODO: return 'bg-neutral-100 text-neutral-600';
-    case TaskStatus.IN_PROGRESS: return 'bg-primary-50 text-primary-700';
-    case TaskStatus.DONE: return 'bg-green-50 text-green-700';
+    case TaskStatus.TODO: return 'border-0 bg-neutral-100 text-neutral-600';
+    case TaskStatus.IN_PROGRESS: return 'border-0 bg-primary-50 text-primary-700';
+    case TaskStatus.DONE: return 'border-0 bg-green-50 text-green-700';
   }
 }
 
 function priorityColor(priority: TaskPriority): string {
   switch (priority) {
-    case TaskPriority.URGENT: return 'bg-red-50 text-red-700';
-    case TaskPriority.HIGH: return 'bg-orange-50 text-orange-700';
-    case TaskPriority.MEDIUM: return 'bg-yellow-50 text-yellow-700';
-    case TaskPriority.LOW: return 'bg-neutral-100 text-neutral-500';
+    case TaskPriority.URGENT: return 'border-0 bg-red-50 text-red-700';
+    case TaskPriority.HIGH: return 'border-0 bg-orange-50 text-orange-700';
+    case TaskPriority.MEDIUM: return 'border-0 bg-yellow-50 text-yellow-700';
+    case TaskPriority.LOW: return 'border-0 bg-neutral-100 text-neutral-500';
   }
 }
+
+const STATUS_OPTIONS = Object.values(TaskStatus).map((s) => ({
+  value: s,
+  label: formatTaskStatus(s),
+}));
+
+const PRIORITY_OPTIONS = Object.values(TaskPriority).map((p) => ({
+  value: p,
+  label: formatTaskPriority(p),
+}));
 
 export function TaskList({ tasks, projectId }: TaskListProps) {
   const updateTask = useUpdateTask();
@@ -73,26 +84,24 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                   <span className="font-medium text-neutral-900">{task.title}</span>
                 </td>
                 <td className="px-4 py-2.5">
-                  <select
+                  <Select
+                    id={`task-${task.id}-status`}
                     value={task.status}
-                    onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
-                    className={`appearance-none rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide border-0 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary-200 ${statusColor(task.status)}`}
-                  >
-                    {Object.values(TaskStatus).map((s) => (
-                      <option key={s} value={s}>{formatTaskStatus(s)}</option>
-                    ))}
-                  </select>
+                    onChange={(v) => handleStatusChange(task, v as TaskStatus)}
+                    options={STATUS_OPTIONS}
+                    size="sm"
+                    triggerClassName={`cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary-200 ${statusColor(task.status)}`}
+                  />
                 </td>
                 <td className="px-4 py-2.5">
-                  <select
+                  <Select
+                    id={`task-${task.id}-priority`}
                     value={task.priority}
-                    onChange={(e) => handlePriorityChange(task, e.target.value as TaskPriority)}
-                    className={`appearance-none rounded px-2 py-1 text-[11px] font-bold uppercase tracking-wide border-0 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-primary-200 ${priorityColor(task.priority)}`}
-                  >
-                    {Object.values(TaskPriority).map((p) => (
-                      <option key={p} value={p}>{formatTaskPriority(p)}</option>
-                    ))}
-                  </select>
+                    onChange={(v) => handlePriorityChange(task, v as TaskPriority)}
+                    options={PRIORITY_OPTIONS}
+                    size="sm"
+                    triggerClassName={`cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary-200 ${priorityColor(task.priority)}`}
+                  />
                 </td>
                 <td className="px-4 py-2.5 text-xs text-neutral-600">
                   {getMemberName(task.assignedTo)}

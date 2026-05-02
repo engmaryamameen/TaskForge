@@ -39,7 +39,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
         <main className="flex-1 overflow-auto">
-          <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
+          <div className="mx-auto px-4 py-6 md:px-6 lg:px-8">
             {children}
           </div>
         </main>

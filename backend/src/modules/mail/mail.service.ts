@@ -109,6 +109,7 @@ export class MailService {
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
       this.logger.error(`Failed to send email to ${options.to}: ${err.message}`, err.stack);
+      throw err;
     }
   }
 }

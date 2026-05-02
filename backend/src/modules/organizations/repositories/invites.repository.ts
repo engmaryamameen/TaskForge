@@ -55,4 +55,44 @@ export class InvitesRepository {
   async markUsed(id: string): Promise<void> {
     await this.repo.update(id, { usedAt: new Date() });
   }
+
+  /** Pending = not used and not expired (same criteria as “active” duplicate check). */
+  async findByIdAndOrganization(
+    id: string,
+    organizationId: string,
+  ): Promise<Invite | null> {
+    return this.repo.findOne({
+      where: { id, organizationId },
+    });
+  }
+
+  async updateInviteToken(
+    id: string,
+    data: { tokenHash: string; expiresAt: Date },
+  ): Promise<void> {
+    await this.repo.update(id, {
+      tokenHash: data.tokenHash,
+      expiresAt: data.expiresAt,
+    });
+  }
+
+  async findPendingByOrganization(organizationId: string): Promise<Invite[]> {
+    return this.repo.find({
+      where: {
+        organizationId,
+        usedAt: IsNull(),
+        expiresAt: MoreThan(new Date()),
+      },
+      order: { createdAt: 'DESC' },
+      select: {
+        id: true,
+        organizationId: true,
+        email: true,
+        role: true,
+        expiresAt: true,
+        createdAt: true,
+        createdBy: true,
+      },
+    });
+  }
 }

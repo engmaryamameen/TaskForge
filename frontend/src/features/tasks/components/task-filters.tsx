@@ -39,6 +39,22 @@ export function TaskFilters({
     setLocalSearch(search);
   }, [search]);
 
+  const statusOptions = [
+    { value: '', label: 'All statuses' },
+    ...Object.values(TaskStatus).map((s) => ({
+      value: s,
+      label: formatTaskStatus(s),
+    })),
+  ];
+
+  const priorityOptions = [
+    { value: '', label: 'All priorities' },
+    ...Object.values(TaskPriority).map((p) => ({
+      value: p,
+      label: formatTaskPriority(p),
+    })),
+  ];
+
   return (
     <div className="flex flex-wrap items-end gap-3">
       {showSearch && (
@@ -55,25 +71,17 @@ export function TaskFilters({
       <div className="w-40">
         <Select
           value={status}
-          onChange={(e) => onStatusChange(e.target.value)}
-        >
-          <option value="">All statuses</option>
-          {Object.values(TaskStatus).map((s) => (
-            <option key={s} value={s}>{formatTaskStatus(s)}</option>
-          ))}
-        </Select>
+          onChange={onStatusChange}
+          options={statusOptions}
+        />
       </div>
 
       <div className="w-40">
         <Select
           value={priority}
-          onChange={(e) => onPriorityChange(e.target.value)}
-        >
-          <option value="">All priorities</option>
-          {Object.values(TaskPriority).map((p) => (
-            <option key={p} value={p}>{formatTaskPriority(p)}</option>
-          ))}
-        </Select>
+          onChange={onPriorityChange}
+          options={priorityOptions}
+        />
       </div>
     </div>
   );
