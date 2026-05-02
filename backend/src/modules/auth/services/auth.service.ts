@@ -11,6 +11,7 @@ import {
   ResendVerificationDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  UpdateProfileDto,
 } from '../dto';
 import { UserResponseDto } from '../../users/dto/user-response.dto';
 import { AppError } from '../../../shared/errors/app-error';
@@ -424,6 +425,19 @@ export class AuthService {
       throw new AppError(ErrorCodes.ACCOUNT_SUSPENDED, 'Account suspended', 403);
     }
     return { user: UserResponseDto.fromEntity(user) };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const patch: { firstName?: string; lastName?: string } = {};
+    if (dto.firstName !== undefined) patch.firstName = dto.firstName.trim();
+    if (dto.lastName !== undefined) patch.lastName = dto.lastName.trim();
+
+    if (Object.keys(patch).length === 0) {
+      return this.getMe(userId);
+    }
+
+    await this.usersService.updateProfile(userId, patch);
+    return this.getMe(userId);
   }
 
   async logout(rawRefreshToken: string): Promise<void> {

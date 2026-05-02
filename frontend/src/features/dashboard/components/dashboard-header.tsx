@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { IconPlus, IconUserPlus } from '@/components/icons';
 
@@ -11,9 +10,10 @@ interface DashboardHeaderProps {
   actionsDisabled?: boolean;
   onNewProject: () => void;
   onNewTask: () => void;
+  onInvite: () => void;
 }
 
-export function DashboardHeader({ actionsDisabled, onNewProject, onNewTask }: DashboardHeaderProps) {
+export function DashboardHeader({ actionsDisabled, onNewProject, onNewTask, onInvite }: DashboardHeaderProps) {
   return (
     <header className="rounded-2xl border border-neutral-200/90 bg-white px-5 py-5 shadow-xs sm:px-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -41,11 +41,16 @@ export function DashboardHeader({ actionsDisabled, onNewProject, onNewTask }: Da
           >
             New task
           </Button>
-          <Link href="/organizations">
-            <Button type="button" variant="ghost" size="md" leftIcon={<IconUserPlus className="h-4 w-4" />}>
-              Invite
-            </Button>
-          </Link>
+          <Button
+            type="button"
+            variant="ghost"
+            size="md"
+            leftIcon={<IconUserPlus className="h-4 w-4" />}
+            disabled={actionsDisabled}
+            onClick={onInvite}
+          >
+            Invite
+          </Button>
         </div>
       </div>
     </header>

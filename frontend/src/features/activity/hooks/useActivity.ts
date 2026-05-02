@@ -3,14 +3,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { activityApi } from '@/lib/api/activity.api';
 import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
-import type { PaginationParams } from '@/types';
+import type { ActivityListParams } from '@/types';
 
 export const activityKeys = {
   all: ['activity'] as const,
-  list: (params?: PaginationParams) => ['activity', 'list', params] as const,
+  list: (params?: ActivityListParams) => ['activity', 'list', params] as const,
 };
 
-export function useActivity(params?: PaginationParams) {
+export function useActivity(params?: ActivityListParams) {
   const { hasValidOrgContext } = useOrgWorkspaceContext();
 
   return useQuery({

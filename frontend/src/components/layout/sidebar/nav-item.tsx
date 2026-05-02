@@ -19,9 +19,20 @@ interface NavItemProps {
   onClick?: () => void;
   badge?: number;
   subLinks?: SubLink[];
+  /** When set, overrides default pathname matching for sub-links (e.g. query-aware Tasks links). */
+  subLinkIsActive?: (href: string) => boolean;
 }
 
-export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, subLinks }: NavItemProps) {
+export function NavItem({
+  href,
+  label,
+  icon: Icon,
+  isActive,
+  onClick,
+  badge,
+  subLinks,
+  subLinkIsActive,
+}: NavItemProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(isActive);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -68,7 +79,9 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, sub
         >
           <div ref={contentRef} className="ml-9 mt-0.5 space-y-0.5 py-1 pl-1">
             {subLinks.map((sub) => {
-              const subActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
+              const subActive = subLinkIsActive
+                ? subLinkIsActive(sub.href)
+                : pathname === sub.href || pathname.startsWith(sub.href + '/');
               return (
                 <Link
                   key={sub.href}

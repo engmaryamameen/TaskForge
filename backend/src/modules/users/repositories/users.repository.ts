@@ -42,4 +42,11 @@ export class UsersRepository {
   async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
     await this.repo.update(userId, { passwordHash });
   }
+
+  async updateProfile(
+    userId: string,
+    patch: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    await this.repo.update(userId, patch);
+  }
 }

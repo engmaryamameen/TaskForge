@@ -9,4 +9,8 @@ export class ActivityFilterDto extends PaginationDto {
   @IsOptional()
   @IsUUID()
   entityId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  triggeredBy?: string;
 }

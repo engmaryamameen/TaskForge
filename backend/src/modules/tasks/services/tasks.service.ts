@@ -143,6 +143,9 @@ export class TasksService {
     if (dto.dueDate !== undefined) {
       updateData.dueDate = dto.dueDate ? new Date(dto.dueDate) : null;
     }
+    if ('assignedTo' in dto && (dto.assignedTo === null || dto.assignedTo === '')) {
+      updateData.assignedTo = null;
+    }
     await this.tasksRepository.update(id, updateData);
 
     this.logger.log(`Task updated: ${id}`);
@@ -152,7 +155,13 @@ export class TasksService {
       payload: {
         entityId: id,
         changes: dto,
-        snapshot: { title: task.title, status: task.status, projectId: task.projectId },
+        snapshot: {
+          title: task.title,
+          status: task.status,
+          statusBefore: task.status,
+          assignedTo: task.assignedTo ?? undefined,
+          projectId: task.projectId,
+        },
       },
       occurredAt: new Date(),
       organizationId,

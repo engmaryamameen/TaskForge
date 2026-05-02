@@ -33,7 +33,7 @@ import type { Task } from '@/types';
 import { IconActivity, IconCheckSquare } from '@/components/icons';
 
 export default function DashboardPage() {
-  const { openTaskModal, openProjectModal } = useDashboardModals();
+  const { openTaskModal, openProjectModal, openInviteModal } = useDashboardModals();
   const user = useAuthStore((s) => s.user);
   const {
     isLoading: orgsLoading,
@@ -88,6 +88,7 @@ export default function DashboardPage() {
       actionsDisabled={!hasValidOrgContext}
       onNewProject={openProjectModal}
       onNewTask={openTaskModal}
+      onInvite={openInviteModal}
     />
   );
 

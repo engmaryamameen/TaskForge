@@ -11,7 +11,10 @@ export interface CreateTaskPayload {
   dueDate?: string;
 }
 
-export type UpdateTaskPayload = Partial<CreateTaskPayload>;
+/** `assignedTo: null` clears assignee; omitted fields are unchanged. */
+export type UpdateTaskPayload = Omit<Partial<CreateTaskPayload>, 'assignedTo'> & {
+  assignedTo?: string | null;
+};
 
 export const tasksApi = {
   create(projectId: string, payload: CreateTaskPayload) {

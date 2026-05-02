@@ -27,6 +27,11 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+}
+
 export const authApi = {
   register(payload: RegisterPayload) {
     return apiClient
@@ -88,6 +93,12 @@ export const authApi = {
   me() {
     return apiClient
       .get<ApiResponse<{ user: User }>>('/auth/me')
+      .catch(normalizeError);
+  },
+
+  updateProfile(payload: UpdateProfilePayload) {
+    return apiClient
+      .patch<ApiResponse<{ user: User }>>('/auth/me', payload)
       .catch(normalizeError);
   },
 

@@ -17,7 +17,11 @@ export class ActivityRepository {
 
   async findByOrg(
     organizationId: string,
-    filters: { entityType?: string; entityId?: string },
+    filters: {
+      entityType?: string;
+      entityId?: string;
+      triggeredBy?: string;
+    },
     page: number,
     limit: number,
   ): Promise<[Activity[], number]> {
@@ -34,6 +38,12 @@ export class ActivityRepository {
     if (filters.entityId) {
       qb.andWhere('activity.entityId = :entityId', {
         entityId: filters.entityId,
+      });
+    }
+
+    if (filters.triggeredBy) {
+      qb.andWhere('activity.triggeredBy = :triggeredBy', {
+        triggeredBy: filters.triggeredBy,
       });
     }
 

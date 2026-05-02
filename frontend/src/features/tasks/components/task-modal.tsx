@@ -77,24 +77,35 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
     const trimmedTitle = title.trim();
     if (!trimmedTitle) return;
 
-    const payload = {
-      title: trimmedTitle,
-      description: description.trim() || undefined,
-      status,
-      priority,
-      assignedTo: assignedTo || undefined,
-      dueDate: dueDate || undefined,
-    };
-
     if (isEdit) {
       updateTask.mutate(
-        { id: task!.id, payload },
+        {
+          id: task!.id,
+          payload: {
+            title: trimmedTitle,
+            description: description.trim() || undefined,
+            status,
+            priority,
+            assignedTo: assignedTo ? assignedTo : null,
+            dueDate: dueDate || undefined,
+          },
+        },
         { onSuccess: () => onClose() },
       );
     } else {
       if (!selectedProjectId) return;
       createTask.mutate(
-        { projectId: selectedProjectId, payload },
+        {
+          projectId: selectedProjectId,
+          payload: {
+            title: trimmedTitle,
+            description: description.trim() || undefined,
+            status,
+            priority,
+            assignedTo: assignedTo || undefined,
+            dueDate: dueDate || undefined,
+          },
+        },
         { onSuccess: () => onClose() },
       );
     }

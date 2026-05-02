@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react';
 export interface DashboardModalsContextValue {
   openTaskModal: () => void;
   openProjectModal: () => void;
+  openInviteModal: () => void;
 }
 
 export const DashboardModalsContext = createContext<DashboardModalsContextValue | null>(null);

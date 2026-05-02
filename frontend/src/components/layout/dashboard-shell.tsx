@@ -8,6 +8,7 @@ import { CommandPalette } from '@/features/command/command-palette';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { TaskModal } from '@/features/tasks/components/task-modal';
 import { CreateProjectModal } from '@/features/projects/components/create-project-modal';
+import { InviteMemberModal } from '@/features/organizations/components/invite-member-modal';
 import { DashboardModalsContext } from '@/components/layout/dashboard-modals-context';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
@@ -15,6 +16,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const { isOpen: paletteOpen, close: closePalette } = useCommandPalette();
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
   const contextProjectId = projectMatch ? projectMatch[1] : undefined;
@@ -33,9 +35,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   const openTaskModal = useCallback(() => setShowTaskModal(true), []);
   const openProjectModal = useCallback(() => setShowProjectModal(true), []);
+  const openInviteModal = useCallback(() => setShowInviteModal(true), []);
 
   return (
-    <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal }}>
+    <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal, openInviteModal }}>
       <>
         <div className="flex h-screen bg-surface">
           <Sidebar />
@@ -66,6 +69,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           isOpen={showProjectModal}
           onClose={() => setShowProjectModal(false)}
         />
+
+        <InviteMemberModal isOpen={showInviteModal} onClose={() => setShowInviteModal(false)} />
       </>
     </DashboardModalsContext.Provider>
   );
