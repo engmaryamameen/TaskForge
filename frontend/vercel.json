@@ -1,4 +1,5 @@
 {
   "installCommand": "npm ci",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "ignoreCommand": "sh scripts/vercel-ignore-build.sh"
 }

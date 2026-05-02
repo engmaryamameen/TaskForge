@@ -112,7 +112,7 @@ jobs:
         run: |
           test -f dist/main.js || (echo "dist/main.js not found" && exit 1)
           test -f dist/worker.js || (echo "dist/worker.js not found" && exit 1)
-          test -f dist/run-migrations.js || (echo "dist/run-migrations.js not found" && exit 1)
+          test -f scripts/migrate-prod.cjs || (echo "scripts/migrate-prod.cjs not found" && exit 1)
           ls dist/infrastructure/database/migrations/*.js > /dev/null 2>&1 || (echo "No compiled migrations found" && exit 1)
           echo "All build outputs verified"
 

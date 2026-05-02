@@ -23,10 +23,13 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist ./dist
 
+COPY scripts/migrate-prod.cjs scripts/start-api-prod.sh ./scripts/
+
 USER app
 
 ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/main"]
+# Apply pending DB migrations, then start API (same env as Nest: DB_*, DB_SSL, etc.)
+CMD ["sh", "scripts/start-api-prod.sh"]

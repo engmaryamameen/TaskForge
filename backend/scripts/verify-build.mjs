@@ -8,13 +8,19 @@ import { join } from 'path';
 const root = join(import.meta.dirname, '..');
 const dist = join(root, 'dist');
 
-const files = ['main.js', 'worker.js', 'run-migrations.js'];
+const files = ['main.js', 'worker.js'];
 for (const f of files) {
   const p = join(dist, f);
   if (!existsSync(p)) {
     console.error(`Missing: dist/${f}`);
     process.exit(1);
   }
+}
+
+const migrateScript = join(root, 'scripts', 'migrate-prod.cjs');
+if (!existsSync(migrateScript)) {
+  console.error('Missing: scripts/migrate-prod.cjs');
+  process.exit(1);
 }
 
 const migDir = join(dist, 'infrastructure/database/migrations');
@@ -28,4 +34,9 @@ if (migrations.length === 0) {
   process.exit(1);
 }
 
-console.log('Build outputs OK:', files.join(', '), `+ ${migrations.length} migration(s)`);
+console.log(
+  'Build outputs OK:',
+  files.join(', '),
+  `+ ${migrations.length} migration(s)`,
+  '+ scripts/migrate-prod.cjs',
+);
