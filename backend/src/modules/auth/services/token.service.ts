@@ -34,12 +34,15 @@ export class TokenService {
     const ttl = this.configService.get<string>('auth.refreshTokenTtl', '7d');
     const expiresAt = new Date(Date.now() + this.parseTtl(ttl));
 
+    const deviceStr = device != null ? String(device).slice(0, 512) : undefined;
+    const ipStr = ip != null ? String(ip).slice(0, 64) : undefined;
+
     await this.refreshTokenRepository.create({
       userId,
       tokenHash,
       familyId: resolvedFamilyId,
-      device,
-      ip,
+      device: deviceStr,
+      ip: ipStr,
       expiresAt,
     });
 

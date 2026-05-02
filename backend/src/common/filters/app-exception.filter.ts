@@ -46,7 +46,12 @@ export class AppExceptionFilter implements ExceptionFilter {
     }
 
     // Unexpected errors — log full details, return safe message
-    this.logger.error('Unhandled exception', exception);
+    // Nest's Logger + pino often omit `Error` as a second arg; log a string the host can index.
+    const detail =
+      exception instanceof Error
+        ? `${exception.name}: ${exception.message}\n${exception.stack ?? ''}`
+        : JSON.stringify(exception);
+    this.logger.error(detail);
 
     return response.status(500).json({
       success: false,
