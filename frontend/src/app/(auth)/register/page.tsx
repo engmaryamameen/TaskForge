@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRegister } from '@/features/auth/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { IconBolt } from '@/components/icons';
+import { IconBolt, IconCheckSquare, IconUsers, IconFolder } from '@/components/icons';
 import { ApiError } from '@/types';
 
 function getAuthErrorMessage(error: Error): string {
@@ -76,41 +76,77 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between gradient-primary p-12">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <IconBolt className="h-5 w-5 text-white" />
+      {/* Left panel — immersive branding */}
+      <div className="hidden lg:flex lg:w-[52%] lg:flex-col lg:justify-between relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} />
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-primary-400/10 blur-3xl" />
+
+        <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-14">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/20">
+              <IconBolt className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">TaskForge</span>
           </div>
-          <span className="text-xl font-bold text-white">TaskForge</span>
-        </div>
-        <div>
-          <h2 className="text-3xl font-bold text-white leading-tight">
-            Join thousands of<br />teams shipping<br />products faster.
-          </h2>
-          <p className="mt-4 text-base text-white/70 max-w-md">
-            Create your free account and start managing projects in minutes.
+
+          <div>
+            <h2 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] tracking-tight">
+              Start building<br />
+              with your<br />
+              team today.
+            </h2>
+            <p className="mt-5 text-base text-white/60 max-w-md leading-relaxed">
+              Join teams that use TaskForge to plan, track, and deliver projects with confidence.
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconFolder className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Project Tracking</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconCheckSquare className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Task Boards</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconUsers className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Team Workspaces</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-[13px] text-white/30">
+            &copy; {new Date().getFullYear()} TaskForge. Built for modern engineering teams.
           </p>
         </div>
-        <p className="text-sm text-white/50">
-          &copy; 2024 TaskForge. All rights reserved.
-        </p>
       </div>
 
-      {/* Right panel - form */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 text-center lg:text-left">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-medium lg:mx-0">
+      {/* Right panel — form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white">
+        <div className="w-full max-w-[380px]">
+          <div className="mb-10 lg:mb-12">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 shadow-medium lg:hidden mx-auto">
               <IconBolt className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Create your account</h1>
-            <p className="mt-1.5 text-sm text-neutral-500">Start managing projects with TaskForge.</p>
+            <h1 className="text-[28px] font-bold tracking-tight text-neutral-900 text-center lg:text-left">
+              Create your account
+            </h1>
+            <p className="mt-2 text-[15px] text-neutral-500 text-center lg:text-left">
+              Get started with TaskForge in seconds
+            </p>
           </div>
 
           {register.error && (
-            <div className="mb-5 rounded-lg border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-700">
-              {getAuthErrorMessage(register.error)}
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3.5">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger-100">
+                <span className="text-danger-600 text-xs font-bold">!</span>
+              </div>
+              <p className="text-sm text-danger-700 leading-relaxed">{getAuthErrorMessage(register.error)}</p>
             </div>
           )}
 
@@ -155,17 +191,19 @@ export default function RegisterPage() {
               hint="Must include uppercase, lowercase, and a number"
             />
 
-            <Button type="submit" loading={register.isPending} className="w-full" size="lg">
+            <Button type="submit" loading={register.isPending} className="w-full !py-2.5 !text-[15px]" size="lg">
               Create account
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-neutral-500">
-            Already have an account?{' '}
-            <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
-              Sign in
-            </Link>
-          </p>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-neutral-500">
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>
