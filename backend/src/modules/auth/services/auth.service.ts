@@ -72,7 +72,10 @@ export class AuthService {
       );
     }
 
-    const passwordValid = await argon2.verify(user.passwordHash, dto.password);
+    const passwordValid = await argon2
+      .verify(user.passwordHash, dto.password)
+      .catch(() => false);
+
     if (!passwordValid) {
       this.logger.warn(`Failed login attempt for user ${user.id}`);
       throw new AppError(
