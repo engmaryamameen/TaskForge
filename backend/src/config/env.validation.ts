@@ -39,4 +39,12 @@ export const envValidationSchema = Joi.object({
   STRIPE_PRICE_ID_PRO: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_ENTERPRISE: Joi.string().optional().allow(''),
   FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+
+  // Email (SMTP)
+  SMTP_HOST: Joi.string().optional().default('localhost'),
+  SMTP_PORT: Joi.number().optional().default(587),
+  SMTP_SECURE: Joi.boolean().optional().default(false),
+  SMTP_USER: Joi.string().optional().allow(''),
+  SMTP_PASS: Joi.string().optional().allow(''),
+  SMTP_FROM: Joi.string().optional().default('TaskForge <noreply@taskforge.io>'),
 });

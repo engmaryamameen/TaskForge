@@ -55,56 +55,80 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full">
-      {/* Branding */}
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
-          <IconBolt className="h-5 w-5 text-white" />
-        </div>
-        <h1 className="text-xl font-bold text-neutral-900">Sign in to TaskForge</h1>
-        <p className="mt-1 text-sm text-neutral-500">Welcome back. Enter your credentials to continue.</p>
-      </div>
-
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-soft">
-        {login.error && (
-          <div className="mb-4 rounded-lg border border-danger-600/20 bg-danger-50 px-4 py-3 text-sm text-danger-600">
-            {getAuthErrorMessage(login.error)}
+    <div className="flex min-h-screen">
+      {/* Left panel - branding */}
+      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between gradient-primary p-12">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <IconBolt className="h-5 w-5 text-white" />
           </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
-            error={errors.email}
-            placeholder="you@company.com"
-          />
-
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
-            error={errors.password}
-            placeholder="Enter your password"
-          />
-
-          <Button type="submit" loading={login.isPending} className="w-full">
-            Sign in
-          </Button>
-        </form>
+          <span className="text-xl font-bold text-white">TaskForge</span>
+        </div>
+        <div>
+          <h2 className="text-3xl font-bold text-white leading-tight">
+            Manage projects.<br />Track progress.<br />Ship faster.
+          </h2>
+          <p className="mt-4 text-base text-white/70 max-w-md">
+            The multi-tenant project management platform built for modern teams.
+          </p>
+        </div>
+        <p className="text-sm text-white/50">
+          &copy; 2024 TaskForge. All rights reserved.
+        </p>
       </div>
 
-      <p className="mt-6 text-center text-sm text-neutral-500">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="font-medium text-primary-600 hover:text-primary-700">
-          Create an account
-        </Link>
-      </p>
+      {/* Right panel - form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="mb-8 text-center lg:text-left">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-medium lg:mx-0">
+              <IconBolt className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Welcome back</h1>
+            <p className="mt-1.5 text-sm text-neutral-500">Enter your credentials to access your workspace.</p>
+          </div>
+
+          {login.error && (
+            <div className="mb-5 rounded-lg border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+              {getAuthErrorMessage(login.error)}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              id="email"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
+              error={errors.email}
+              placeholder="you@company.com"
+            />
+
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
+              error={errors.password}
+              placeholder="Enter your password"
+            />
+
+            <Button type="submit" loading={login.isPending} className="w-full" size="lg">
+              Sign in
+            </Button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-neutral-500">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+              Create an account
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

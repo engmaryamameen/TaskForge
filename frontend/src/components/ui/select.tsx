@@ -1,12 +1,14 @@
 import { forwardRef } from 'react';
+import { IconChevronDown } from '@/components/icons';
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
+  hint?: string;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ label, error, id, className = '', children, ...props }, ref) => {
+  ({ label, error, hint, id, className = '', children, ...props }, ref) => {
     return (
       <div>
         {label && (
@@ -14,19 +16,25 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {label}
           </label>
         )}
-        <select
-          ref={ref}
-          id={id}
-          className={`w-full appearance-none rounded-lg border bg-white bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M6%208l4%204%204-4%22%20stroke%3D%22%239CA3AF%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[length:20px] bg-[right_8px_center] bg-no-repeat px-3 py-2 pr-8 text-sm transition-colors duration-150 focus:outline-none focus:ring-2 ${
-            error
-              ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
-              : 'border-neutral-200 focus:border-primary-500 focus:ring-primary-100'
-          } ${className}`}
-          {...props}
-        >
-          {children}
-        </select>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        <div className="relative">
+          <select
+            ref={ref}
+            id={id}
+            className={`w-full appearance-none rounded-lg border bg-white px-3 py-2 pr-9 text-sm transition-all duration-150 focus:outline-none focus:ring-2 ${
+              error
+                ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-100'
+                : 'border-neutral-200 hover:border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+            } ${className}`}
+            {...props}
+          >
+            {children}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5">
+            <IconChevronDown className="h-4 w-4 text-neutral-400" />
+          </div>
+        </div>
+        {error && <p className="mt-1.5 text-xs text-danger-600">{error}</p>}
+        {hint && !error && <p className="mt-1.5 text-xs text-neutral-500">{hint}</p>}
       </div>
     );
   },

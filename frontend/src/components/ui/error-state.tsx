@@ -1,4 +1,5 @@
 import { IconAlertCircle } from '@/components/icons';
+import { Button } from './button';
 
 interface ErrorStateProps {
   title?: string;
@@ -8,23 +9,20 @@ interface ErrorStateProps {
 
 export function ErrorState({
   title = 'Something went wrong',
-  message = 'We couldn\u2019t load this data right now.',
+  message = 'We couldn\u2019t load this data right now. Please try again.',
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="rounded-xl border border-neutral-200 bg-white p-12 text-center">
-      <div className="mb-4 flex justify-center text-neutral-300">
-        <IconAlertCircle className="h-10 w-10" />
+    <div className="flex flex-col items-center rounded-xl border border-neutral-200 bg-white px-6 py-16 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-danger-50 text-danger-500">
+        <IconAlertCircle className="h-6 w-6" />
       </div>
-      <p className="text-sm font-medium text-neutral-800">{title}</p>
-      <p className="mt-1 text-sm text-neutral-500">{message}</p>
+      <p className="text-sm font-semibold text-neutral-800">{title}</p>
+      <p className="mt-1.5 max-w-sm text-sm text-neutral-500">{message}</p>
       {onRetry && (
-        <button
-          onClick={onRetry}
-          className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
-        >
+        <Button variant="primary" size="sm" onClick={onRetry} className="mt-5">
           Try again
-        </button>
+        </Button>
       )}
     </div>
   );

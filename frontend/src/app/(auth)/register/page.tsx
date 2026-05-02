@@ -58,7 +58,7 @@ export default function RegisterPage() {
     } else if (password.length < 8) {
       next.password = 'Password must be at least 8 characters';
     } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-      next.password = 'Password must include uppercase, lowercase, and a number';
+      next.password = 'Must include uppercase, lowercase, and a number';
     }
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -75,73 +75,99 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full">
-      {/* Branding */}
-      <div className="mb-8 text-center">
-        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-600">
-          <IconBolt className="h-5 w-5 text-white" />
+    <div className="flex min-h-screen">
+      {/* Left panel - branding */}
+      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between gradient-primary p-12">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <IconBolt className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-white">TaskForge</span>
         </div>
-        <h1 className="text-xl font-bold text-neutral-900">Create your account</h1>
-        <p className="mt-1 text-sm text-neutral-500">Start managing your projects with TaskForge.</p>
+        <div>
+          <h2 className="text-3xl font-bold text-white leading-tight">
+            Join thousands of<br />teams shipping<br />products faster.
+          </h2>
+          <p className="mt-4 text-base text-white/70 max-w-md">
+            Create your free account and start managing projects in minutes.
+          </p>
+        </div>
+        <p className="text-sm text-white/50">
+          &copy; 2024 TaskForge. All rights reserved.
+        </p>
       </div>
 
-      <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-soft">
-        {register.error && (
-          <div className="mb-4 rounded-lg border border-danger-600/20 bg-danger-50 px-4 py-3 text-sm text-danger-600">
-            {getAuthErrorMessage(register.error)}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Input
-              id="firstName"
-              label="First name"
-              value={firstName}
-              onChange={(e) => { setFirstName(e.target.value); clearError('firstName'); }}
-              error={errors.firstName}
-            />
-            <Input
-              id="lastName"
-              label="Last name"
-              value={lastName}
-              onChange={(e) => { setLastName(e.target.value); clearError('lastName'); }}
-              error={errors.lastName}
-            />
+      {/* Right panel - form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 text-center lg:text-left">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-medium lg:mx-0">
+              <IconBolt className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Create your account</h1>
+            <p className="mt-1.5 text-sm text-neutral-500">Start managing projects with TaskForge.</p>
           </div>
 
-          <Input
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
-            error={errors.email}
-            placeholder="you@company.com"
-          />
+          {register.error && (
+            <div className="mb-5 rounded-lg border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+              {getAuthErrorMessage(register.error)}
+            </div>
+          )}
 
-          <Input
-            id="password"
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
-            error={errors.password}
-            placeholder="At least 8 characters"
-          />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                id="firstName"
+                label="First name"
+                value={firstName}
+                onChange={(e) => { setFirstName(e.target.value); clearError('firstName'); }}
+                error={errors.firstName}
+                placeholder="John"
+              />
+              <Input
+                id="lastName"
+                label="Last name"
+                value={lastName}
+                onChange={(e) => { setLastName(e.target.value); clearError('lastName'); }}
+                error={errors.lastName}
+                placeholder="Doe"
+              />
+            </div>
 
-          <Button type="submit" loading={register.isPending} className="w-full">
-            Create account
-          </Button>
-        </form>
+            <Input
+              id="email"
+              label="Work email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); clearError('email'); }}
+              error={errors.email}
+              placeholder="you@company.com"
+            />
+
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); clearError('password'); }}
+              error={errors.password}
+              placeholder="At least 8 characters"
+              hint="Must include uppercase, lowercase, and a number"
+            />
+
+            <Button type="submit" loading={register.isPending} className="w-full" size="lg">
+              Create account
+            </Button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-neutral-500">
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
-
-      <p className="mt-6 text-center text-sm text-neutral-500">
-        Already have an account?{' '}
-        <Link href="/login" className="font-medium text-primary-600 hover:text-primary-700">
-          Sign in
-        </Link>
-      </p>
     </div>
   );
 }

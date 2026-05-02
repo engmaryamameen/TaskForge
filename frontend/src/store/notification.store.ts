@@ -45,11 +45,16 @@ export const useNotificationStore = create<NotificationState>()((set, get) => ({
     });
   },
 
-  markAllRead: () =>
+  markAllRead: () => {
+    // Fire-and-forget API call
+    import('@/lib/api/notifications.api').then(({ notificationsApi }) => {
+      notificationsApi.markAllAsRead().catch(() => {});
+    });
     set((state) => ({
       notifications: state.notifications.map((n) => ({ ...n, read: true })),
       unreadCount: 0,
-    })),
+    }));
+  },
 
   clearNotifications: () =>
     set({ notifications: [], unreadCount: 0 }),

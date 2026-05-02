@@ -4,22 +4,23 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '@/types';
 import { TaskPriority, TaskStatus } from '@/types';
-import { formatTaskPriority, formatDate, isOverdue, getInitials } from '@/lib/utils';
+import { formatTaskPriority, formatDate, isOverdue } from '@/lib/utils';
 import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { IconCalendar } from '@/components/icons';
 
 interface TaskBoardCardProps {
   task: Task;
   onEdit: (task: Task) => void;
 }
 
-function priorityIcon(priority: TaskPriority): { color: string; arrow: string } {
-  switch (priority) {
-    case TaskPriority.URGENT: return { color: 'text-red-500', arrow: '↑↑' };
-    case TaskPriority.HIGH: return { color: 'text-orange-500', arrow: '↑' };
-    case TaskPriority.MEDIUM: return { color: 'text-yellow-600', arrow: '→' };
-    case TaskPriority.LOW: return { color: 'text-primary-400', arrow: '↓' };
-  }
-}
+const PRIORITY_CONFIG: Record<TaskPriority, { variant: 'urgent' | 'high' | 'medium' | 'low' }> = {
+  [TaskPriority.URGENT]: { variant: 'urgent' },
+  [TaskPriority.HIGH]: { variant: 'high' },
+  [TaskPriority.MEDIUM]: { variant: 'medium' },
+  [TaskPriority.LOW]: { variant: 'low' },
+};
 
 export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
   const { data: members } = useOrgMembers();
@@ -43,48 +44,53 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
     ? members?.find((m) => m.userId === task.assignedTo)
     : null;
 
-  const pi = priorityIcon(task.priority);
+  const priorityConfig = PRIORITY_CONFIG[task.priority];
+  const overdue = task.dueDate && isOverdue(task.dueDate) && task.status !== TaskStatus.DONE;
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`group rounded-md border bg-white px-3 py-2.5 transition-shadow select-none ${
+      className={`group rounded-lg border bg-white transition-all select-none ${
         isDragging
           ? 'border-primary-300 shadow-medium ring-2 ring-primary-100'
-          : 'border-neutral-200 shadow-soft hover:shadow-medium hover:border-neutral-200'
+          : 'border-neutral-200 shadow-xs hover:shadow-soft hover:border-neutral-300'
       }`}
     >
-      {/* Drag handle — the whole card is draggable */}
-      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
-        <p className="text-[13px] font-medium text-neutral-900 leading-snug">{task.title}</p>
-
-        <div className="mt-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className={`text-sm font-bold ${pi.color}`} title={formatTaskPriority(task.priority)}>
-              {pi.arrow}
-            </span>
-            {task.dueDate && (
-              <span className={`text-[11px] ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-semibold' : 'text-neutral-400'}`}>
-                {formatDate(task.dueDate)}
-              </span>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            {assignee?.user && (
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-[10px] font-bold text-primary-700" title={`${assignee.user.firstName} ${assignee.user.lastName}`}>
-                {getInitials(assignee.user.firstName, assignee.user.lastName)}
-              </div>
-            )}
-          </div>
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[13px] font-medium text-neutral-900 leading-snug flex-1">{task.title}</p>
+          <Badge variant={priorityConfig.variant} className="shrink-0">
+            {formatTaskPriority(task.priority)}
+          </Badge>
         </div>
+
+        {task.dueDate && (
+          <div className={`mt-2.5 flex items-center gap-1.5 ${overdue ? 'text-danger-600' : 'text-neutral-400'}`}>
+            <IconCalendar className="h-3 w-3" />
+            <span className={`text-[11px] ${overdue ? 'font-semibold' : ''}`}>
+              {formatDate(task.dueDate)}
+            </span>
+          </div>
+        )}
+
+        {assignee?.user && (
+          <div className="mt-2.5 flex items-center gap-2">
+            <Avatar
+              firstName={assignee.user.firstName}
+              lastName={assignee.user.lastName}
+              size="xs"
+            />
+            <span className="text-[11px] text-neutral-500">
+              {assignee.user.firstName} {assignee.user.lastName}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Click to edit — separate from drag area, appears on hover */}
       <button
         onClick={(e) => { e.stopPropagation(); onEdit(task); }}
-        className="mt-1.5 w-full rounded py-0.5 text-[11px] text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-neutral-100 hover:text-neutral-600 transition-all"
+        className="w-full border-t border-neutral-100 py-1.5 text-[11px] text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-neutral-50 hover:text-neutral-600 transition-all rounded-b-lg"
       >
         View details
       </button>
