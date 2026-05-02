@@ -10,8 +10,13 @@ import { IconActivity } from '@/components/icons';
 import type { Activity } from '@/types';
 
 function getActivityMessage(activity: Activity): string {
-  const snapshot = (activity.payload as Record<string, any>)?.snapshot;
-  const entityName = snapshot?.title || snapshot?.name || '';
+  const snap = activity.payload.snapshot;
+  let entityName = '';
+  if (snap && typeof snap === 'object' && !Array.isArray(snap)) {
+    const o = snap as Record<string, unknown>;
+    const t = o.title ?? o.name;
+    entityName = typeof t === 'string' ? t : '';
+  }
 
   switch (activity.eventType) {
     case 'task.created':
