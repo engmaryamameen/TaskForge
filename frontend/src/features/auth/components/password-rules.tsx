@@ -16,7 +16,7 @@ export function PasswordRules({ password }: PasswordRulesProps) {
   const checks = evaluatePasswordRules(password);
 
   return (
-    <ul className="mt-2 space-y-1.5 text-[13px]" aria-live="polite">
+    <ul className="mt-2 flex flex-col gap-1.5 text-[13px] leading-snug" aria-live="polite">
       {RULES.map(({ key, label }) => {
         const ok = checks[key];
         return (

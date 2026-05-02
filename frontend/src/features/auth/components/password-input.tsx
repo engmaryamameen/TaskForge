@@ -24,6 +24,7 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       hint,
       id,
       className = '',
+      'aria-invalid': ariaInvalidProp,
       toggleSrLabel = 'Show password',
       autoCompleteMode,
       autoComplete,
@@ -39,9 +40,9 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
       autoComplete ?? (autoCompleteMode === 'current-password' ? 'current-password' : 'new-password');
 
     return (
-      <div>
+      <div className="text-left">
         {label && (
-          <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-neutral-700">
+          <label htmlFor={inputId} className="mb-1.5 block text-left text-sm font-medium text-neutral-700">
             {label}
           </label>
         )}
@@ -52,12 +53,13 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             type={visible ? 'text' : 'password'}
             disabled={disabled}
             autoComplete={resolvedAuto}
-            className={`min-h-[48px] w-full rounded-xl border bg-white px-4 py-3 pr-12 text-base transition-all duration-150 placeholder:text-neutral-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-neutral-50 sm:text-[15px] ${
-              error
-                ? 'border-danger-300 focus:border-danger-500 focus:ring-danger-100'
-                : 'border-neutral-200 hover:border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
-            } ${className}`}
             {...props}
+            aria-invalid={error ? true : ariaInvalidProp}
+            className={`min-h-[48px] w-full rounded-xl border bg-white px-4 py-3 pr-12 text-base leading-normal transition-all duration-150 placeholder:text-neutral-400 focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-neutral-50 sm:text-[15px] ${
+              error
+                ? 'border-2 border-danger-500 hover:border-danger-600 focus:border-danger-600 focus:ring-danger-200 focus-visible:border-danger-600 focus-visible:ring-danger-200'
+                : 'border border-neutral-200 hover:border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
+            } ${className}`}
           />
           <button
             type="button"
@@ -70,8 +72,13 @@ export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
             {visible ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
           </button>
         </div>
-        {error && <p className="mt-1.5 text-xs text-danger-600">{error}</p>}
-        {hint && !error && <p className="mt-1.5 text-xs text-neutral-500">{hint}</p>}
+        <div className="mt-1.5 min-h-6">
+          {error ? (
+            <p className="text-xs leading-snug text-danger-600">{error}</p>
+          ) : hint ? (
+            <p className="text-xs text-neutral-500">{hint}</p>
+          ) : null}
+        </div>
       </div>
     );
   },

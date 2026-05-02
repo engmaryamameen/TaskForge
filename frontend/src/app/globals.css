@@ -2,6 +2,9 @@
 
 /* ─── TaskForge Premium Design System ─── */
 @theme {
+  /* Inter (via next/font on <html> --font-inter) drives all `font-sans` usage */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
   /* Primary — Professional blue */
   --color-primary-50: #EEF4FF;
   --color-primary-100: #D9E6FF;
@@ -36,6 +39,7 @@
   /* Danger */
   --color-danger-50: #FEF2F2;
   --color-danger-100: #FEE2E2;
+  --color-danger-200: #FECACA;
   --color-danger-500: #EF4444;
   --color-danger-600: #DC2626;
   --color-danger-700: #B91C1C;
@@ -94,6 +98,7 @@
   }
 
   body {
+    font-family: var(--font-sans);
     color: var(--color-neutral-800);
     background-color: var(--color-surface);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -107,6 +112,13 @@
   *:focus-visible {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
+  }
+
+  /* Inputs use Tailwind focus rings (primary vs danger); global outline would mask error styling */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
   }
 
   :focus:not(:focus-visible) {
@@ -179,6 +191,45 @@
   .animate-scale-in {
     animation: scaleIn 0.15s ease-out;
   }
+}
+
+@keyframes toast-progress-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0);
+  }
+}
+
+.animate-toast-enter {
+  animation: toast-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-toast-exit {
+  animation: toast-exit 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @keyframes fadeIn {

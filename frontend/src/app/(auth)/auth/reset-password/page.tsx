@@ -9,6 +9,19 @@ import { Button } from '@/components/ui/button';
 import { mergeFieldError } from '@/features/auth/lib/merge-field-error';
 import { meetsPasswordRules } from '@/features/auth/lib/password-rules';
 import { shouldShowFormLevelBanner } from '@/features/auth/lib/form-level-banner';
+import {
+  AUTH_ALERT_MARGIN,
+  AUTH_DESKTOP_SUBMIT,
+  AUTH_FOOTER_LINKS,
+  AUTH_FORM_STACK,
+  AUTH_HEADER_SECTION,
+  AUTH_MOBILE_DOCK_INNER,
+  AUTH_MOBILE_PRIMARY_DOCK,
+  AUTH_MOBILE_SCROLL_COLUMN,
+  AUTH_PAGE_SUBTITLE,
+  AUTH_PAGE_TITLE,
+  AUTH_PAGE_TITLE_SECONDARY,
+} from '@/features/auth/lib/auth-spacing';
 import { ApiError } from '@/types';
 
 function ResetPasswordForm() {
@@ -25,24 +38,40 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <AuthShell compactVisual panelTitle="Invalid link" panelDescription="Request a new reset link from your inbox.">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-neutral-900">Invalid reset link</h1>
-          <p className="mt-2 text-[15px] text-neutral-500">
-            This page needs a valid token. Open the link from your email or request a new password reset.
-          </p>
-        </div>
-        <Button
-          type="button"
-          className="min-h-[48px] w-full text-[15px]"
-          size="lg"
-          onClick={() => router.push('/auth/forgot-password')}
-        >
-          Request a new link
-        </Button>
-        <div className="mt-6 text-center">
-          <Link href="/login" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
-            Back to sign in
-          </Link>
+        <div className="flex min-h-0 flex-1 flex-col lg:block lg:flex-none">
+          <div className={AUTH_MOBILE_SCROLL_COLUMN}>
+            <header className={AUTH_HEADER_SECTION}>
+              <h1 className={AUTH_PAGE_TITLE_SECONDARY}>Invalid reset link</h1>
+              <p className={AUTH_PAGE_SUBTITLE}>
+                This page needs a valid token. Open the link from your email or request a new password reset.
+              </p>
+            </header>
+            <div className={AUTH_FOOTER_LINKS}>
+              <Link href="/login" className="font-semibold text-primary-600 transition hover:text-primary-700">
+                Back to sign in
+              </Link>
+            </div>
+          </div>
+          <Button
+            type="button"
+            className={`${AUTH_DESKTOP_SUBMIT} items-center justify-center`}
+            size="lg"
+            onClick={() => router.push('/auth/forgot-password')}
+          >
+            Request a new link
+          </Button>
+          <div className={AUTH_MOBILE_PRIMARY_DOCK}>
+            <div className={AUTH_MOBILE_DOCK_INNER}>
+              <Button
+                type="button"
+                className="min-h-[48px] w-full text-[15px]"
+                size="lg"
+                onClick={() => router.push('/auth/forgot-password')}
+              >
+                Request a new link
+              </Button>
+            </div>
+          </div>
         </div>
       </AuthShell>
     );
@@ -89,66 +118,76 @@ function ResetPasswordForm() {
       }
       panelDescription="Choose a strong password you haven’t used elsewhere."
     >
-      <div className="mb-8">
-        <h1 className="text-[28px] font-bold tracking-tight text-neutral-900">Set a new password</h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-          Enter and confirm your new password below.
-        </p>
-      </div>
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col lg:block lg:flex-none">
+        <div className={AUTH_MOBILE_SCROLL_COLUMN}>
+          <header className={AUTH_HEADER_SECTION}>
+            <h1 className={AUTH_PAGE_TITLE}>Set a new password</h1>
+            <p className={AUTH_PAGE_SUBTITLE}>Enter and confirm your new password below.</p>
+          </header>
 
-      {apiErr && shouldShowFormLevelBanner(apiErr) && (
-        <FormErrorAlert className="mb-6">
-          <p>{apiErr.message}</p>
-          {tokenIssue && (
-            <p className="mt-2 text-sm text-danger-700/90">
-              If this link expired or was already used, request a new reset email.
-            </p>
+          {apiErr && shouldShowFormLevelBanner(apiErr) && (
+            <FormErrorAlert className={AUTH_ALERT_MARGIN}>
+              <p>{apiErr.message}</p>
+              {tokenIssue && (
+                <p className="mt-2 text-sm text-danger-700/90">
+                  If this link expired or was already used, request a new reset email.
+                </p>
+              )}
+            </FormErrorAlert>
           )}
-        </FormErrorAlert>
-      )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <PasswordInput
-            id="password"
-            label="New password"
-            autoCompleteMode="new-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setClientError(undefined);
-              reset.reset();
-            }}
-            error={mergeFieldError(apiErr, 'password', clientError)}
-            placeholder="New password"
-          />
-          <PasswordRules password={password} />
+          <div className={AUTH_FORM_STACK}>
+            <div className="space-y-0">
+              <PasswordInput
+                id="password"
+                label="New password"
+                autoCompleteMode="new-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setClientError(undefined);
+                  reset.reset();
+                }}
+                error={mergeFieldError(apiErr, 'password', clientError)}
+                placeholder="New password"
+              />
+              <PasswordRules password={password} />
+            </div>
+
+            <PasswordInput
+              id="confirmPassword"
+              label="Confirm password"
+              autoCompleteMode="new-password"
+              value={confirm}
+              onChange={(e) => {
+                setConfirm(e.target.value);
+                setConfirmError(undefined);
+                reset.reset();
+              }}
+              error={mergeFieldError(apiErr, 'confirmPassword', confirmError)}
+              placeholder="Confirm new password"
+            />
+          </div>
+
+          <div className={AUTH_FOOTER_LINKS}>
+            <Link href="/login" className="font-semibold text-primary-600 transition hover:text-primary-700">
+              Back to sign in
+            </Link>
+          </div>
         </div>
 
-        <PasswordInput
-          id="confirmPassword"
-          label="Confirm password"
-          autoCompleteMode="new-password"
-          value={confirm}
-          onChange={(e) => {
-            setConfirm(e.target.value);
-            setConfirmError(undefined);
-            reset.reset();
-          }}
-          error={mergeFieldError(apiErr, 'confirmPassword', confirmError)}
-          placeholder="Confirm new password"
-        />
-
-        <Button type="submit" loading={reset.isPending} className="min-h-[48px] w-full text-[15px]" size="lg">
+        <Button type="submit" loading={reset.isPending} className={AUTH_DESKTOP_SUBMIT} size="lg">
           Update password
         </Button>
-      </form>
 
-      <div className="mt-8 text-center">
-        <Link href="/login" className="text-sm font-semibold text-primary-600 transition hover:text-primary-700">
-          Back to sign in
-        </Link>
-      </div>
+        <div className={AUTH_MOBILE_PRIMARY_DOCK}>
+          <div className={AUTH_MOBILE_DOCK_INNER}>
+            <Button type="submit" loading={reset.isPending} className="min-h-[48px] w-full text-[15px]" size="lg">
+              Update password
+            </Button>
+          </div>
+        </div>
+      </form>
     </AuthShell>
   );
 }

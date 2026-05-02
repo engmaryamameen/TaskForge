@@ -9,6 +9,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ApiError } from '@/types';
 import { AUTH_TEXT_INPUT_CLASS } from '@/features/auth/lib/auth-field-styles';
+import {
+  AUTH_ALERT_MARGIN,
+  AUTH_DESKTOP_SUBMIT,
+  AUTH_FOOTER_LINKS,
+  AUTH_FORM_STACK,
+  AUTH_HEADER_SECTION,
+  AUTH_MOBILE_DOCK_INNER,
+  AUTH_MOBILE_PRIMARY_DOCK,
+  AUTH_MOBILE_SCROLL_COLUMN,
+  AUTH_PAGE_SUBTITLE,
+  AUTH_PAGE_TITLE,
+} from '@/features/auth/lib/auth-spacing';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -48,15 +60,36 @@ export default function ForgotPasswordPage() {
         panelTitle={<>Secure<br />recovery.</>}
         panelDescription="Password reset links expire quickly. Request another from sign-in if needed."
       >
-        <div className="mb-8">
-          <h1 className="text-[26px] font-bold tracking-tight text-neutral-900">Check your email</h1>
-          <p className="mt-3 text-[15px] leading-relaxed text-neutral-500">
-            If an account exists for this email, password reset instructions have been sent.
-          </p>
+        <div className="flex min-h-0 flex-1 flex-col lg:block lg:flex-none">
+          <div className={AUTH_MOBILE_SCROLL_COLUMN}>
+            <header className={AUTH_HEADER_SECTION}>
+              <h1 className={AUTH_PAGE_TITLE}>Check your email</h1>
+              <p className={AUTH_PAGE_SUBTITLE}>
+                If an account exists for this email, password reset instructions have been sent.
+              </p>
+            </header>
+          </div>
+          <Button
+            type="button"
+            className={`${AUTH_DESKTOP_SUBMIT} items-center justify-center`}
+            size="lg"
+            onClick={() => router.push('/login')}
+          >
+            Back to sign in
+          </Button>
+          <div className={AUTH_MOBILE_PRIMARY_DOCK}>
+            <div className={AUTH_MOBILE_DOCK_INNER}>
+              <Button
+                type="button"
+                className="min-h-[48px] w-full text-[15px]"
+                size="lg"
+                onClick={() => router.push('/login')}
+              >
+                Back to sign in
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button type="button" className="min-h-[48px] w-full text-[15px]" size="lg" onClick={() => router.push('/login')}>
-          Back to sign in
-        </Button>
       </AuthShell>
     );
   }
@@ -67,46 +100,58 @@ export default function ForgotPasswordPage() {
       panelTitle={<>Account<br />recovery.</>}
       panelDescription="We’ll email you a secure link to reset your password."
     >
-      <div className="mb-8">
-        <h1 className="text-[28px] font-bold tracking-tight text-neutral-900">Reset your password</h1>
-        <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-          Enter your email and we&apos;ll send password reset instructions if an account exists.
-        </p>
-      </div>
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col lg:block lg:flex-none">
+        <div className={AUTH_MOBILE_SCROLL_COLUMN}>
+          <header className={AUTH_HEADER_SECTION}>
+            <h1 className={AUTH_PAGE_TITLE}>Reset your password</h1>
+            <p className={AUTH_PAGE_SUBTITLE}>
+              Enter your email and we&apos;ll send password reset instructions if an account exists.
+            </p>
+          </header>
 
-      {apiErr && (
-        <FormErrorAlert className="mb-6">
-          <p>{apiErr.message}</p>
-        </FormErrorAlert>
-      )}
+          {apiErr && (
+            <FormErrorAlert className={AUTH_ALERT_MARGIN}>
+              <p>{apiErr.message}</p>
+            </FormErrorAlert>
+          )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <Input
-          id="email"
-          label="Email address"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setError(undefined);
-            forgot.reset();
-          }}
-          error={error}
-          placeholder="you@company.com"
-          className={AUTH_TEXT_INPUT_CLASS}
-        />
+          <div className={AUTH_FORM_STACK}>
+            <Input
+              id="email"
+              label="Email address"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setError(undefined);
+                forgot.reset();
+              }}
+              error={error}
+              placeholder="you@company.com"
+              className={AUTH_TEXT_INPUT_CLASS}
+            />
+          </div>
 
-        <Button type="submit" loading={forgot.isPending} className="min-h-[48px] w-full text-[15px]" size="lg">
+          <div className={AUTH_FOOTER_LINKS}>
+            <Link href="/login" className="font-semibold text-primary-600 transition hover:text-primary-700">
+              Back to sign in
+            </Link>
+          </div>
+        </div>
+
+        <Button type="submit" loading={forgot.isPending} className={AUTH_DESKTOP_SUBMIT} size="lg">
           Send reset link
         </Button>
-      </form>
 
-      <div className="mt-8 text-center">
-        <Link href="/login" className="text-sm font-semibold text-primary-600 transition hover:text-primary-700">
-          Back to sign in
-        </Link>
-      </div>
+        <div className={AUTH_MOBILE_PRIMARY_DOCK}>
+          <div className={AUTH_MOBILE_DOCK_INNER}>
+            <Button type="submit" loading={forgot.isPending} className="min-h-[48px] w-full text-[15px]" size="lg">
+              Send reset link
+            </Button>
+          </div>
+        </div>
+      </form>
     </AuthShell>
   );
 }
