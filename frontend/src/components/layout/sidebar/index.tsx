@@ -14,12 +14,6 @@ import {
   IconSettings,
   IconBolt,
   IconSearch,
-  IconBarChart,
-  IconClipboardList,
-  IconUserPlus,
-  IconMail,
-  IconCalendar,
-  IconGlobe,
 } from '@/components/icons';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 

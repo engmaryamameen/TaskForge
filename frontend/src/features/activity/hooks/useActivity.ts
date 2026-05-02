@@ -2,6 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { activityApi } from '@/lib/api/activity.api';
+import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import type { PaginationParams } from '@/types';
 
 export const activityKeys = {
@@ -10,8 +11,11 @@ export const activityKeys = {
 };
 
 export function useActivity(params?: PaginationParams) {
+  const { hasValidOrgContext } = useOrgWorkspaceContext();
+
   return useQuery({
     queryKey: activityKeys.list(params),
     queryFn: () => activityApi.list(params).then((r) => r.data),
+    enabled: hasValidOrgContext,
   });
 }

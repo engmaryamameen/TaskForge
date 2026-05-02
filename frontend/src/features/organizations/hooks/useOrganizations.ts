@@ -7,6 +7,7 @@ import {
   type CreateInvitePayload,
 } from '@/lib/api/organizations.api';
 import { useAuthStore } from '@/store/auth.store';
+import { computeOrgWorkspaceGate } from '@/features/organizations/lib/org-workspace-gate';
 import { leaveOrgRoom, joinOrgRoom } from '@/lib/socket';
 import type { OrganizationWithRole, Membership, Role, PendingInvite } from '@/types';
 
@@ -33,22 +34,26 @@ export function useCurrentOrganization() {
 
 export function useOrgMembers() {
   const currentOrganizationId = useAuthStore((s) => s.currentOrganizationId);
+  const { data: orgs, isSuccess } = useOrganizations();
+  const gate = computeOrgWorkspaceGate(orgs, isSuccess, currentOrganizationId);
 
   return useQuery({
     queryKey: orgKeys.members,
     queryFn: () => organizationsApi.getMembers().then((r) => r.data.data! as Membership[]),
-    enabled: !!currentOrganizationId,
+    enabled: gate,
   });
 }
 
 export function usePendingInvites() {
   const currentOrganizationId = useAuthStore((s) => s.currentOrganizationId);
+  const { data: orgs, isSuccess } = useOrganizations();
+  const gate = computeOrgWorkspaceGate(orgs, isSuccess, currentOrganizationId);
 
   return useQuery({
     queryKey: orgKeys.invites,
     queryFn: () =>
       organizationsApi.listPendingInvites().then((r) => r.data.data! as PendingInvite[]),
-    enabled: !!currentOrganizationId,
+    enabled: gate,
   });
 }
 

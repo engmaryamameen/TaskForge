@@ -2,7 +2,10 @@
 
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { useDashboardModals } from '@/components/layout/dashboard-modals-context';
 import { useAuthStore } from '@/store/auth.store';
+import { useOrganizations } from '@/features/organizations/hooks/useOrganizations';
+import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
 import { useOrgMembers, usePendingInvites } from '@/features/organizations/hooks/useOrganizations';
@@ -10,9 +13,14 @@ import { useActivity } from '@/features/activity/hooks/useActivity';
 import { TasksTrendChart } from '@/features/dashboard/components/tasks-trend-chart';
 import { TaskStatusBarChart } from '@/features/dashboard/components/task-status-bar-chart';
 import { TaskCompositionDonut } from '@/features/dashboard/components/task-composition-donut';
+import {
+  EmptyChartPlaceholder,
+  NoOrganizationState,
+  WorkspaceReadyState,
+  WorkspaceSelectionPrompt,
+} from '@/features/dashboard/components';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from '@/components/ui/progress';
@@ -26,6 +34,7 @@ import {
   IconPlus,
   IconBolt,
   IconTarget,
+  IconActivity,
 } from '@/components/icons';
 import type { Task } from '@/types';
 
@@ -60,25 +69,45 @@ const ENTITY_ICONS: Record<string, { bg: string; text: string; letter: string }>
 };
 
 export default function DashboardPage() {
+  const { openTaskModal, openProjectModal } = useDashboardModals();
   const user = useAuthStore((s) => s.user);
-  const { data: projectsData, isLoading: projectsLoading, isError: projectsError, refetch: refetchProjects } =
-    useProjects();
-  const { data: tasksData, isLoading: tasksLoading, isError: tasksError, refetch: refetchTasks } = useTasks({
+  const {
+    isLoading: orgsLoading,
+    isError: orgsError,
+    refetch: refetchOrgs,
+  } = useOrganizations();
+
+  const {
+    hasAnyOrganization,
+    hasValidOrgContext,
+  } = useOrgWorkspaceContext();
+
+  const {
+    data: projectsData,
+    isLoading: projectsLoading,
+    isError: projectsError,
+    refetch: refetchProjects,
+  } = useProjects();
+
+  const {
+    data: tasksData,
+    isLoading: tasksLoading,
+    isError: tasksError,
+    refetch: refetchTasks,
+  } = useTasks({
     limit: 100,
   });
-  const { data: activityData } = useActivity({ limit: 10 });
-  const { data: members } = useOrgMembers();
-  const { data: pendingInvites } = usePendingInvites();
 
-  const isLoading = projectsLoading || tasksLoading;
-  const isError = projectsError || tasksError;
+  const { data: activityData } = useActivity({ limit: 10 });
+  const { data: members, isLoading: membersLoading } = useOrgMembers();
+  const { data: pendingInvites, isLoading: invitesLoading } = usePendingInvites();
 
   const totalProjects = projectsData?.meta?.total ?? 0;
   const totalTasks = tasksData?.meta?.total ?? 0;
   const totalMembers = members?.length ?? 0;
   const pendingInviteCount = pendingInvites?.length ?? 0;
   const teamHeadcount = totalMembers + pendingInviteCount;
-  const allTasks = tasksData?.data ?? [];
+  const allTasks = useMemo(() => tasksData?.data ?? [], [tasksData?.data]);
 
   const todoCount = useMemo(() => allTasks.filter((t: Task) => t.status === 'todo').length, [allTasks]);
   const inProgressCount = useMemo(
@@ -88,52 +117,101 @@ export default function DashboardPage() {
   const doneCount = useMemo(() => allTasks.filter((t: Task) => t.status === 'done').length, [allTasks]);
   const completionRate = totalTasks > 0 ? Math.round((doneCount / totalTasks) * 100) : 0;
 
-  const hasData = totalProjects > 0 || totalTasks > 0;
+  const hasWorkspaceContent = totalProjects > 0 || totalTasks > 0;
+  /** Org exists with structure but no task rows yet — charts need friendly placeholders */
+  const chartsNeedPlaceholders = hasValidOrgContext && hasWorkspaceContent && totalTasks === 0;
+  const activityItems = activityData?.data ?? [];
+  const activityIsEmpty = activityItems.length === 0;
 
-  if (isLoading) return <PageSkeleton variant="dashboard" />;
-  if (isError) {
+  const pageIntro = (
+    <header className="rounded-2xl border border-neutral-200/90 bg-white px-6 py-7 shadow-xs sm:px-8">
+      <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+        <div className="max-w-2xl">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Overview</p>
+          <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">Dashboard</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
+            {user?.firstName
+              ? `Hi ${user.firstName} — here’s what’s moving in your workspace.`
+              : 'Track tasks, flow, and team activity in one place.'}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="md"
+            leftIcon={<IconPlus className="h-4 w-4" />}
+            disabled={!hasValidOrgContext}
+            onClick={() => openProjectModal()}
+          >
+            New project
+          </Button>
+          <Button
+            type="button"
+            size="md"
+            leftIcon={<IconPlus className="h-4 w-4" />}
+            disabled={!hasValidOrgContext}
+            onClick={() => openTaskModal()}
+          >
+            New task
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+
+  if (orgsLoading) {
+    return <PageSkeleton variant="dashboard" />;
+  }
+
+  if (orgsError) {
+    return <ErrorState onRetry={() => refetchOrgs()} />;
+  }
+
+  if (!hasAnyOrganization) {
+    return (
+      <div className="space-y-8">
+        {pageIntro}
+        <NoOrganizationState />
+      </div>
+    );
+  }
+
+  if (!hasValidOrgContext) {
+    return (
+      <div className="space-y-8">
+        {pageIntro}
+        <WorkspaceSelectionPrompt />
+      </div>
+    );
+  }
+
+  const dataLoading =
+    projectsLoading || tasksLoading || membersLoading || invitesLoading;
+  const dataError = projectsError || tasksError;
+
+  if (dataLoading) {
+    return <PageSkeleton variant="dashboard" />;
+  }
+
+  if (dataError) {
     return <ErrorState onRetry={() => { refetchProjects(); refetchTasks(); }} />;
   }
 
   return (
     <div className="space-y-8">
-      {/* Page intro — light surface, pro dashboard style */}
-      <header className="rounded-2xl border border-neutral-200/90 bg-white px-6 py-7 shadow-xs sm:px-8">
-        <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Overview</p>
-            <h1 className="mt-1.5 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">Dashboard</h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-              {user?.firstName
-                ? `Hi ${user.firstName} — here’s what’s moving in your workspace.`
-                : 'Track tasks, flow, and team activity in one place.'}
-            </p>
-          </div>
-          <div className="flex shrink-0 flex-wrap gap-2">
-            <Link href="/projects">
-              <Button variant="secondary" size="md" leftIcon={<IconPlus className="h-4 w-4" />}>
-                New project
-              </Button>
-            </Link>
-            <Link href="/tasks">
-              <Button size="md" leftIcon={<IconPlus className="h-4 w-4" />}>
-                New task
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      {pageIntro}
 
-      {!hasData ? (
-        <EmptyState
-          title="Get started with TaskForge"
-          description="Create your first project to start organizing and tracking your team's work."
-          icon={<IconFolder className="h-6 w-6" />}
-          action={{ label: 'Create a project', onClick: () => (window.location.href = '/projects') }}
+      {!hasWorkspaceContent ? (
+        <WorkspaceReadyState
+          projectCount={totalProjects}
+          taskCount={totalTasks}
+          teamHeadcount={Math.max(teamHeadcount, 1)}
+          onCreateFirstProject={openProjectModal}
+          onOpenTaskModal={openTaskModal}
         />
       ) : (
         <>
-          {/* KPI strip — status-style rows like pro analytics templates */}
           <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {[
               {
@@ -196,7 +274,6 @@ export default function DashboardPage() {
             ))}
           </section>
 
-          {/* Charts row — high-density analytics */}
           <section className="grid gap-6 xl:grid-cols-12">
             <div className="xl:col-span-8">
               <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
@@ -208,7 +285,16 @@ export default function DashboardPage() {
                   <span className="text-xs font-medium text-neutral-400">Last 14 days</span>
                 </div>
                 <div className="px-4 pb-2 pt-4">
-                  <TasksTrendChart tasks={allTasks} height={300} />
+                  {chartsNeedPlaceholders ? (
+                    <EmptyChartPlaceholder
+                      title="No task flow yet"
+                      description="Create a few tasks and completions will appear on this timeline."
+                      icon={<IconActivity className="h-6 w-6" />}
+                      minHeight={300}
+                    />
+                  ) : (
+                    <TasksTrendChart tasks={allTasks} height={300} />
+                  )}
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-neutral-100 px-6 py-3 text-xs text-neutral-500">
                   <span className="flex items-center gap-2">
@@ -230,7 +316,16 @@ export default function DashboardPage() {
                   <p className="text-sm text-neutral-500">Share of tasks by column</p>
                 </div>
                 <div className="p-4 pb-6">
-                  <TaskCompositionDonut tasks={allTasks} height={240} />
+                  {chartsNeedPlaceholders ? (
+                    <EmptyChartPlaceholder
+                      title="No status mix yet"
+                      description="Once you add tasks, we’ll show how work spreads across columns."
+                      icon={<IconCheckSquare className="h-6 w-6" />}
+                      minHeight={240}
+                    />
+                  ) : (
+                    <TaskCompositionDonut tasks={allTasks} height={240} />
+                  )}
                 </div>
               </div>
             </div>
@@ -249,7 +344,16 @@ export default function DashboardPage() {
                   </Link>
                 </div>
                 <div className="px-2 pb-6 pt-4">
-                  <TaskStatusBarChart tasks={allTasks} height={260} />
+                  {chartsNeedPlaceholders ? (
+                    <EmptyChartPlaceholder
+                      title="No pipeline data yet"
+                      description="Add tasks to your projects to see volume by stage."
+                      icon={<IconBolt className="h-6 w-6" />}
+                      minHeight={260}
+                    />
+                  ) : (
+                    <TaskStatusBarChart tasks={allTasks} height={260} />
+                  )}
                 </div>
               </div>
             </div>
@@ -275,7 +379,12 @@ export default function DashboardPage() {
               <div className="space-y-5">
                 {[
                   { label: 'To do', count: todoCount, variant: 'todo' as const, color: 'primary' as const },
-                  { label: 'In progress', count: inProgressCount, variant: 'in-progress' as const, color: 'warning' as const },
+                  {
+                    label: 'In progress',
+                    count: inProgressCount,
+                    variant: 'in-progress' as const,
+                    color: 'warning' as const,
+                  },
                   { label: 'Done', count: doneCount, variant: 'done' as const, color: 'success' as const },
                 ].map((item) => (
                   <div key={item.label}>
@@ -322,9 +431,9 @@ export default function DashboardPage() {
                 </Link>
               </CardHeader>
 
-              {activityData?.data && activityData.data.length > 0 ? (
+              {!activityIsEmpty ? (
                 <div className="-mx-1 max-h-[320px] space-y-0.5 overflow-y-auto pr-1">
-                  {activityData.data.map((activity) => {
+                  {activityItems.map((activity) => {
                     const entityType = activity.entityType || activity.eventType?.split('.')[0] || 'default';
                     const icon = ENTITY_ICONS[entityType] || {
                       bg: 'bg-neutral-100',
@@ -354,12 +463,24 @@ export default function DashboardPage() {
                   })}
                 </div>
               ) : (
-                <div className="flex flex-col items-center py-10 text-center">
-                  <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
-                    <IconBolt className="h-5 w-5" />
+                <div className="rounded-xl border border-dashed border-neutral-200/90 bg-gradient-to-b from-neutral-50/80 to-white px-4 py-8 text-center">
+                  <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-xs ring-1 ring-neutral-100">
+                    <IconBolt className="h-5 w-5 text-primary-500" />
                   </div>
-                  <p className="text-sm font-medium text-neutral-600">No activity yet</p>
-                  <p className="mt-1 text-xs text-neutral-400">Actions will show up here</p>
+                  <p className="text-sm font-semibold text-neutral-800">Nothing in the feed yet</p>
+                  <p className="mx-auto mt-2 max-w-[220px] text-xs leading-relaxed text-neutral-500">
+                    Ship a task or invite someone — updates will land here so your team stays in sync.
+                  </p>
+                  <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+                    <Button type="button" variant="secondary" size="sm" onClick={() => openTaskModal()}>
+                      Create a task
+                    </Button>
+                    <Link href="/organizations">
+                      <Button variant="ghost" size="sm">
+                        Invite teammates
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               )}
             </Card>

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCreateTask, useUpdateTask } from '@/features/tasks/hooks/useTasks';
 import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
 import { useProjects } from '@/features/projects/hooks/useProjects';
+import { useOptionalDashboardModals } from '@/components/layout/dashboard-modals-context';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
@@ -11,6 +12,9 @@ import { Select } from '@/components/ui/select';
 import { TaskStatus, TaskPriority } from '@/types';
 import type { Task } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
+
+/** Sentinel value for project dropdown — closes task modal and opens create-project flow */
+export const TASK_MODAL_CREATE_PROJECT_VALUE = '__tf_create_project__';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -22,11 +26,30 @@ interface TaskModalProps {
 
 export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: TaskModalProps) {
   const isEdit = !!task;
+  const dashboardModals = useOptionalDashboardModals();
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const { data: members } = useOrgMembers();
   const { data: projectsData } = useProjects();
   const projects = projectsData?.data;
+
+  const projectSelectOptions = useMemo(() => {
+    const rows = projects?.map((p) => ({ value: p.id, label: p.name })) ?? [];
+    if (isEdit || projectId) return rows;
+    if (rows.length === 0 && dashboardModals) {
+      return [{ value: TASK_MODAL_CREATE_PROJECT_VALUE, label: '+ Create project' }];
+    }
+    return rows;
+  }, [projects, isEdit, projectId, dashboardModals]);
+
+  function handleProjectChange(value: string) {
+    if (value === TASK_MODAL_CREATE_PROJECT_VALUE) {
+      onClose();
+      queueMicrotask(() => dashboardModals?.openProjectModal());
+      return;
+    }
+    setSelectedProjectId(value);
+  }
 
   const [selectedProjectId, setSelectedProjectId] = useState(projectId || task?.projectId || '');
   const [title, setTitle] = useState('');
@@ -46,7 +69,7 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
       setAssignedTo(task?.assignedTo || '');
       setDueDate(task?.dueDate || '');
     }
-  }, [isOpen, task, projectId]);
+  }, [isOpen, task, projectId, defaultStatus]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -112,11 +135,9 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
             id="task-project"
             label="Project"
             value={selectedProjectId}
-            onChange={setSelectedProjectId}
-            placeholder="Select a project"
-            options={[
-              ...(projects?.map((p) => ({ value: p.id, label: p.name })) ?? []),
-            ]}
+            onChange={handleProjectChange}
+            placeholder={projectSelectOptions.length === 0 ? 'No projects yet' : 'Select a project'}
+            options={projectSelectOptions}
           />
         )}
 

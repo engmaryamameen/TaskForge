@@ -8,6 +8,7 @@ import { CommandPalette } from '@/features/command/command-palette';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { TaskModal } from '@/features/tasks/components/task-modal';
 import { CreateProjectModal } from '@/features/projects/components/create-project-modal';
+import { DashboardModalsContext } from '@/components/layout/dashboard-modals-context';
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,34 +35,38 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const openProjectModal = useCallback(() => setShowProjectModal(true), []);
 
   return (
-    <div className="flex h-screen bg-surface">
-      <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Topbar />
-        <main className="flex-1 overflow-auto">
-          <div className="mx-auto px-4 py-6 md:px-6 lg:px-8">
-            {children}
+    <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal }}>
+      <>
+        <div className="flex h-screen bg-surface">
+          <Sidebar />
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <Topbar />
+            <main className="flex-1 overflow-auto">
+              <div className="mx-auto px-4 py-6 md:px-6 lg:px-8">
+                {children}
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
+        </div>
 
-      <CommandPalette
-        isOpen={paletteOpen}
-        onClose={closePalette}
-        onOpenTaskModal={openTaskModal}
-        onOpenProjectModal={openProjectModal}
-      />
+        <CommandPalette
+          isOpen={paletteOpen}
+          onClose={closePalette}
+          onOpenTaskModal={openTaskModal}
+          onOpenProjectModal={openProjectModal}
+        />
 
-      <TaskModal
-        isOpen={showTaskModal}
-        onClose={() => setShowTaskModal(false)}
-        projectId={contextProjectId}
-      />
+        <TaskModal
+          isOpen={showTaskModal}
+          onClose={() => setShowTaskModal(false)}
+          projectId={contextProjectId}
+        />
 
-      <CreateProjectModal
-        isOpen={showProjectModal}
-        onClose={() => setShowProjectModal(false)}
-      />
-    </div>
+        <CreateProjectModal
+          isOpen={showProjectModal}
+          onClose={() => setShowProjectModal(false)}
+        />
+      </>
+    </DashboardModalsContext.Provider>
   );
 }
