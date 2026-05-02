@@ -83,8 +83,8 @@ export default function AcceptInvitePage({
   // Loading
   if (validating || !hydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
       </div>
     );
   }
@@ -92,12 +92,12 @@ export default function AcceptInvitePage({
   // Invalid/expired invite
   if (validateError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="w-full max-w-md px-4">
           <div className="rounded-lg bg-white p-8 shadow text-center">
-            <h1 className="mb-4 text-2xl font-bold text-gray-900">Invalid Invite</h1>
+            <h1 className="mb-4 text-2xl font-bold text-neutral-900">Invalid Invite</h1>
             <p className="text-sm text-red-600">{validateError}</p>
-            <Link href="/login" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+            <Link href="/login" className="mt-4 inline-block text-sm text-primary-600 hover:underline">
               Go to sign in
             </Link>
           </div>
@@ -115,15 +115,15 @@ export default function AcceptInvitePage({
     }
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="w-full max-w-md px-4">
           <div className="rounded-lg bg-white p-8 shadow text-center">
-            <h1 className="mb-2 text-2xl font-bold text-gray-900">You&apos;ve been invited</h1>
-            <p className="mb-1 text-sm text-gray-600">
+            <h1 className="mb-2 text-2xl font-bold text-neutral-900">You&apos;ve been invited</h1>
+            <p className="mb-1 text-sm text-neutral-600">
               Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
             </p>
             {inviteInfo?.email && (
-              <p className="mb-6 text-xs text-gray-500">
+              <p className="mb-6 text-xs text-neutral-500">
                 This invite is for <strong>{inviteInfo.email}</strong>
               </p>
             )}
@@ -131,13 +131,13 @@ export default function AcceptInvitePage({
             <div className="space-y-3">
               <Link
                 href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}
-                className="block w-full rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="block w-full rounded bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700"
               >
                 Sign in to accept
               </Link>
               <Link
                 href={`/register?${registerParams.toString()}`}
-                className="block w-full rounded border border-gray-300 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                className="block w-full rounded border border-neutral-300 px-6 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
               >
                 Create an account
               </Link>
@@ -150,11 +150,11 @@ export default function AcceptInvitePage({
 
   // Authenticated — show accept button
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-neutral-50">
       <div className="w-full max-w-md px-4">
         <div className="rounded-lg bg-white p-8 shadow text-center">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">Accept Invitation</h1>
-          <p className="mb-6 text-sm text-gray-600">
+          <h1 className="mb-2 text-2xl font-bold text-neutral-900">Accept Invitation</h1>
+          <p className="mb-6 text-sm text-neutral-600">
             Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
           </p>
 
@@ -169,7 +169,7 @@ export default function AcceptInvitePage({
               <p className="mb-4 text-sm text-green-700">Invitation accepted successfully!</p>
               <Link
                 href="/organizations"
-                className="text-sm font-medium text-blue-600 hover:underline"
+                className="text-sm font-medium text-primary-600 hover:underline"
               >
                 Go to organizations
               </Link>
@@ -178,7 +178,7 @@ export default function AcceptInvitePage({
             <button
               onClick={handleAccept}
               disabled={acceptInvite.isPending}
-              className="rounded bg-blue-600 px-6 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              className="rounded bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
             >
               {acceptInvite.isPending ? 'Accepting...' : 'Accept Invite'}
             </button>

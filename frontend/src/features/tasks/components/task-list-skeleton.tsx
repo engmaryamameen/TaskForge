@@ -1,9 +1,9 @@
 export function TaskListSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-lg bg-white shadow-soft">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase text-gray-500">
+          <tr className="border-b border-neutral-200 text-left text-xs font-medium uppercase text-neutral-500">
             <th className="px-4 py-3">Title</th>
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Priority</th>
@@ -12,15 +12,15 @@ export function TaskListSkeleton({ rows = 5 }: { rows?: number }) {
             <th className="px-4 py-3 w-16"></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 animate-pulse">
+        <tbody className="divide-y divide-neutral-100 animate-pulse">
           {Array.from({ length: rows }).map((_, i) => (
             <tr key={i}>
-              <td className="px-4 py-3"><div className="h-4 w-40 rounded bg-gray-200" /></td>
-              <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-gray-200" /></td>
-              <td className="px-4 py-3"><div className="h-5 w-16 rounded-full bg-gray-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-gray-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-gray-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-8 rounded bg-gray-200" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-40 rounded bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-5 w-16 rounded-full bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-8 rounded bg-neutral-200" /></td>
             </tr>
           ))}
         </tbody>

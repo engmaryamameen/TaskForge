@@ -4,22 +4,23 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Task } from '@/types';
 import { TaskPriority, TaskStatus } from '@/types';
-import { formatTaskPriority, formatDate, isOverdue, getInitials } from '@/lib/utils';
+import { formatTaskPriority, formatDate, isOverdue } from '@/lib/utils';
 import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
+import { Avatar } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { IconCalendar } from '@/components/icons';
 
 interface TaskBoardCardProps {
   task: Task;
   onEdit: (task: Task) => void;
 }
 
-function priorityColor(priority: TaskPriority): string {
-  switch (priority) {
-    case TaskPriority.URGENT: return 'bg-red-100 text-red-700';
-    case TaskPriority.HIGH: return 'bg-orange-100 text-orange-700';
-    case TaskPriority.MEDIUM: return 'bg-yellow-100 text-yellow-700';
-    case TaskPriority.LOW: return 'bg-gray-100 text-gray-600';
-  }
-}
+const PRIORITY_CONFIG: Record<TaskPriority, { variant: 'urgent' | 'high' | 'medium' | 'low' }> = {
+  [TaskPriority.URGENT]: { variant: 'urgent' },
+  [TaskPriority.HIGH]: { variant: 'high' },
+  [TaskPriority.MEDIUM]: { variant: 'medium' },
+  [TaskPriority.LOW]: { variant: 'low' },
+};
 
 export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
   const { data: members } = useOrgMembers();
@@ -35,42 +36,64 @@ export function TaskBoardCard({ task, onEdit }: TaskBoardCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : undefined,
   };
 
   const assignee = task.assignedTo
     ? members?.find((m) => m.userId === task.assignedTo)
     : null;
 
+  const priorityConfig = PRIORITY_CONFIG[task.priority];
+  const overdue = task.dueDate && isOverdue(task.dueDate) && task.status !== TaskStatus.DONE;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      onClick={() => onEdit(task)}
-      className="cursor-pointer rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition hover:shadow-md"
+      className={`group rounded-lg border bg-white transition-all select-none ${
+        isDragging
+          ? 'border-primary-300 shadow-medium ring-2 ring-primary-100'
+          : 'border-neutral-200 shadow-xs hover:shadow-soft hover:border-neutral-300'
+      }`}
     >
-      <p className="text-sm font-medium text-gray-900 line-clamp-2">{task.title}</p>
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-3.5">
+        <div className="flex items-start justify-between gap-2">
+          <p className="text-[13px] font-medium text-neutral-900 leading-snug flex-1">{task.title}</p>
+          <Badge variant={priorityConfig.variant} className="shrink-0">
+            {formatTaskPriority(task.priority)}
+          </Badge>
+        </div>
 
-      <div className="mt-2 flex items-center justify-between">
-        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${priorityColor(task.priority)}`}>
-          {formatTaskPriority(task.priority)}
-        </span>
-
-        <div className="flex items-center gap-2">
-          {task.dueDate && (
-            <span className={`text-xs ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-medium' : 'text-gray-500'}`}>
+        {task.dueDate && (
+          <div className={`mt-2.5 flex items-center gap-1.5 ${overdue ? 'text-danger-600' : 'text-neutral-400'}`}>
+            <IconCalendar className="h-3 w-3" />
+            <span className={`text-[11px] ${overdue ? 'font-semibold' : ''}`}>
               {formatDate(task.dueDate)}
             </span>
-          )}
-          {assignee?.user && (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-100 text-xs font-medium text-blue-700">
-              {getInitials(assignee.user.firstName, assignee.user.lastName)}
-            </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {assignee?.user && (
+          <div className="mt-2.5 flex items-center gap-2">
+            <Avatar
+              firstName={assignee.user.firstName}
+              lastName={assignee.user.lastName}
+              size="xs"
+            />
+            <span className="text-[11px] text-neutral-500">
+              {assignee.user.firstName} {assignee.user.lastName}
+            </span>
+          </div>
+        )}
       </div>
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onEdit(task); }}
+        className="w-full border-t border-neutral-100 py-1.5 text-[11px] text-neutral-400 opacity-0 group-hover:opacity-100 hover:bg-neutral-50 hover:text-neutral-600 transition-all rounded-b-lg"
+      >
+        View details
+      </button>
     </div>
   );
 }
