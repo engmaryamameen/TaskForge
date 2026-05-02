@@ -93,28 +93,28 @@ export function CommandPalette({
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
       <div className="fixed left-1/2 top-1/4 z-10 w-full max-w-lg -translate-x-1/2">
         <Cmdk
-          className="rounded-lg border border-gray-200 bg-white shadow-2xl"
+          className="rounded-lg border border-neutral-200 bg-white shadow-2xl"
           onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
           <Cmdk.Input
             value={search}
             onValueChange={setSearch}
             placeholder="Type a command or search..."
-            className="w-full border-b border-gray-200 px-4 py-3 text-sm outline-none placeholder:text-gray-400"
+            className="w-full border-b border-neutral-200 px-4 py-3 text-sm outline-none placeholder:text-neutral-400"
           />
           <Cmdk.List className="max-h-80 overflow-y-auto p-2">
-            <Cmdk.Empty className="px-4 py-6 text-center text-sm text-gray-500">
+            <Cmdk.Empty className="px-4 py-6 text-center text-sm text-neutral-500">
               {searching ? 'Searching...' : 'No results found.'}
             </Cmdk.Empty>
 
             {filtered.filter((c) => c.group === 'navigation').length > 0 && (
-              <Cmdk.Group heading="Navigation" className="text-xs font-medium text-gray-400 px-2 py-1.5">
+              <Cmdk.Group heading="Navigation" className="text-xs font-medium text-neutral-400 px-2 py-1.5">
                 {filtered.filter((c) => c.group === 'navigation').map((cmd) => (
                   <Cmdk.Item
                     key={cmd.id}
                     value={cmd.label}
                     onSelect={() => cmd.run(ctx)}
-                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-gray-700 aria-selected:bg-blue-50 aria-selected:text-blue-700"
+                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-neutral-700 aria-selected:bg-primary-50 aria-selected:text-primary-700"
                   >
                     <span>{cmd.label}</span>
                   </Cmdk.Item>
@@ -123,17 +123,17 @@ export function CommandPalette({
             )}
 
             {filtered.filter((c) => c.group === 'action').length > 0 && (
-              <Cmdk.Group heading="Actions" className="text-xs font-medium text-gray-400 px-2 py-1.5">
+              <Cmdk.Group heading="Actions" className="text-xs font-medium text-neutral-400 px-2 py-1.5">
                 {filtered.filter((c) => c.group === 'action').map((cmd) => (
                   <Cmdk.Item
                     key={cmd.id}
                     value={cmd.label}
                     onSelect={() => cmd.run(ctx)}
-                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-gray-700 aria-selected:bg-blue-50 aria-selected:text-blue-700"
+                    className="flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm text-neutral-700 aria-selected:bg-primary-50 aria-selected:text-primary-700"
                   >
                     <span>{cmd.label}</span>
                     {cmd.shortcut && (
-                      <span className="text-xs text-gray-400">{cmd.shortcut}</span>
+                      <span className="text-xs text-neutral-400">{cmd.shortcut}</span>
                     )}
                   </Cmdk.Item>
                 ))}
@@ -141,15 +141,15 @@ export function CommandPalette({
             )}
 
             {searchResults.length > 0 && (
-              <Cmdk.Group heading="Search Results" className="text-xs font-medium text-gray-400 px-2 py-1.5">
+              <Cmdk.Group heading="Search Results" className="text-xs font-medium text-neutral-400 px-2 py-1.5">
                 {searchResults.map((result) => (
                   <Cmdk.Item
                     key={`${result.type}-${result.id}`}
                     value={`${result.type} ${result.title}`}
                     onSelect={() => { router.push(result.path); onClose(); }}
-                    className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-700 aria-selected:bg-blue-50 aria-selected:text-blue-700"
+                    className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-neutral-700 aria-selected:bg-primary-50 aria-selected:text-primary-700"
                   >
-                    <span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs text-neutral-500">
                       {result.type}
                     </span>
                     <span>{result.title}</span>

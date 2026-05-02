@@ -7,7 +7,7 @@ import {
   useSwitchOrganization,
 } from '@/features/organizations/hooks/useOrganizations';
 import { useClickOutside } from '@/hooks/useClickOutside';
-import { IconChevronDown } from '@/components/icons';
+import { IconChevronDown, IconCheck } from '@/components/icons';
 
 export function OrgSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,26 +26,34 @@ export function OrgSwitcher() {
 
   if (currentLoading) {
     return (
-      <div className="mx-3 mb-4 h-10 animate-pulse rounded-md bg-gray-100" />
+      <div className="h-9 animate-pulse rounded-lg bg-neutral-100" />
     );
   }
 
   return (
-    <div ref={ref} className="relative mx-3 mb-4">
+    <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex w-full items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors"
+        className="flex w-full items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-[13px] font-semibold text-neutral-800 transition-all hover:border-neutral-300 hover:bg-white"
       >
-        <span className="truncate">{currentOrg?.name ?? 'Select organization'}</span>
+        <div className="flex items-center gap-2.5 truncate">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary-600 text-[10px] font-bold text-white shadow-xs">
+            {currentOrg?.name?.charAt(0).toUpperCase() ?? '?'}
+          </div>
+          <span className="truncate">{currentOrg?.name ?? 'Select workspace'}</span>
+        </div>
         <IconChevronDown
-          className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`h-3.5 w-3.5 flex-shrink-0 text-neutral-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 z-50 mt-1 rounded-md border border-gray-200 bg-white py-1 shadow-lg">
+        <div className="absolute left-0 right-0 z-50 mt-1.5 rounded-xl border border-neutral-200 bg-white py-1.5 shadow-overlay animate-slide-down">
+          <p className="px-3 pb-1.5 pt-1 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
+            Workspaces
+          </p>
           {orgsLoading ? (
-            <div className="px-3 py-2 text-sm text-gray-500">Loading...</div>
+            <div className="px-3 py-2 text-xs text-neutral-500">Loading...</div>
           ) : (
             orgs?.map((org) => {
               const isCurrent = org.id === currentOrg?.id;
@@ -54,15 +62,22 @@ export function OrgSwitcher() {
                   key={org.id}
                   onClick={() => !isCurrent && handleSwitch(org.id)}
                   disabled={isCurrent}
-                  className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                  className={`flex w-full items-center justify-between px-3 py-2 text-left text-[13px] transition-colors ${
                     isCurrent
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-50'
+                      ? 'bg-primary-50 text-primary-700 font-medium'
+                      : 'text-neutral-700 hover:bg-neutral-50'
                   }`}
                 >
-                  <span className="truncate">{org.name}</span>
+                  <div className="flex items-center gap-2.5 truncate">
+                    <div className={`flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-bold ${
+                      isCurrent ? 'bg-primary-600 text-white' : 'bg-neutral-200 text-neutral-600'
+                    }`}>
+                      {org.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="truncate">{org.name}</span>
+                  </div>
                   {isCurrent && (
-                    <span className="text-xs text-blue-500">Current</span>
+                    <IconCheck className="h-4 w-4 flex-shrink-0 text-primary-600" />
                   )}
                 </button>
               );

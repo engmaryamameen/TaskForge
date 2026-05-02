@@ -11,6 +11,10 @@ import { TaskList } from '@/features/tasks/components/task-list';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list-skeleton';
 import { TaskBoard } from '@/features/tasks/components/task-board';
 import { TaskModal } from '@/features/tasks/components/task-modal';
+import { Modal } from '@/components/ui/modal';
+import { Button } from '@/components/ui/button';
+import { Input, Textarea } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Role, TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
@@ -32,9 +36,9 @@ export default function ProjectDetailPage({
   const [taskPriorityFilter, setTaskPriorityFilter] = useState<TaskPriority | ''>('');
   const [viewMode, setViewMode] = useState<'table' | 'board'>(() => {
     if (typeof window !== 'undefined') {
-      return (localStorage.getItem('taskViewMode') as 'table' | 'board') || 'table';
+      return (localStorage.getItem('taskViewMode') as 'table' | 'board') || 'board';
     }
-    return 'table';
+    return 'board';
   });
 
   const { data: tasksData, isLoading: tasksLoading } = useTasksByProject(id, {
@@ -77,9 +81,9 @@ export default function ProjectDetailPage({
   if (projectLoading) {
     return (
       <div className="animate-pulse">
-        <div className="h-4 w-32 rounded bg-gray-200 mb-4" />
-        <div className="h-8 w-2/3 rounded bg-gray-200 mb-2" />
-        <div className="h-4 w-1/2 rounded bg-gray-200" />
+        <div className="h-4 w-32 rounded bg-neutral-200 mb-4" />
+        <div className="h-8 w-2/3 rounded bg-neutral-200 mb-2" />
+        <div className="h-4 w-1/2 rounded bg-neutral-200" />
       </div>
     );
   }
@@ -88,7 +92,7 @@ export default function ProjectDetailPage({
     return (
       <div className="text-center py-12">
         <p className="text-sm text-red-500">Project not found.</p>
-        <Link href="/projects" className="mt-2 text-sm text-blue-600 hover:underline">
+        <Link href="/projects" className="mt-2 text-sm text-primary-600 hover:underline">
           Back to Projects
         </Link>
       </div>
@@ -98,35 +102,41 @@ export default function ProjectDetailPage({
   const tasks = tasksData?.data;
   const hasTasks = tasks && tasks.length > 0;
 
+  const taskStatusFilterOptions = [
+    { value: '', label: 'All statuses' },
+    ...Object.values(TaskStatus).map((s) => ({
+      value: s,
+      label: formatTaskStatus(s),
+    })),
+  ];
+
+  const taskPriorityFilterOptions = [
+    { value: '', label: 'All priorities' },
+    ...Object.values(TaskPriority).map((p) => ({
+      value: p,
+      label: formatTaskPriority(p),
+    })),
+  ];
+
   return (
     <div>
       {/* Back link */}
-      <Link href="/projects" className="mb-4 inline-block text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/projects" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-700">
         &larr; Back to Projects
       </Link>
 
       {/* Project header */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
+          <h1 className="text-2xl font-bold text-neutral-900">{project.name}</h1>
           {project.description && (
-            <p className="mt-1 text-gray-600">{project.description}</p>
+            <p className="mt-1 text-neutral-600">{project.description}</p>
           )}
         </div>
         {canEdit && (
           <div className="flex gap-2">
-            <button
-              onClick={openEditModal}
-              className="rounded bg-gray-100 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-200"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="rounded bg-red-50 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-100"
-            >
-              Delete
-            </button>
+            <Button variant="secondary" size="sm" onClick={openEditModal}>Edit</Button>
+            <Button variant="danger" size="sm" onClick={() => setShowDeleteConfirm(true)}>Delete</Button>
           </div>
         )}
       </div>
@@ -134,53 +144,42 @@ export default function ProjectDetailPage({
       {/* Tasks section */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold text-gray-900">Tasks</h2>
-          <div className="flex rounded-md border border-gray-300">
+          <h2 className="text-lg font-semibold text-neutral-900">Tasks</h2>
+          <div className="flex rounded-md border border-neutral-200">
             <button
               onClick={() => { setViewMode('table'); localStorage.setItem('taskViewMode', 'table'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Table
             </button>
             <button
               onClick={() => { setViewMode('board'); localStorage.setItem('taskViewMode', 'board'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Board
             </button>
           </div>
         </div>
-        <button
-          onClick={() => setShowTaskModal(true)}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Add Task
-        </button>
+        <Button size="sm" onClick={() => setShowTaskModal(true)}>Add Task</Button>
       </div>
 
       {/* Task filters (table view only — board IS the status view) */}
       {viewMode === 'table' && (
-        <div className="mb-4 flex gap-3">
-          <select
-            value={taskStatusFilter}
-            onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-          >
-            <option value="">All statuses</option>
-            {Object.values(TaskStatus).map((s) => (
-              <option key={s} value={s}>{formatTaskStatus(s)}</option>
-            ))}
-          </select>
-          <select
-            value={taskPriorityFilter}
-            onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
-            className="rounded border border-gray-300 px-3 py-1.5 text-sm"
-          >
-            <option value="">All priorities</option>
-            {Object.values(TaskPriority).map((p) => (
-              <option key={p} value={p}>{formatTaskPriority(p)}</option>
-            ))}
-          </select>
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="w-44">
+            <Select
+              value={taskStatusFilter}
+              onChange={(v) => setTaskStatusFilter(v as TaskStatus | '')}
+              options={taskStatusFilterOptions}
+            />
+          </div>
+          <div className="w-44">
+            <Select
+              value={taskPriorityFilter}
+              onChange={(v) => setTaskPriorityFilter(v as TaskPriority | '')}
+              options={taskPriorityFilterOptions}
+            />
+          </div>
         </div>
       )}
 
@@ -195,11 +194,11 @@ export default function ProjectDetailPage({
       )}
 
       {!tasksLoading && !hasTasks && (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-sm text-gray-500">No tasks in this project yet.</p>
+        <div className="rounded-lg bg-white p-8 text-center shadow-soft">
+          <p className="text-sm text-neutral-500">No tasks in this project yet.</p>
           <button
             onClick={() => setShowTaskModal(true)}
-            className="mt-3 text-sm font-medium text-blue-600 hover:underline"
+            className="mt-3 text-sm font-medium text-primary-600 hover:underline"
           >
             Add your first task
           </button>
@@ -214,62 +213,56 @@ export default function ProjectDetailPage({
       />
 
       {/* Project edit modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowEditModal(false)} />
-          <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Edit Project</h2>
-            <form onSubmit={handleEdit} className="space-y-4">
-              <div>
-                <label htmlFor="edit-name" className="mb-1 block text-sm font-medium text-gray-700">Name</label>
-                <input
-                  id="edit-name"
-                  type="text"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  autoFocus
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-desc" className="mb-1 block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                  id="edit-desc"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  rows={3}
-                  className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div className="flex justify-end gap-3">
-                <button type="button" onClick={() => setShowEditModal(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
-                <button type="submit" disabled={updateProject.isPending || !editName.trim()} className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
-                  {updateProject.isPending ? 'Saving...' : 'Save'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        title="Edit Project"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>Cancel</Button>
+            <Button type="submit" form="edit-project-form" loading={updateProject.isPending} disabled={!editName.trim()}>
+              Save
+            </Button>
+          </>
+        }
+      >
+        <form id="edit-project-form" onSubmit={handleEdit} className="space-y-4">
+          <Input
+            id="edit-name"
+            label="Name"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+            autoFocus
+          />
+          <Textarea
+            id="edit-desc"
+            label="Description"
+            value={editDescription}
+            onChange={(e) => setEditDescription(e.target.value)}
+            rows={3}
+          />
+        </form>
+      </Modal>
 
       {/* Delete confirmation modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="relative z-10 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-2 text-lg font-semibold text-gray-900">Delete Project</h2>
-            <p className="mb-4 text-sm text-gray-600">
-              Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button onClick={() => setShowDeleteConfirm(false)} className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Cancel</button>
-              <button onClick={handleDelete} disabled={deleteProject.isPending} className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50">
-                {deleteProject.isPending ? 'Deleting...' : 'Delete'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        title="Delete Project"
+        size="sm"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+            <Button variant="danger" onClick={handleDelete} loading={deleteProject.isPending}>
+              Delete
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm text-neutral-600">
+          Are you sure you want to delete <strong>{project.name}</strong>? This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 }

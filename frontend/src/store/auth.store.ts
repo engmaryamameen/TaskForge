@@ -10,11 +10,13 @@ interface AuthState {
   refreshToken: string | null;
   currentOrganizationId: string | null;
   status: AuthStatus;
+  _hasHydrated: boolean;
 
   setAuth: (user: User, accessToken: string, refreshToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   setCurrentOrganization: (orgId: string) => void;
   setStatus: (status: AuthStatus) => void;
+  setHasHydrated: (v: boolean) => void;
   logout: () => void;
 }
 
@@ -26,6 +28,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       currentOrganizationId: null,
       status: 'loading' as AuthStatus,
+      _hasHydrated: false,
 
       setAuth: (user, accessToken, refreshToken) =>
         set({
@@ -45,6 +48,9 @@ export const useAuthStore = create<AuthState>()(
       setStatus: (status) =>
         set({ status }),
 
+      setHasHydrated: (v) =>
+        set({ _hasHydrated: v }),
+
       logout: () =>
         set({
           user: null,
@@ -56,18 +62,32 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'taskforge-auth',
+      // Avoid hydrating during SSR / missing window; Providers calls persist.rehydrate() on the client.
+      skipHydration: true,
       partialize: (state) => ({
         accessToken: state.accessToken,
         refreshToken: state.refreshToken,
         user: state.user,
         currentOrganizationId: state.currentOrganizationId,
       }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.accessToken) {
-          useAuthStore.setState({ status: 'loading' });
-        } else {
-          useAuthStore.setState({ status: 'unauthenticated' });
-        }
+      onRehydrateStorage: () => {
+        return (state, error) => {
+          if (error) {
+            useAuthStore.setState({ status: 'unauthenticated', _hasHydrated: true });
+            return;
+          }
+          if (state) {
+            if (state.accessToken && state.user) {
+              useAuthStore.setState({ status: 'authenticated', _hasHydrated: true });
+            } else if (state.accessToken) {
+              useAuthStore.setState({ status: 'loading', _hasHydrated: true });
+            } else {
+              useAuthStore.setState({ status: 'unauthenticated', _hasHydrated: true });
+            }
+          } else {
+            useAuthStore.setState({ status: 'unauthenticated', _hasHydrated: true });
+          }
+        };
       },
     },
   ),

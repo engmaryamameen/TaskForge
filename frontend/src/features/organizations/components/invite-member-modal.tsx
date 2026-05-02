@@ -2,6 +2,10 @@
 
 import { useState } from 'react';
 import { useCreateInvite } from '@/features/organizations/hooks/useOrganizations';
+import { Modal } from '@/components/ui/modal';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Role, ApiError } from '@/types';
 
 interface InviteMemberModalProps {
@@ -18,145 +22,111 @@ function getInviteErrorMessage(error: Error): string {
         return 'You need admin access to invite members.';
       case 'PLAN_LIMIT_EXCEEDED':
         return 'Your plan has reached the member limit.';
+      case 'INVITE_ALREADY_USED':
+        return error.message;
+      case 'VALIDATION_ERROR':
+        return error.message;
     }
   }
-  return 'Failed to create invite. Please try again.';
+  return error.message || 'Failed to send invitation. Please try again.';
 }
 
 export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>(Role.MEMBER);
-  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const createInvite = useCreateInvite();
-
-  if (!isOpen) return null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setInviteUrl(null);
+    const trimmed = email.trim();
+    if (!trimmed) return;
 
-    const { data } = await createInvite.mutateAsync({
-      email: email.trim() || undefined,
+    const res = await createInvite.mutateAsync({
+      email: trimmed,
       role,
     });
 
-    const token = data.data!.token;
-    if (typeof window !== 'undefined') {
-      setInviteUrl(`${window.location.origin}/invite/${token}`);
-    }
-  }
-
-  function handleCopy() {
-    if (inviteUrl) {
-      navigator.clipboard.writeText(inviteUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    setSentTo(trimmed);
+    setEmailSent(res.data.data?.emailSent ?? false);
   }
 
   function handleClose() {
     setEmail('');
     setRole(Role.MEMBER);
-    setInviteUrl(null);
-    setCopied(false);
+    setSentTo(null);
+    setEmailSent(null);
     createInvite.reset();
     onClose();
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="fixed inset-0 bg-black/50" onClick={handleClose} />
-      <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Invite Member</h2>
+    <Modal isOpen={isOpen} onClose={handleClose} title="Invite member">
+      {createInvite.error && !sentTo && (
+        <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-700">
+          {getInviteErrorMessage(createInvite.error)}
+        </div>
+      )}
 
-        {createInvite.error && (
-          <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-            {getInviteErrorMessage(createInvite.error)}
+      {sentTo ? (
+        <div className="space-y-4">
+          <p className="text-sm leading-relaxed text-neutral-600">
+            {emailSent ? (
+              <>
+                We sent an invitation email to <strong className="text-neutral-900">{sentTo}</strong>. They can
+                accept from their inbox to join this workspace.
+              </>
+            ) : (
+              <>
+                We couldn&apos;t send email to <strong className="text-neutral-900">{sentTo}</strong> right now.
+                Check SMTP settings on the server. The invitation is still pending—you can see it in Team Members.
+              </>
+            )}
+          </p>
+          <div className="flex justify-end">
+            <Button onClick={handleClose}>Done</Button>
           </div>
-        )}
-
-        {inviteUrl ? (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600">
-              Share this link to invite {email ? <strong>{email}</strong> : 'someone'} to the organization:
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Input
+              id="invite-email"
+              label="Email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="teammate@company.com"
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              We&apos;ll email them a secure link to join—nothing to copy manually.
             </p>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={inviteUrl}
-                className="flex-1 rounded border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-700"
-              />
-              <button
-                onClick={handleCopy}
-                className="rounded bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-              >
-                {copied ? 'Copied!' : 'Copy'}
-              </button>
-            </div>
-            <div className="flex justify-end">
-              <button
-                onClick={handleClose}
-                className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-              >
-                Done
-              </button>
-            </div>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="invite-email" className="mb-1 block text-sm font-medium text-gray-700">
-                Email (optional)
-              </label>
-              <input
-                id="invite-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="teammate@company.com"
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              />
-              <p className="mt-1 text-xs text-gray-500">
-                Leave empty to create a generic invite link.
-              </p>
-            </div>
 
-            <div>
-              <label htmlFor="invite-role" className="mb-1 block text-sm font-medium text-gray-700">
-                Role
-              </label>
-              <select
-                id="invite-role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value={Role.MEMBER}>Member</option>
-                <option value={Role.ADMIN}>Admin</option>
-              </select>
-            </div>
+          <Select
+            id="invite-role"
+            label="Role"
+            value={role}
+            onChange={(v) => setRole(v as Role)}
+            options={[
+              { value: Role.MEMBER, label: 'Member' },
+              { value: Role.ADMIN, label: 'Admin' },
+            ]}
+          />
 
-            <div className="flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={handleClose}
-                className="rounded px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={createInvite.isPending}
-                className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-              >
-                {createInvite.isPending ? 'Creating...' : 'Create Invite'}
-              </button>
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
+          <div className="flex justify-end gap-3">
+            <Button type="button" variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={createInvite.isPending} disabled={!email.trim()}>
+              Send invitation
+            </Button>
+          </div>
+        </form>
+      )}
+    </Modal>
   );
 }

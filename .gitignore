@@ -9,3 +9,6 @@ nginx/certs/*.pem
 
 # Local development secrets
 .env.development
+UI
+/UI/
+./UI/*

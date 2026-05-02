@@ -2,13 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Input } from '@/components/ui/input';
+import { IconSearch } from '@/components/icons';
 
 interface ProjectFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
+  className?: string;
 }
 
-export function ProjectFilters({ search, onSearchChange }: ProjectFiltersProps) {
+export function ProjectFilters({ search, onSearchChange, className = '' }: ProjectFiltersProps) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 300);
 
@@ -16,19 +19,19 @@ export function ProjectFilters({ search, onSearchChange }: ProjectFiltersProps) 
     onSearchChange(debouncedSearch);
   }, [debouncedSearch, onSearchChange]);
 
-  // Sync external search changes (e.g. URL navigation)
   useEffect(() => {
     setLocalSearch(search);
   }, [search]);
 
   return (
-    <div className="flex gap-3">
-      <input
+    <div className={`w-full md:max-w-md lg:max-w-lg ${className}`}>
+      <Input
         type="text"
         value={localSearch}
         onChange={(e) => setLocalSearch(e.target.value)}
-        placeholder="Search projects..."
-        className="w-full max-w-sm rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        placeholder="Search by name or description..."
+        leftIcon={<IconSearch className="h-4 w-4" />}
+        className="h-10 rounded-xl border-neutral-200/90 bg-neutral-50/50 shadow-xs placeholder:text-neutral-400 focus:bg-white"
       />
     </div>
   );

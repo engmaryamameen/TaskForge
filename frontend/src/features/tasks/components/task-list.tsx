@@ -6,6 +6,7 @@ import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
 import { TaskModal } from './task-modal';
 import type { Task } from '@/types';
 import { TaskStatus, TaskPriority } from '@/types';
+import { Select } from '@/components/ui/select';
 import { formatTaskStatus, formatTaskPriority, formatDate, isOverdue } from '@/lib/utils';
 
 interface TaskListProps {
@@ -15,20 +16,30 @@ interface TaskListProps {
 
 function statusColor(status: TaskStatus): string {
   switch (status) {
-    case TaskStatus.TODO: return 'bg-gray-100 text-gray-700';
-    case TaskStatus.IN_PROGRESS: return 'bg-blue-100 text-blue-700';
-    case TaskStatus.DONE: return 'bg-green-100 text-green-700';
+    case TaskStatus.TODO: return 'border-0 bg-neutral-100 text-neutral-600';
+    case TaskStatus.IN_PROGRESS: return 'border-0 bg-primary-50 text-primary-700';
+    case TaskStatus.DONE: return 'border-0 bg-green-50 text-green-700';
   }
 }
 
 function priorityColor(priority: TaskPriority): string {
   switch (priority) {
-    case TaskPriority.URGENT: return 'bg-red-100 text-red-700';
-    case TaskPriority.HIGH: return 'bg-orange-100 text-orange-700';
-    case TaskPriority.MEDIUM: return 'bg-yellow-100 text-yellow-700';
-    case TaskPriority.LOW: return 'bg-gray-100 text-gray-600';
+    case TaskPriority.URGENT: return 'border-0 bg-red-50 text-red-700';
+    case TaskPriority.HIGH: return 'border-0 bg-orange-50 text-orange-700';
+    case TaskPriority.MEDIUM: return 'border-0 bg-yellow-50 text-yellow-700';
+    case TaskPriority.LOW: return 'border-0 bg-neutral-100 text-neutral-500';
   }
 }
+
+const STATUS_OPTIONS = Object.values(TaskStatus).map((s) => ({
+  value: s,
+  label: formatTaskStatus(s),
+}));
+
+const PRIORITY_OPTIONS = Object.values(TaskPriority).map((p) => ({
+  value: p,
+  label: formatTaskPriority(p),
+}));
 
 export function TaskList({ tasks, projectId }: TaskListProps) {
   const updateTask = useUpdateTask();
@@ -54,62 +65,60 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white shadow-soft">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs font-medium uppercase text-gray-500">
-              <th className="px-4 py-3">Title</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Priority</th>
-              <th className="px-4 py-3">Assignee</th>
-              <th className="px-4 py-3">Due Date</th>
-              <th className="px-4 py-3 w-16"></th>
+            <tr className="border-b border-neutral-200 bg-neutral-50 text-left">
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Title</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Status</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Priority</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Assignee</th>
+              <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">Due Date</th>
+              <th className="px-4 py-2.5 w-16"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-neutral-100">
             {tasks.map((task) => (
-              <tr key={task.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-4 py-3">
-                  <span className="font-medium text-gray-900">{task.title}</span>
+              <tr key={task.id} className="hover:bg-primary-50/30 transition-colors">
+                <td className="px-4 py-2.5">
+                  <span className="font-medium text-neutral-900">{task.title}</span>
                 </td>
-                <td className="px-4 py-3">
-                  <select
+                <td className="px-4 py-2.5">
+                  <Select
+                    id={`task-${task.id}-status`}
                     value={task.status}
-                    onChange={(e) => handleStatusChange(task, e.target.value as TaskStatus)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${statusColor(task.status)}`}
-                  >
-                    {Object.values(TaskStatus).map((s) => (
-                      <option key={s} value={s}>{formatTaskStatus(s)}</option>
-                    ))}
-                  </select>
+                    onChange={(v) => handleStatusChange(task, v as TaskStatus)}
+                    options={STATUS_OPTIONS}
+                    size="sm"
+                    triggerClassName={`cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary-200 ${statusColor(task.status)}`}
+                  />
                 </td>
-                <td className="px-4 py-3">
-                  <select
+                <td className="px-4 py-2.5">
+                  <Select
+                    id={`task-${task.id}-priority`}
                     value={task.priority}
-                    onChange={(e) => handlePriorityChange(task, e.target.value as TaskPriority)}
-                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium border-0 cursor-pointer ${priorityColor(task.priority)}`}
-                  >
-                    {Object.values(TaskPriority).map((p) => (
-                      <option key={p} value={p}>{formatTaskPriority(p)}</option>
-                    ))}
-                  </select>
+                    onChange={(v) => handlePriorityChange(task, v as TaskPriority)}
+                    options={PRIORITY_OPTIONS}
+                    size="sm"
+                    triggerClassName={`cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-primary-200 ${priorityColor(task.priority)}`}
+                  />
                 </td>
-                <td className="px-4 py-3 text-gray-600">
+                <td className="px-4 py-2.5 text-xs text-neutral-600">
                   {getMemberName(task.assignedTo)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-2.5">
                   {task.dueDate ? (
-                    <span className={isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-medium' : 'text-gray-600'}>
+                    <span className={`text-xs ${isOverdue(task.dueDate) && task.status !== TaskStatus.DONE ? 'text-red-600 font-semibold' : 'text-neutral-500'}`}>
                       {formatDate(task.dueDate)}
                     </span>
                   ) : (
-                    <span className="text-gray-400">—</span>
+                    <span className="text-neutral-300 text-xs">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-2.5">
                   <button
                     onClick={() => setEditingTask(task)}
-                    className="text-xs text-gray-500 hover:text-gray-700"
+                    className="rounded px-2 py-1 text-xs text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors"
                   >
                     Edit
                   </button>
