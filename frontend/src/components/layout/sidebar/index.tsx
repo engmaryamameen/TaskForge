@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { NavItem } from './nav-item';
 import { OrgSwitcher } from './org-switcher';
@@ -14,14 +14,9 @@ import {
   IconSettings,
   IconBolt,
   IconSearch,
-  IconBarChart,
-  IconClipboardList,
-  IconUserPlus,
-  IconMail,
-  IconCalendar,
-  IconGlobe,
 } from '@/components/icons';
 import { useCommandPalette } from '@/features/command/use-command-palette';
+import { matchTasksSubNav } from '@/features/tasks/lib/task-subnav-match';
 
 const navigation = [
   {
@@ -43,7 +38,12 @@ const navigation = [
         icon: IconCheckSquare,
         exact: false,
         subLinks: [
-          { href: '/tasks', label: 'Board View' },
+          { href: '/tasks', label: 'Board view' },
+          { href: '/tasks?status=todo', label: 'To Do' },
+          { href: '/tasks?status=in-progress', label: 'In progress' },
+          { href: '/tasks?status=done', label: 'Done' },
+          { href: '/tasks?assignee=me', label: 'My tasks' },
+          { href: '/tasks?due=soon', label: 'Due soon' },
         ],
       },
     ],
@@ -76,6 +76,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const { open: openPalette } = useCommandPalette();
 
@@ -148,6 +149,11 @@ export function Sidebar() {
                       isActive={isActive}
                       onClick={closeMobileSidebar}
                       subLinks={item.subLinks}
+                      subLinkIsActive={
+                        item.href === '/tasks'
+                          ? (subHref) => matchTasksSubNav(pathname, searchParams, subHref)
+                          : undefined
+                      }
                     />
                   );
                 })}

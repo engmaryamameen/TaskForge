@@ -4,7 +4,7 @@ import type { User } from '@/types';
 
 export type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   accessToken: string | null;
   refreshToken: string | null;

@@ -37,4 +37,11 @@ export class UsersService {
   async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
     return this.usersRepository.updatePasswordHash(userId, passwordHash);
   }
+
+  async updateProfile(
+    userId: string,
+    patch: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    return this.usersRepository.updateProfile(userId, patch);
+  }
 }

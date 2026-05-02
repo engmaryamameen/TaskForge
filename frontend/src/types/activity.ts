@@ -1,3 +1,4 @@
+import type { PaginationParams } from './api';
 import { EventType } from './enums';
 
 export interface Activity {
@@ -10,3 +11,17 @@ export interface Activity {
   triggeredBy: string;
   createdAt: string;
 }
+
+export interface ActivityListParams extends PaginationParams {
+  entityType?: string;
+  entityId?: string;
+  triggeredBy?: string;
+}
+
+export type ActivityTabFilter =
+  | 'all'
+  | 'mine'
+  | 'assigned'
+  | 'tasks'
+  | 'projects'
+  | 'team';

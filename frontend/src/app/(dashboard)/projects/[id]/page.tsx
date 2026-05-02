@@ -121,7 +121,10 @@ export default function ProjectDetailPage({
   return (
     <div>
       {/* Back link */}
-      <Link href="/projects" className="mb-4 inline-block text-sm text-neutral-500 hover:text-neutral-700">
+      <Link
+        href="/projects"
+        className="mb-4 inline-block cursor-pointer text-sm text-neutral-500 hover:text-neutral-700"
+      >
         &larr; Back to Projects
       </Link>
 
@@ -135,8 +138,12 @@ export default function ProjectDetailPage({
         </div>
         {canEdit && (
           <div className="flex gap-2">
-            <Button variant="secondary" size="sm" onClick={openEditModal}>Edit</Button>
-            <Button variant="danger" size="sm" onClick={() => setShowDeleteConfirm(true)}>Delete</Button>
+            <Button variant="secondary" size="sm" className="cursor-pointer" onClick={openEditModal}>
+              Edit
+            </Button>
+            <Button variant="danger" size="sm" className="cursor-pointer" onClick={() => setShowDeleteConfirm(true)}>
+              Delete
+            </Button>
           </div>
         )}
       </div>
@@ -147,20 +154,24 @@ export default function ProjectDetailPage({
           <h2 className="text-lg font-semibold text-neutral-900">Tasks</h2>
           <div className="flex rounded-md border border-neutral-200">
             <button
+              type="button"
               onClick={() => { setViewMode('table'); localStorage.setItem('taskViewMode', 'table'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
+              className={`cursor-pointer px-3 py-1 text-xs font-medium ${viewMode === 'table' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Table
             </button>
             <button
+              type="button"
               onClick={() => { setViewMode('board'); localStorage.setItem('taskViewMode', 'board'); }}
-              className={`px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
+              className={`cursor-pointer px-3 py-1 text-xs font-medium ${viewMode === 'board' ? 'bg-neutral-100 text-neutral-900' : 'text-neutral-500 hover:text-neutral-700'}`}
             >
               Board
             </button>
           </div>
         </div>
-        <Button size="sm" onClick={() => setShowTaskModal(true)}>Add Task</Button>
+        <Button size="sm" className="cursor-pointer" onClick={() => setShowTaskModal(true)}>
+          Add Task
+        </Button>
       </div>
 
       {/* Task filters (table view only — board IS the status view) */}
@@ -197,8 +208,9 @@ export default function ProjectDetailPage({
         <div className="rounded-lg bg-white p-8 text-center shadow-soft">
           <p className="text-sm text-neutral-500">No tasks in this project yet.</p>
           <button
+            type="button"
             onClick={() => setShowTaskModal(true)}
-            className="mt-3 text-sm font-medium text-primary-600 hover:underline"
+            className="mt-3 cursor-pointer text-sm font-medium text-primary-600 hover:underline"
           >
             Add your first task
           </button>
