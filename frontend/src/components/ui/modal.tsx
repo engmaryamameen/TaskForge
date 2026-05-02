@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { IconX } from '@/components/icons';
 
 interface ModalProps {
@@ -21,29 +21,61 @@ const sizeStyles = {
 };
 
 export function Modal({ isOpen, onClose, title, description, children, footer, size = 'md' }: ModalProps) {
+  const [visible, setVisible] = useState(false);
+  const [animating, setAnimating] = useState(false);
+
   useEffect(() => {
-    if (!isOpen) return;
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleEsc);
-    document.body.style.overflow = 'hidden';
+    if (isOpen) {
+      setVisible(true);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setAnimating(true));
+      });
+      document.body.style.overflow = 'hidden';
+    } else {
+      setAnimating(false);
+      const timer = setTimeout(() => {
+        setVisible(false);
+        document.body.style.overflow = '';
+      }, 200);
+      return () => clearTimeout(timer);
+    }
     return () => {
-      document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = '';
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  const handleEsc = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
+  }, [onClose]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.addEventListener('keydown', handleEsc);
+      return () => document.removeEventListener('keydown', handleEsc);
+    }
+  }, [isOpen, handleEsc]);
+
+  if (!visible) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm"
+        className={`fixed inset-0 bg-neutral-900/50 backdrop-blur-sm transition-opacity duration-200 ease-out ${
+          animating ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={onClose}
       />
 
-      <div className={`relative z-10 w-full ${sizeStyles[size]} rounded-xl bg-white shadow-overlay animate-scale-in`}>
+      {/* Panel */}
+      <div
+        className={`relative z-10 w-full ${sizeStyles[size]} rounded-2xl bg-white shadow-overlay transition-all duration-200 ease-out ${
+          animating
+            ? 'opacity-100 scale-100 translate-y-0'
+            : 'opacity-0 scale-95 translate-y-2'
+        }`}
+      >
+        {/* Header */}
         <div className="flex items-start justify-between border-b border-neutral-100 px-6 py-4">
           <div>
             <h2 className="text-base font-semibold text-neutral-900">{title}</h2>
@@ -53,19 +85,21 @@ export function Modal({ isOpen, onClose, title, description, children, footer, s
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors -mr-1"
+            className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors -mr-1 cursor-pointer"
             aria-label="Close"
           >
             <IconX className="h-4 w-4" />
           </button>
         </div>
 
+        {/* Body */}
         <div className="px-6 py-5 max-h-[70vh] overflow-y-auto">
           {children}
         </div>
 
+        {/* Footer */}
         {footer && (
-          <div className="flex justify-end gap-3 border-t border-neutral-100 bg-neutral-50/50 px-6 py-4 rounded-b-xl">
+          <div className="flex justify-end gap-3 border-t border-neutral-100 bg-neutral-50/50 px-6 py-4 rounded-b-2xl">
             {footer}
           </div>
         )}
