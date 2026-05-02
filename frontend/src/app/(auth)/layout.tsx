@@ -9,7 +9,8 @@ export default function AuthLayout({
 }) {
   const status = useSessionGuard('guest');
 
-  if (status !== 'unauthenticated') return null;
+  /* Allow loading + unauthenticated so signup/check-email render during hydrate */
+  if (status === 'authenticated') return null;
 
   return <>{children}</>;
 }

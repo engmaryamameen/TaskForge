@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useRegister } from '@/features/auth/hooks/useAuth';
@@ -32,16 +32,15 @@ interface FormErrors {
   password?: string;
 }
 
-export default function RegisterPage() {
+function RegisterPageContent() {
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') ?? undefined;
   const prefillEmail = searchParams.get('email') ?? '';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
-  const register = useRegister(redirect);
+  const register = useRegister();
 
   function validate(): boolean {
     const next: FormErrors = {};
@@ -207,5 +206,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-neutral-500">Loading…</div>}>
+      <RegisterPageContent />
+    </Suspense>
   );
 }

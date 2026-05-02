@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useLogin } from '@/features/auth/hooks/useAuth';
+import { useLogin, useResendVerification } from '@/features/auth/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { IconBolt, IconCheckSquare, IconUsers, IconFolder } from '@/components/icons';
@@ -20,18 +20,21 @@ function getAuthErrorMessage(error: Error): string {
         return 'Unable to connect. Please check your internet connection.';
       case 'TIMEOUT':
         return 'The request timed out. Please try again.';
+      case 'EMAIL_NOT_VERIFIED':
+        return 'Please verify your email before signing in.';
     }
   }
   return 'Something went wrong. Please try again.';
 }
 
-export default function LoginPage() {
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') ?? undefined;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const login = useLogin(redirect);
+  const resend = useResendVerification();
 
   function validate(): boolean {
     const next: { email?: string; password?: string } = {};
@@ -149,9 +152,19 @@ export default function LoginPage() {
             />
 
             <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label htmlFor="password" className="text-sm font-medium text-neutral-700">
+                  Password
+                </label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
-                label="Password"
                 type="password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
@@ -159,6 +172,18 @@ export default function LoginPage() {
                 placeholder="Enter your password"
               />
             </div>
+
+            {login.error instanceof ApiError && login.error.code === 'EMAIL_NOT_VERIFIED' && email.trim() && (
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full"
+                loading={resend.isPending}
+                onClick={() => resend.mutate(email.trim())}
+              >
+                Resend verification email
+              </Button>
+            )}
 
             <Button type="submit" loading={login.isPending} className="w-full !py-2.5 !text-[15px]" size="lg">
               Sign in
@@ -176,5 +201,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center text-neutral-500">Loading…</div>}>
+      <LoginPageContent />
+    </Suspense>
   );
 }
