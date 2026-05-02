@@ -1,110 +1,168 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useResetPassword } from '@/features/auth/hooks/useAuth';
+import { AuthShell, FormErrorAlert, PasswordInput, PasswordRules } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { mergeFieldError } from '@/features/auth/lib/merge-field-error';
+import { meetsPasswordRules } from '@/features/auth/lib/password-rules';
+import { shouldShowFormLevelBanner } from '@/features/auth/lib/form-level-banner';
 import { ApiError } from '@/types';
 
-function ResetForm() {
+function ResetPasswordForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const token = searchParams.get('token') ?? '';
+  const token = searchParams.get('token')?.trim() ?? '';
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [clientError, setClientError] = useState<string | undefined>();
+  const [confirmError, setConfirmError] = useState<string | undefined>();
   const reset = useResetPassword();
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
-      return;
-    }
-    if (password !== confirm) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (!token) {
-      setError('Invalid or missing reset link');
-      return;
-    }
-    reset.mutate(
-      { token, password },
-      {
-        onError: (err) => {
-          if (err instanceof ApiError) {
-            setError(err.message);
-            return;
-          }
-          setError('Something went wrong');
-        },
-      },
-    );
-  }
+  const apiErr = reset.error instanceof ApiError ? reset.error : undefined;
 
   if (!token) {
     return (
-      <div className="text-center">
-        <p className="text-sm text-slate-600">This link is invalid. Request a new reset from sign in.</p>
-        <Link href="/auth/forgot-password" className="mt-4 inline-block text-sm font-medium text-primary-600">
-          Forgot password
-        </Link>
-      </div>
+      <AuthShell compactVisual panelTitle="Invalid link" panelDescription="Request a new reset link from your inbox.">
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-neutral-900">Invalid reset link</h1>
+          <p className="mt-2 text-[15px] text-neutral-500">
+            This page needs a valid token. Open the link from your email or request a new password reset.
+          </p>
+        </div>
+        <Button
+          type="button"
+          className="min-h-[48px] w-full text-[15px]"
+          size="lg"
+          onClick={() => router.push('/auth/forgot-password')}
+        >
+          Request a new link
+        </Button>
+        <div className="mt-6 text-center">
+          <Link href="/login" className="text-sm font-semibold text-primary-600 hover:text-primary-700">
+            Back to sign in
+          </Link>
+        </div>
+      </AuthShell>
     );
   }
 
+  function validate(): boolean {
+    let ok = true;
+    if (!password) {
+      setClientError('Password is required');
+      ok = false;
+    } else if (!meetsPasswordRules(password)) {
+      setClientError('Complete all password requirements');
+      ok = false;
+    } else {
+      setClientError(undefined);
+    }
+    if (password !== confirm) {
+      setConfirmError('Passwords do not match');
+      ok = false;
+    } else {
+      setConfirmError(undefined);
+    }
+    return ok;
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
+    reset.mutate({ token, password });
+  }
+
+  const tokenIssue =
+    apiErr?.code === 'RESET_TOKEN_EXPIRED' || apiErr?.code === 'RESET_TOKEN_INVALID';
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        id="password"
-        label="New password"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="At least 8 characters"
-        required
-        minLength={8}
-      />
-      <Input
-        id="confirm"
-        label="Confirm password"
-        type="password"
-        value={confirm}
-        onChange={(e) => setConfirm(e.target.value)}
-        required
-        minLength={8}
-      />
-      <p className="text-xs text-slate-500">
-        Use at least 8 characters. Mix letters and numbers for a stronger password.
-      </p>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <Button type="submit" className="w-full" loading={reset.isPending}>
-        Update password
-      </Button>
-    </form>
+    <AuthShell
+      compactVisual
+      panelTitle={
+        <>
+          Fresh
+          <br />
+          credentials.
+        </>
+      }
+      panelDescription="Choose a strong password you haven’t used elsewhere."
+    >
+      <div className="mb-8">
+        <h1 className="text-[28px] font-bold tracking-tight text-neutral-900">Set a new password</h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
+          Enter and confirm your new password below.
+        </p>
+      </div>
+
+      {apiErr && shouldShowFormLevelBanner(apiErr) && (
+        <FormErrorAlert className="mb-6">
+          <p>{apiErr.message}</p>
+          {tokenIssue && (
+            <p className="mt-2 text-sm text-danger-700/90">
+              If this link expired or was already used, request a new reset email.
+            </p>
+          )}
+        </FormErrorAlert>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          <PasswordInput
+            id="password"
+            label="New password"
+            autoCompleteMode="new-password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setClientError(undefined);
+              reset.reset();
+            }}
+            error={mergeFieldError(apiErr, 'password', clientError)}
+            placeholder="New password"
+          />
+          <PasswordRules password={password} />
+        </div>
+
+        <PasswordInput
+          id="confirmPassword"
+          label="Confirm password"
+          autoCompleteMode="new-password"
+          value={confirm}
+          onChange={(e) => {
+            setConfirm(e.target.value);
+            setConfirmError(undefined);
+            reset.reset();
+          }}
+          error={mergeFieldError(apiErr, 'confirmPassword', confirmError)}
+          placeholder="Confirm new password"
+        />
+
+        <Button type="submit" loading={reset.isPending} className="min-h-[48px] w-full text-[15px]" size="lg">
+          Update password
+        </Button>
+      </form>
+
+      <div className="mt-8 text-center">
+        <Link href="/login" className="text-sm font-semibold text-primary-600 transition hover:text-primary-700">
+          Back to sign in
+        </Link>
+      </div>
+    </AuthShell>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-slate-900">Set a new password</h1>
-        <p className="mt-2 text-sm text-slate-600">Choose a new password for your account.</p>
-        <div className="mt-6">
-          <Suspense fallback={<p className="text-sm text-slate-500">Loading…</p>}>
-            <ResetForm />
-          </Suspense>
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
+          Loading…
         </div>
-        <p className="mt-6 text-center text-sm text-slate-500">
-          <Link href="/login" className="font-medium text-primary-600">
-            Back to sign in
-          </Link>
-        </p>
-      </div>
-    </div>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
   );
 }
