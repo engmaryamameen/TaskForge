@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 import { connectSocket, disconnectSocket, joinOrgRoom } from '@/lib/socket';
+import { isDemoMode } from '@/lib/demo/is-demo-mode';
 
 export function useLogin(redirectTo?: string) {
   const router = useRouter();
@@ -22,9 +23,11 @@ export function useLogin(redirectTo?: string) {
       const { user, accessToken, refreshToken } = inner;
       setAuth(user, accessToken, refreshToken);
 
-      const socket = connectSocket(accessToken);
-      if (user.currentOrganizationId) {
-        socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
+      if (!isDemoMode()) {
+        const socket = connectSocket(accessToken);
+        if (user.currentOrganizationId) {
+          socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
+        }
       }
 
       router.push(redirectTo || '/');
@@ -65,9 +68,11 @@ export function useVerifyEmail(options?: VerifyEmailOptions) {
       const inner = data.data;
       if (!inner?.accessToken || !inner.user) return;
       setAuth(inner.user, inner.accessToken, inner.refreshToken);
-      const socket = connectSocket(inner.accessToken);
-      if (inner.user.currentOrganizationId) {
-        socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
+      if (!isDemoMode()) {
+        const socket = connectSocket(inner.accessToken);
+        if (inner.user.currentOrganizationId) {
+          socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
+        }
       }
       if (redirectTo != null) router.push(redirectTo);
     },

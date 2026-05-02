@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { isDemoMode } from '@/lib/demo/is-demo-mode';
 import { useQueryClient } from '@tanstack/react-query';
 import { getSocket } from '@/lib/socket';
 import { SocketEvents } from '@/lib/socket/events';
@@ -30,6 +31,8 @@ export function useSocketEvents() {
   const hasConnectedBefore = useRef(false);
 
   useEffect(() => {
+    if (isDemoMode()) return;
+
     const socket = getSocket();
     if (!socket) return;
 

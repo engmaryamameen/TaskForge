@@ -1,6 +1,10 @@
 # Production secrets
 .env.production
 
+# Local env files (never commit real secrets)
+.env
+.env.local
+
 # Deploy history
 .deploy-history
 
