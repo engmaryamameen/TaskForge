@@ -9,6 +9,7 @@ import {
   redisConfig,
   authConfig,
   billingConfig,
+  mailConfig,
   envValidationSchema,
 } from './config';
 import { DatabaseModule } from './infrastructure/database/database.module';
@@ -32,7 +33,9 @@ import { ProjectsModule } from './modules/projects/projects.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ActivityModule } from './modules/activity/activity.module';
 import { RealtimeModule } from './modules/realtime/realtime.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BillingModule } from './modules/billing/billing.module';
+import { MailModule } from './modules/mail/mail.module';
 import { HealthModule } from './modules/health/health.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
@@ -41,7 +44,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     // Global config
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, redisConfig, authConfig, billingConfig],
+      load: [databaseConfig, redisConfig, authConfig, billingConfig, mailConfig],
       validationSchema: envValidationSchema,
       validationOptions: { abortEarly: false },
     }),
@@ -88,7 +91,9 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     TasksModule,
     ActivityModule,
     RealtimeModule,
+    NotificationsModule,
     BillingModule,
+    MailModule,
 
     // Queue producers (worker runs as separate process)
     QueueProducerModule,

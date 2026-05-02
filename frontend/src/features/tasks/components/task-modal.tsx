@@ -17,9 +17,10 @@ interface TaskModalProps {
   onClose: () => void;
   projectId?: string;
   task?: Task;
+  defaultStatus?: TaskStatus;
 }
 
-export function TaskModal({ isOpen, onClose, projectId, task }: TaskModalProps) {
+export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: TaskModalProps) {
   const isEdit = !!task;
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
@@ -40,7 +41,7 @@ export function TaskModal({ isOpen, onClose, projectId, task }: TaskModalProps) 
       setSelectedProjectId(projectId || task?.projectId || '');
       setTitle(task?.title || '');
       setDescription(task?.description || '');
-      setStatus(task?.status || TaskStatus.TODO);
+      setStatus(task?.status || defaultStatus || TaskStatus.TODO);
       setPriority(task?.priority || TaskPriority.MEDIUM);
       setAssignedTo(task?.assignedTo || '');
       setDueDate(task?.dueDate || '');

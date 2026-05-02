@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLogin } from '@/features/auth/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { IconBolt } from '@/components/icons';
 import { ApiError } from '@/types';
 
 function getAuthErrorMessage(error: Error): string {
@@ -52,59 +55,80 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Sign in to TaskForge</h1>
-
-      {login.error && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-          {getAuthErrorMessage(login.error)}
+    <div className="flex min-h-screen">
+      {/* Left panel - branding */}
+      <div className="hidden lg:flex lg:w-1/2 lg:flex-col lg:justify-between gradient-primary p-12">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+            <IconBolt className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-xl font-bold text-white">TaskForge</span>
         </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+          <h2 className="text-3xl font-bold text-white leading-tight">
+            Manage projects.<br />Track progress.<br />Ship faster.
+          </h2>
+          <p className="mt-4 text-base text-white/70 max-w-md">
+            The multi-tenant project management platform built for modern teams.
+          </p>
         </div>
+        <p className="text-sm text-white/50">
+          &copy; 2024 TaskForge. All rights reserved.
+        </p>
+      </div>
 
-        <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
+      {/* Right panel - form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm">
+          {/* Mobile logo */}
+          <div className="mb-8 text-center lg:text-left">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl gradient-primary shadow-medium lg:mx-0">
+              <IconBolt className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Welcome back</h1>
+            <p className="mt-1.5 text-sm text-neutral-500">Enter your credentials to access your workspace.</p>
+          </div>
+
+          {login.error && (
+            <div className="mb-5 rounded-lg border border-danger-500/20 bg-danger-50 px-4 py-3 text-sm text-danger-700">
+              {getAuthErrorMessage(login.error)}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              id="email"
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
+              error={errors.email}
+              placeholder="you@company.com"
+            />
+
+            <Input
+              id="password"
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
+              error={errors.password}
+              placeholder="Enter your password"
+            />
+
+            <Button type="submit" loading={login.isPending} className="w-full" size="lg">
+              Sign in
+            </Button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-neutral-500">
+            Don&apos;t have an account?{' '}
+            <Link href="/register" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+              Create an account
+            </Link>
+          </p>
         </div>
-
-        <button
-          type="submit"
-          disabled={login.isPending}
-          className="w-full rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {login.isPending ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-blue-600 hover:underline">
-          Register
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }

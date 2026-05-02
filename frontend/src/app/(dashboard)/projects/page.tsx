@@ -10,6 +10,7 @@ import { ProjectFilters } from '@/features/projects/components/project-filters';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
+import { IconPlus, IconFolder } from '@/components/icons';
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -45,9 +46,19 @@ export default function ProjectsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Projects</h1>
-        <Button onClick={() => setShowCreateModal(true)}>Create Project</Button>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Projects</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            {total > 0 ? `${total} project${total !== 1 ? 's' : ''} in your workspace` : 'Organize your work into projects'}
+          </p>
+        </div>
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          leftIcon={<IconPlus className="h-4 w-4" />}
+        >
+          New Project
+        </Button>
       </div>
 
       {/* Filters */}
@@ -57,7 +68,7 @@ export default function ProjectsPage() {
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <ProjectCardSkeleton key={i} />
           ))}
@@ -70,7 +81,7 @@ export default function ProjectsPage() {
       {/* Project grid */}
       {!isLoading && !isError && hasProjects && (
         <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
             {projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
@@ -78,53 +89,55 @@ export default function ProjectsPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-2">
-              <button
+            <div className="mt-8 flex items-center justify-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1}
-                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
-              </button>
+              </Button>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
                 <button
                   key={p}
                   onClick={() => handlePageChange(p)}
-                  className={`rounded px-3 py-1.5 text-sm font-medium ${
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                     p === page
-                      ? 'bg-blue-600 text-white'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-primary-600 text-white shadow-xs'
+                      : 'text-neutral-600 hover:bg-neutral-100'
                   }`}
                 >
                   {p}
                 </button>
               ))}
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= totalPages}
-                className="rounded px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
-              </button>
+              </Button>
             </div>
           )}
         </>
       )}
 
-      {/* Empty state: no projects at all */}
+      {/* Empty states */}
       {!isLoading && !isError && !hasProjects && !isSearching && (
         <EmptyState
           title="No projects yet"
-          description="Create your first project to start organizing your work."
+          description="Create your first project to start organizing your team's work."
+          icon={<IconFolder className="h-6 w-6" />}
           action={{ label: 'Create your first project', onClick: () => setShowCreateModal(true) }}
         />
       )}
 
-      {/* Empty state: no search results */}
       {!isLoading && !isError && !hasProjects && isSearching && (
         <EmptyState
           title={`No projects match \u201c${search}\u201d`}
-          description="Try a different search term."
+          description="Try a different search term or create a new project."
         />
       )}
 
