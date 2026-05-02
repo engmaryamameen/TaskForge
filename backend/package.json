@@ -13,7 +13,8 @@
     "start:worker:dev": "nest start --watch --entryFile worker",
     "lint": "eslint \"{src,test}/**/*.ts\" --fix",
     "lint:check": "eslint \"{src,test}/**/*.ts\"",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
+    "ci:local": "npm run lint:check && npm audit --audit-level=high && npm test && npm run build && node scripts/verify-build.mjs",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json",
@@ -69,6 +70,9 @@
     "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "typescript-eslint": "^8.46.4"
   }
 }
