@@ -16,6 +16,10 @@ import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
+import { Avatar } from '@/components/ui/avatar';
+import { IconPlus, IconUsers, IconUserPlus, IconCheck, IconGlobe } from '@/components/icons';
 
 export default function OrganizationsPage() {
   const { data: orgs, isLoading, isError, refetch } = useOrganizations();
@@ -32,56 +36,72 @@ export default function OrganizationsPage() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Organizations</h1>
-        <Button onClick={() => setShowCreateModal(true)}>Create Organization</Button>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Organizations</h1>
+          <p className="mt-1 text-sm text-neutral-500">
+            Manage your workspaces and team members.
+          </p>
+        </div>
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          leftIcon={<IconPlus className="h-4 w-4" />}
+        >
+          New Organization
+        </Button>
       </div>
 
-      {/* Org list */}
       {isLoading && <PageSkeleton variant="cards" />}
 
       {!isLoading && isError && <ErrorState onRetry={refetch} />}
 
-      {!isLoading && !isError && orgs && (
-        <div className="space-y-3">
+      {/* Org list */}
+      {!isLoading && !isError && orgs && orgs.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {orgs.map((org) => {
             const isCurrent = org.id === currentOrg?.id;
             return (
-              <div
+              <Card
                 key={org.id}
-                className={`flex items-center justify-between rounded-lg bg-white p-5 shadow-sm ${
-                  isCurrent ? 'ring-2 ring-blue-500' : ''
-                }`}
+                padding="md"
+                className={`transition-all ${isCurrent ? 'ring-2 ring-primary-500 ring-offset-1' : ''}`}
               >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-gray-900">{org.name}</h3>
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      org.role === Role.ADMIN
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-gray-100 text-gray-600'
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold ${
+                      isCurrent ? 'gradient-primary text-white' : 'bg-neutral-100 text-neutral-600'
                     }`}>
-                      {org.role}
-                    </span>
+                      {org.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-neutral-900">{org.name}</h3>
+                        <Badge variant={org.role === Role.ADMIN ? 'admin' : 'member'}>
+                          {org.role}
+                        </Badge>
+                      </div>
+                      <p className="mt-0.5 text-xs text-neutral-500">
+                        {org.slug} &middot; {formatRelative(org.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
-                    {org.slug} &middot; Created {formatRelative(org.createdAt)}
-                  </p>
+                  {isCurrent ? (
+                    <div className="flex items-center gap-1 rounded-full bg-success-50 px-2.5 py-1 text-[11px] font-medium text-success-700 ring-1 ring-success-500/20">
+                      <IconCheck className="h-3 w-3" />
+                      Active
+                    </div>
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      size="xs"
+                      onClick={() => switchOrg.mutate(org.id)}
+                      disabled={switchOrg.isPending}
+                    >
+                      Switch
+                    </Button>
+                  )}
                 </div>
-                {isCurrent ? (
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
-                    Current
-                  </span>
-                ) : (
-                  <button
-                    onClick={() => switchOrg.mutate(org.id)}
-                    disabled={switchOrg.isPending}
-                    className="rounded bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-                  >
-                    Switch
-                  </button>
-                )}
-              </div>
+              </Card>
             );
           })}
         </div>
@@ -90,58 +110,74 @@ export default function OrganizationsPage() {
       {!isLoading && !isError && orgs?.length === 0 && (
         <EmptyState
           title="No organizations yet"
-          description="Create your first organization to start collaborating."
-          action={{ label: 'Create your first organization', onClick: () => setShowCreateModal(true) }}
+          description="Create your first organization to start collaborating with your team."
+          icon={<IconGlobe className="h-6 w-6" />}
+          action={{ label: 'Create organization', onClick: () => setShowCreateModal(true) }}
         />
       )}
 
-
       {/* Current org members */}
       {currentOrg && (
-        <div className="mt-8">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Members &mdash; {currentOrg.name}
-            </h2>
+        <div className="mt-10">
+          <div className="mb-5 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-900">
+                Team Members
+              </h2>
+              <p className="mt-0.5 text-sm text-neutral-500">
+                {members?.length ?? 0} member{(members?.length ?? 0) !== 1 ? 's' : ''} in {currentOrg.name}
+              </p>
+            </div>
             {isAdmin && (
-              <Button size="sm" onClick={() => setShowInviteModal(true)}>Invite Member</Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowInviteModal(true)}
+                leftIcon={<IconUserPlus className="h-4 w-4" />}
+              >
+                Invite Member
+              </Button>
             )}
           </div>
 
           {members && members.length > 0 ? (
-            <div className="rounded-lg bg-white shadow-sm">
-              {members.map((member) => (
+            <Card padding="none">
+              {members.map((member, index) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between border-b border-gray-100 px-5 py-4 last:border-0"
+                  className={`flex items-center justify-between px-5 py-4 ${
+                    index < members.length - 1 ? 'border-b border-neutral-100' : ''
+                  }`}
                 >
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {member.user
-                        ? `${member.user.firstName} ${member.user.lastName}`
-                        : member.userId}
-                    </p>
-                    {member.user && (
-                      <p className="text-xs text-gray-500">{member.user.email}</p>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <Avatar
+                      firstName={member.user?.firstName}
+                      lastName={member.user?.lastName}
+                      size="md"
+                    />
+                    <div>
+                      <p className="text-sm font-medium text-neutral-900">
+                        {member.user
+                          ? `${member.user.firstName} ${member.user.lastName}`
+                          : member.userId}
+                      </p>
+                      {member.user && (
+                        <p className="text-xs text-neutral-500">{member.user.email}</p>
+                      )}
+                    </div>
                   </div>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    member.role === Role.ADMIN
-                      ? 'bg-purple-100 text-purple-700'
-                      : 'bg-gray-100 text-gray-600'
-                  }`}>
+                  <Badge variant={member.role === Role.ADMIN ? 'admin' : 'member'}>
                     {member.role}
-                  </span>
+                  </Badge>
                 </div>
               ))}
-            </div>
+            </Card>
           ) : (
-            <p className="text-sm text-gray-500">No members found.</p>
+            <p className="text-sm text-neutral-500">No members found.</p>
           )}
         </div>
       )}
 
-      {/* Modals */}
       <CreateOrgModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

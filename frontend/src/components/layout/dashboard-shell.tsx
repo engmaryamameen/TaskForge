@@ -15,11 +15,9 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
 
-  // Context-aware: detect project ID from URL for quick create
   const projectMatch = pathname.match(/^\/projects\/([^/]+)/);
   const contextProjectId = projectMatch ? projectMatch[1] : undefined;
 
-  // Ctrl+N → quick create task
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -36,11 +34,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const openProjectModal = useCallback(() => setShowProjectModal(true), []);
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-surface">
       <Sidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar />
-        <main className="flex-1 overflow-auto p-6">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 lg:px-8">
+            {children}
+          </div>
+        </main>
       </div>
 
       <CommandPalette

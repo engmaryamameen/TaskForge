@@ -1,29 +1,91 @@
 @import 'tailwindcss';
 
-/* ─── Design Tokens (Tailwind v4 CSS-first config) ─── */
+/* ─── TaskForge Premium Design System ─── */
 @theme {
-  /* Primary palette (indigo-violet, Linear-inspired) */
-  --color-primary-50: #EDEDFC;
-  --color-primary-100: #D4D4F7;
-  --color-primary-200: #ABABEF;
-  --color-primary-300: #8282E7;
-  --color-primary-400: #6B6BDE;
-  --color-primary-500: #5B5BD6;
-  --color-primary-600: #4F4FC4;
-  --color-primary-700: #4242A8;
-  --color-primary-800: #35358C;
-  --color-primary-900: #2A2A6E;
+  /* Primary — Professional blue */
+  --color-primary-50: #EEF4FF;
+  --color-primary-100: #D9E6FF;
+  --color-primary-200: #B3CCFF;
+  --color-primary-300: #6B9AFF;
+  --color-primary-400: #4080FF;
+  --color-primary-500: #1D6AE5;
+  --color-primary-600: #0C5FD9;
+  --color-primary-700: #0A4EB3;
+  --color-primary-800: #083D8C;
+  --color-primary-900: #0A2540;
 
-  /* Surface */
-  --color-surface: #FAFAFA;
+  /* Neutral — refined slate grays */
+  --color-neutral-50: #F8FAFC;
+  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0;
+  --color-neutral-300: #CBD5E1;
+  --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1E293B;
+  --color-neutral-900: #0F172A;
 
-  /* Shadows (depth system) */
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-overlay: 0 16px 48px rgba(0, 0, 0, 0.12);
+  /* Success */
+  --color-success-50: #ECFDF5;
+  --color-success-100: #D1FAE5;
+  --color-success-500: #10B981;
+  --color-success-600: #059669;
+  --color-success-700: #047857;
+
+  /* Danger */
+  --color-danger-50: #FEF2F2;
+  --color-danger-100: #FEE2E2;
+  --color-danger-500: #EF4444;
+  --color-danger-600: #DC2626;
+  --color-danger-700: #B91C1C;
+
+  /* Warning */
+  --color-warning-50: #FFFBEB;
+  --color-warning-100: #FEF3C7;
+  --color-warning-500: #F59E0B;
+  --color-warning-600: #D97706;
+  --color-warning-700: #B45309;
+
+  /* Info */
+  --color-info-50: #EFF6FF;
+  --color-info-100: #DBEAFE;
+  --color-info-500: #3B82F6;
+  --color-info-600: #2563EB;
+
+  /* Purple accent */
+  --color-purple-50: #FAF5FF;
+  --color-purple-100: #F3E8FF;
+  --color-purple-500: #A855F7;
+  --color-purple-600: #9333EA;
+  --color-purple-700: #7E22CE;
+
+  /* Orange accent */
+  --color-orange-50: #FFF7ED;
+  --color-orange-100: #FFEDD5;
+  --color-orange-500: #F97316;
+  --color-orange-600: #EA580C;
+  --color-orange-700: #C2410C;
+
+  /* Teal accent */
+  --color-teal-50: #F0FDFA;
+  --color-teal-500: #14B8A6;
+  --color-teal-600: #0D9488;
+
+  /* Surface & Background */
+  --color-surface: #F8FAFC;
+  --color-surface-raised: #FFFFFF;
+  --color-surface-overlay: #FFFFFF;
+
+  /* Elevation shadows */
+  --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-soft: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-medium: 0 4px 6px -1px rgba(15,23,42,0.07), 0 2px 4px -2px rgba(15,23,42,0.05);
+  --shadow-large: 0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -4px rgba(15,23,42,0.04);
+  --shadow-overlay: 0 20px 25px -5px rgba(15,23,42,0.10), 0 8px 10px -6px rgba(15,23,42,0.06);
+  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.12);
 }
 
-/* ─── Base Styles ─── */
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -31,14 +93,110 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  body {
+    color: var(--color-neutral-800);
+    background-color: var(--color-surface);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
   ::selection {
     background-color: var(--color-primary-100);
     color: var(--color-primary-900);
   }
 
-  /* Global focus-visible ring */
   *:focus-visible {
     outline: 2px solid var(--color-primary-500);
     outline-offset: 2px;
   }
+
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-neutral-300);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-neutral-400);
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+  }
+
+  .gradient-success {
+    background: linear-gradient(135deg, var(--color-success-500) 0%, var(--color-success-700) 100%);
+  }
+
+  .gradient-warning {
+    background: linear-gradient(135deg, var(--color-warning-500) 0%, var(--color-warning-700) 100%);
+  }
+
+  .gradient-danger {
+    background: linear-gradient(135deg, var(--color-danger-500) 0%, var(--color-danger-700) 100%);
+  }
+
+  .gradient-purple {
+    background: linear-gradient(135deg, var(--color-purple-500) 0%, var(--color-purple-700) 100%);
+  }
+
+  .gradient-teal {
+    background: linear-gradient(135deg, var(--color-teal-500) 0%, var(--color-teal-600) 100%);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.25s ease-out;
+  }
+
+  .animate-slide-down {
+    animation: slideDown 0.2s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.15s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }

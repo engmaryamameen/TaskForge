@@ -5,6 +5,7 @@ import { randomBytes, createHash } from 'crypto';
 import { InvitesRepository } from '../repositories/invites.repository';
 import { MembershipsRepository } from '../repositories/memberships.repository';
 import { MembershipsService } from './memberships.service';
+import { OrganizationsRepository } from '../repositories/organizations.repository';
 import { CreateInviteDto, AcceptInviteDto } from '../dto';
 import { Membership } from '../entities/membership.entity';
 import { Invite } from '../entities/invite.entity';
@@ -14,6 +15,8 @@ import { ErrorCodes } from '../../../shared/errors/error-codes';
 import { EventType, Role } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces';
 import { INVITE_TOKEN_TTL_HOURS } from '../../../shared/constants';
+import { UsersService } from '../../users/services/users.service';
+import { MailService } from '../../mail/mail.service';
 
 @Injectable()
 export class InvitesService {
@@ -22,6 +25,9 @@ export class InvitesService {
   constructor(
     private readonly invitesRepository: InvitesRepository,
     private readonly membershipsService: MembershipsService,
+    private readonly organizationsRepository: OrganizationsRepository,
+    private readonly usersService: UsersService,
+    private readonly mailService: MailService,
     private readonly eventEmitter: EventEmitter2,
     private readonly dataSource: DataSource,
   ) {}
@@ -74,6 +80,21 @@ export class InvitesService {
       organizationId: ctx.organizationId!,
       triggeredBy: ctx.userId,
     } satisfies DomainEvent);
+
+    // Send invitation email
+    if (email) {
+      const [creator, org] = await Promise.all([
+        this.usersService.findById(ctx.userId),
+        this.organizationsRepository.findById(ctx.organizationId!),
+      ]);
+      this.mailService.sendInvitationEmail({
+        recipientEmail: email,
+        organizationName: org?.name || 'your organization',
+        inviterName: creator ? `${creator.firstName} ${creator.lastName}` : undefined,
+        role,
+        inviteToken: rawToken,
+      }).catch((err) => this.logger.error(`Failed to send invite email: ${err.message}`));
+    }
 
     // Raw token returned once — never stored server-side
     return { token: rawToken };

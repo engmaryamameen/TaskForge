@@ -76,7 +76,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
 
       {inviteUrl ? (
         <div className="space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-600">
             Share this link to invite {email ? <strong>{email}</strong> : 'someone'} to the organization:
           </p>
           <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
               type="text"
               readOnly
               value={inviteUrl}
-              className="flex-1 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700"
+              className="flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
             />
             <Button size="sm" onClick={handleCopy}>
               {copied ? 'Copied!' : 'Copy'}
@@ -105,7 +105,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="teammate@company.com"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-neutral-500">
               Leave empty to create a generic invite link.
             </p>
           </div>
