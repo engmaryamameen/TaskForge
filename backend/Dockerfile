@@ -25,6 +25,8 @@ COPY --from=builder /app/dist ./dist
 
 USER app
 
+ENV NODE_ENV=production
+
 EXPOSE 3000
 
 CMD ["node", "dist/main"]

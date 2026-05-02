@@ -56,8 +56,10 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     LoggerModule.forRoot({
       pinoHttp: {
         genReqId: (req) => req.headers['x-request-id'] as string,
+        // pino-pretty is devOnly; prod images use `npm ci --omit=dev` (no pino-pretty).
+        // Only enable when explicitly development — unset NODE_ENV must not load pino-pretty.
         transport:
-          process.env.NODE_ENV !== 'production'
+          process.env.NODE_ENV === 'development'
             ? { target: 'pino-pretty', options: { colorize: true } }
             : undefined,
         autoLogging: true,
