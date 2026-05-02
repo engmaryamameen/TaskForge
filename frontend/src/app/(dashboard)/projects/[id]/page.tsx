@@ -14,6 +14,7 @@ import { TaskModal } from '@/features/tasks/components/task-modal';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { Role, TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
@@ -101,6 +102,22 @@ export default function ProjectDetailPage({
   const tasks = tasksData?.data;
   const hasTasks = tasks && tasks.length > 0;
 
+  const taskStatusFilterOptions = [
+    { value: '', label: 'All statuses' },
+    ...Object.values(TaskStatus).map((s) => ({
+      value: s,
+      label: formatTaskStatus(s),
+    })),
+  ];
+
+  const taskPriorityFilterOptions = [
+    { value: '', label: 'All priorities' },
+    ...Object.values(TaskPriority).map((p) => ({
+      value: p,
+      label: formatTaskPriority(p),
+    })),
+  ];
+
   return (
     <div>
       {/* Back link */}
@@ -148,27 +165,21 @@ export default function ProjectDetailPage({
 
       {/* Task filters (table view only — board IS the status view) */}
       {viewMode === 'table' && (
-        <div className="mb-4 flex gap-3">
-          <select
-            value={taskStatusFilter}
-            onChange={(e) => setTaskStatusFilter(e.target.value as TaskStatus | '')}
-            className="rounded border border-neutral-200 px-3 py-1.5 text-sm"
-          >
-            <option value="">All statuses</option>
-            {Object.values(TaskStatus).map((s) => (
-              <option key={s} value={s}>{formatTaskStatus(s)}</option>
-            ))}
-          </select>
-          <select
-            value={taskPriorityFilter}
-            onChange={(e) => setTaskPriorityFilter(e.target.value as TaskPriority | '')}
-            className="rounded border border-neutral-200 px-3 py-1.5 text-sm"
-          >
-            <option value="">All priorities</option>
-            {Object.values(TaskPriority).map((p) => (
-              <option key={p} value={p}>{formatTaskPriority(p)}</option>
-            ))}
-          </select>
+        <div className="mb-4 flex flex-wrap items-end gap-3">
+          <div className="w-44">
+            <Select
+              value={taskStatusFilter}
+              onChange={(v) => setTaskStatusFilter(v as TaskStatus | '')}
+              options={taskStatusFilterOptions}
+            />
+          </div>
+          <div className="w-44">
+            <Select
+              value={taskPriorityFilter}
+              onChange={(v) => setTaskPriorityFilter(v as TaskPriority | '')}
+              options={taskPriorityFilterOptions}
+            />
+          </div>
         </div>
       )}
 

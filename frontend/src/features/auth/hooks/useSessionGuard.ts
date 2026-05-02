@@ -16,6 +16,7 @@ import { connectSocket, joinOrgRoom } from '@/lib/socket';
 export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
   const router = useRouter();
   const verifyingRef = useRef(false);
+  const backgroundSyncRef = useRef(false);
   const {
     status,
     accessToken,
@@ -27,7 +28,14 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
     logout,
   } = useAuthStore();
 
-  // Wait for hydration, then verify session
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      verifyingRef.current = false;
+      backgroundSyncRef.current = false;
+    }
+  }, [status]);
+
+  // Token but no persisted user: must block on /me once.
   useEffect(() => {
     if (!_hasHydrated) return;
     if (status !== 'loading') return;
@@ -52,6 +60,24 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
         verifyingRef.current = false;
       });
   }, [_hasHydrated, status, accessToken, refreshToken, setAuth, setStatus, logout]);
+
+  // Optimistic session: verify in background so the UI does not wait on /me.
+  useEffect(() => {
+    if (!_hasHydrated) return;
+    if (status !== 'authenticated' || !accessToken) return;
+    if (backgroundSyncRef.current) return;
+
+    backgroundSyncRef.current = true;
+
+    authApi.me()
+      .then(({ data }) => {
+        setAuth(data.data!.user, accessToken!, refreshToken!);
+      })
+      .catch(() => {
+        backgroundSyncRef.current = false;
+        logout();
+      });
+  }, [_hasHydrated, status, accessToken, refreshToken, setAuth, logout]);
 
   // Handle navigation based on status and mode — only after hydration
   useEffect(() => {

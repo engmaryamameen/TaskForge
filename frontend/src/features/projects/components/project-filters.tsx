@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Input } from '@/components/ui/input';
+import { IconSearch } from '@/components/icons';
 
 interface ProjectFiltersProps {
   search: string;
   onSearchChange: (value: string) => void;
+  className?: string;
 }
 
-export function ProjectFilters({ search, onSearchChange }: ProjectFiltersProps) {
+export function ProjectFilters({ search, onSearchChange, className = '' }: ProjectFiltersProps) {
   const [localSearch, setLocalSearch] = useState(search);
   const debouncedSearch = useDebounce(localSearch, 300);
 
@@ -22,12 +24,14 @@ export function ProjectFilters({ search, onSearchChange }: ProjectFiltersProps) 
   }, [search]);
 
   return (
-    <div className="w-full max-w-sm">
+    <div className={`w-full md:max-w-md lg:max-w-lg ${className}`}>
       <Input
         type="text"
         value={localSearch}
         onChange={(e) => setLocalSearch(e.target.value)}
-        placeholder="Search projects..."
+        placeholder="Search by name or description..."
+        leftIcon={<IconSearch className="h-4 w-4" />}
+        className="h-10 rounded-xl border-neutral-200/90 bg-neutral-50/50 shadow-xs placeholder:text-neutral-400 focus:bg-white"
       />
     </div>
   );

@@ -40,3 +40,12 @@ export interface Invite {
   createdBy: string;
   createdAt: string;
 }
+
+/** Active (unused, unexpired) invite returned from GET /organizations/invites */
+export interface PendingInvite {
+  id: string;
+  email: string | null;
+  role: string;
+  expiresAt: string;
+  createdAt: string;
+}

@@ -45,20 +45,18 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, sub
     return (
       <div>
         <button
+          type="button"
           onClick={() => setExpanded(!expanded)}
-          className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200 cursor-pointer ${
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200 cursor-pointer ${
             isActive
-              ? 'bg-primary-50 text-primary-700'
-              : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+              ? 'text-primary-700'
+              : 'text-neutral-600 hover:text-neutral-900'
           }`}
         >
-          {isActive && (
-            <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary-600" />
-          )}
           <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
-          <span className="flex-1 text-left">{label}</span>
+          <span className={`flex-1 text-left ${isActive ? 'font-semibold' : ''}`}>{label}</span>
           <IconChevronRight
-            className={`h-3.5 w-3.5 text-neutral-400 transition-transform duration-200 ${
+            className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform duration-200 ${
               expanded ? 'rotate-90' : ''
             }`}
           />
@@ -68,7 +66,7 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, sub
           className="overflow-hidden transition-all duration-300 ease-in-out"
           style={{ maxHeight: expanded ? contentHeight : 0 }}
         >
-          <div ref={contentRef} className="ml-9 mt-0.5 space-y-0.5 border-l border-neutral-200 pl-3 py-1">
+          <div ref={contentRef} className="ml-9 mt-0.5 space-y-0.5 py-1 pl-1">
             {subLinks.map((sub) => {
               const subActive = pathname === sub.href || pathname.startsWith(sub.href + '/');
               return (
@@ -76,10 +74,10 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, sub
                   key={sub.href}
                   href={sub.href}
                   onClick={onClick}
-                  className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-[12.5px] transition-all duration-150 ${
+                  className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors duration-150 ${
                     subActive
-                      ? 'font-semibold text-primary-700 bg-primary-50/70'
-                      : 'text-neutral-500 hover:text-neutral-800 hover:bg-neutral-50'
+                      ? 'font-semibold text-primary-600'
+                      : 'font-normal text-neutral-500 hover:text-neutral-800'
                   }`}
                 >
                   {sub.label}
@@ -101,15 +99,10 @@ export function NavItem({ href, label, icon: Icon, isActive, onClick, badge, sub
     <Link
       href={href}
       onClick={onClick}
-      className={`relative flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200 ${
-        isActive
-          ? 'bg-primary-50 text-primary-700'
-          : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
+      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${
+        isActive ? 'font-semibold text-primary-700' : 'text-neutral-600 hover:text-neutral-900'
       }`}
     >
-      {isActive && (
-        <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-primary-600" />
-      )}
       <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
       <span className="flex-1">{label}</span>
       {badge !== undefined && badge > 0 && (

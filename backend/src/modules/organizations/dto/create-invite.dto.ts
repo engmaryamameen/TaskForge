@@ -1,10 +1,9 @@
-import { IsOptional, IsEmail, IsEnum } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional } from 'class-validator';
 import { Role } from '../../../shared/enums';
 
 export class CreateInviteDto {
-  @IsOptional()
   @IsEmail()
-  email?: string;
+  email: string;
 
   @IsOptional()
   @IsEnum(Role)
