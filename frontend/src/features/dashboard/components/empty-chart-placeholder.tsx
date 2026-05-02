@@ -5,18 +5,24 @@ interface EmptyChartPlaceholderProps {
   description: string;
   icon?: React.ReactNode;
   minHeight?: number;
+  /** Tighter padding and default height for low-data / onboarding layouts */
+  compact?: boolean;
 }
 
 export function EmptyChartPlaceholder({
   title,
   description,
   icon,
-  minHeight = 220,
+  minHeight,
+  compact,
 }: EmptyChartPlaceholderProps) {
+  const resolvedMin = minHeight ?? (compact ? 160 : 220);
+  const padding = compact ? 'py-6' : 'py-10';
+
   return (
     <div
-      style={{ minHeight }}
-      className="flex w-full flex-col items-center justify-center gap-3 px-6 py-10 text-center"
+      style={{ minHeight: resolvedMin }}
+      className={`flex w-full flex-col items-center justify-center gap-2 px-4 text-center ${padding}`}
     >
       {icon && (
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-b from-primary-50 to-neutral-50 ring-1 ring-primary-100/80 text-primary-600">

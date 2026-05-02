@@ -8,6 +8,7 @@ import { useOptionalDashboardModals } from '@/components/layout/dashboard-modals
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Select } from '@/components/ui/select';
 import { TaskStatus, TaskPriority } from '@/types';
 import type { Task } from '@/types';
@@ -198,12 +199,12 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
             ]}
           />
 
-          <Input
+          <DatePicker
             id="task-due"
             label="Due Date"
-            type="date"
             value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
+            onChange={setDueDate}
+            placeholder="mm/dd/yyyy"
           />
         </div>
       </form>

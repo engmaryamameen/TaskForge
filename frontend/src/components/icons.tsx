@@ -59,6 +59,14 @@ export function IconChevronRight({ className = 'h-5 w-5' }: IconProps) {
   );
 }
 
+export function IconChevronLeft({ className = 'h-5 w-5' }: IconProps) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 19.5L8.25 12l7.5-7.5" />
+    </svg>
+  );
+}
+
 export function IconUserCircle({ className = 'h-5 w-5' }: IconProps) {
   return (
     <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,10 +163,18 @@ export function IconMail({ className = 'h-5 w-5' }: IconProps) {
   );
 }
 
+/** Calendar sheet + grid — tuned for dense UI / date pickers */
 export function IconCalendar({ className = 'h-5 w-5' }: IconProps) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M8 3v2.25M16 3v2.25M5.25 8.25h13.5c.621 0 1.125.504 1.125 1.125v10.5c0 .621-.504 1.125-1.125 1.125h-13.5c-.621 0-1.125-.504-1.125-1.125v-10.5c0-.621.504-1.125 1.125-1.125z"
+      />
+      <path strokeLinecap="round" strokeWidth={1.5} d="M9 5.25v-2M15 5.25v-2" />
+      <path strokeLinecap="round" strokeWidth={2} strokeOpacity={0.65} d="M9 13.25h.01M12 13.25h.01M15 13.25h.01M9 16.75h.01M12 16.75h.01M15 16.75h.01" />
     </svg>
   );
 }
