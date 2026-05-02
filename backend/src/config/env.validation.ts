@@ -29,25 +29,17 @@ export const envValidationSchema = Joi.object({
   ACCESS_TOKEN_TTL: Joi.string().default('15m'),
   REFRESH_TOKEN_TTL: Joi.string().default('7d'),
 
-  // Stripe (required in production only)
-  STRIPE_SECRET_KEY: Joi.string().when('NODE_ENV', {
-    is: 'production',
-    then: Joi.required(),
-    otherwise: Joi.optional().allow(''),
-  }),
-  STRIPE_WEBHOOK_SECRET: Joi.string().when('NODE_ENV', {
-    is: 'production',
-    then: Joi.required(),
-    otherwise: Joi.optional().allow(''),
-  }),
+  // Stripe (optional at boot — set when billing/webhooks are live)
+  STRIPE_SECRET_KEY: Joi.string().optional().allow(''),
+  STRIPE_WEBHOOK_SECRET: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_PRO: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_ENTERPRISE: Joi.string().optional().allow(''),
   FRONTEND_URL: Joi.string().default('http://localhost:3000'),
 
-  // Email (SMTP)
+  // Email (SMTP) — env vars are strings; mail.config uses SMTP_SECURE === 'true'
   SMTP_HOST: Joi.string().optional().default('localhost'),
   SMTP_PORT: Joi.number().optional().default(587),
-  SMTP_SECURE: Joi.boolean().optional().default(false),
+  SMTP_SECURE: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
   SMTP_USER: Joi.string().optional().allow(''),
   SMTP_PASS: Joi.string().optional().allow(''),
   SMTP_FROM: Joi.string().optional().default('TaskForge <noreply@taskforge.io>'),
