@@ -1,14 +1,30 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as argon2 from 'argon2';
+import { createHash, randomBytes } from 'crypto';
 import { UsersService } from '../../users/services/users.service';
 import { TokenService } from './token.service';
-import { RegisterDto, LoginDto } from '../dto';
+import {
+  RegisterDto,
+  LoginDto,
+  VerifyEmailDto,
+  ResendVerificationDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+  UpdateProfileDto,
+} from '../dto';
 import { UserResponseDto } from '../../users/dto/user-response.dto';
 import { AppError } from '../../../shared/errors/app-error';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
 import { EventType } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces';
+import { MailService } from '../../mail/mail.service';
+import { EmailVerificationTokenRepository } from '../repositories/email-verification-token.repository';
+import { PasswordResetTokenRepository } from '../repositories/password-reset-token.repository';
+import { OrganizationsService } from '../../organizations/services/organizations.service';
+
+const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 @Injectable()
 export class AuthService {
@@ -18,7 +34,19 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly tokenService: TokenService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly mailService: MailService,
+    private readonly emailVerificationTokenRepository: EmailVerificationTokenRepository,
+    private readonly passwordResetTokenRepository: PasswordResetTokenRepository,
+    private readonly organizationsService: OrganizationsService,
   ) {}
+
+  private hashOpaqueToken(raw: string): string {
+    return createHash('sha256').update(raw, 'utf8').digest('hex');
+  }
+
+  private newOpaqueToken(): string {
+    return randomBytes(32).toString('hex');
+  }
 
   async register(dto: RegisterDto) {
     const email = dto.email.trim().toLowerCase();
@@ -37,25 +65,254 @@ export class AuthService {
     const user = await this.usersService.createUser({
       email,
       passwordHash,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
+      firstName: dto.firstName.trim(),
+      lastName: dto.lastName.trim(),
     });
 
-    const tokens = await this.tokenService.generateTokenPair(user.id);
+    const rawToken = this.newOpaqueToken();
+    const tokenHash = this.hashOpaqueToken(rawToken);
+    const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS);
 
-    this.logger.log(`User registered: ${user.id}`);
-    this.eventEmitter.emit(EventType.USER_REGISTERED, {
-      type: EventType.USER_REGISTERED,
-      payload: { userId: user.id },
-      occurredAt: new Date(),
-      organizationId: '',
-      triggeredBy: user.id,
-    } satisfies DomainEvent);
+    await this.emailVerificationTokenRepository.invalidateUnusedForUser(user.id);
+    await this.emailVerificationTokenRepository.create({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    });
+
+    try {
+      await this.mailService.sendVerifyEmail({
+        to: user.email,
+        firstName: user.firstName,
+        token: rawToken,
+      });
+    } catch (err) {
+      this.logger.error(
+        `Verification email failed for ${user.id}: ${err instanceof Error ? err.message : err}`,
+      );
+      throw new AppError(
+        ErrorCodes.INTERNAL_ERROR,
+        'Could not send verification email. Try again later.',
+        500,
+      );
+    }
+
+    this.logger.log(`User registered (pending verification): ${user.id}`);
 
     return {
+      message:
+        'Account created. Please check your email to verify your account.',
+      nextStep: 'VERIFY_EMAIL' as const,
+      email: user.email,
+    };
+  }
+
+  async verifyEmail(
+    dto: VerifyEmailDto,
+    device?: string,
+    ip?: string,
+  ): Promise<{
+    message: string;
+    user: UserResponseDto;
+    accessToken: string;
+    refreshToken: string;
+  }> {
+    const tokenHash = this.hashOpaqueToken(dto.token);
+    const row =
+      await this.emailVerificationTokenRepository.findUnusedByTokenHash(
+        tokenHash,
+      );
+
+    if (!row) {
+      throw new AppError(
+        ErrorCodes.VERIFICATION_TOKEN_INVALID,
+        'Invalid verification link.',
+        400,
+      );
+    }
+
+    if (row.expiresAt <= new Date()) {
+      throw new AppError(
+        ErrorCodes.VERIFICATION_TOKEN_EXPIRED,
+        'This verification link has expired. Request a new one.',
+        400,
+      );
+    }
+
+    let user = await this.usersService.findById(row.userId);
+    if (!user) {
+      throw new AppError(
+        ErrorCodes.VERIFICATION_TOKEN_INVALID,
+        'Invalid verification link.',
+        400,
+      );
+    }
+
+    if (!user.emailVerifiedAt) {
+      await this.usersService.setEmailVerifiedAt(user.id, new Date());
+      await this.emailVerificationTokenRepository.markUsed(row.id);
+
+      const orgs = await this.organizationsService.listUserOrganizations(
+        user.id,
+      );
+      if (orgs.length === 0) {
+        await this.organizationsService.createOrganization(user.id, {
+          name: `${user.firstName}'s workspace`,
+        });
+      }
+
+      user = await this.usersService.findById(user.id);
+      if (!user) {
+        throw new AppError(ErrorCodes.INTERNAL_ERROR, 'Unexpected state', 500);
+      }
+
+      this.eventEmitter.emit(EventType.USER_REGISTERED, {
+        type: EventType.USER_REGISTERED,
+        payload: { userId: user.id },
+        occurredAt: new Date(),
+        organizationId: user.currentOrganizationId ?? '',
+        triggeredBy: user.id,
+      } satisfies DomainEvent);
+    } else {
+      await this.emailVerificationTokenRepository.markUsed(row.id);
+      user = await this.usersService.findById(user.id);
+      if (!user) {
+        throw new AppError(ErrorCodes.INTERNAL_ERROR, 'Unexpected state', 500);
+      }
+    }
+
+    const tokens = await this.tokenService.generateTokenPair(
+      user.id,
+      undefined,
+      device,
+      ip,
+    );
+
+    return {
+      message: 'Email verified successfully.',
+      user: UserResponseDto.fromEntity(user),
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      user: UserResponseDto.fromEntity(user),
+    };
+  }
+
+  async resendVerificationEmail(dto: ResendVerificationDto) {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(email);
+
+    const generic = {
+      message:
+        'If an account exists for this email that is not yet verified, we sent a verification link.',
+    };
+
+    if (!user || user.emailVerifiedAt) {
+      return generic;
+    }
+
+    const rawToken = this.newOpaqueToken();
+    const tokenHash = this.hashOpaqueToken(rawToken);
+    const expiresAt = new Date(Date.now() + VERIFICATION_TOKEN_TTL_MS);
+
+    await this.emailVerificationTokenRepository.invalidateUnusedForUser(
+      user.id,
+    );
+    await this.emailVerificationTokenRepository.create({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    });
+
+    try {
+      await this.mailService.sendVerifyEmail({
+        to: user.email,
+        firstName: user.firstName,
+        token: rawToken,
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Resend verification email failed: ${err instanceof Error ? err.message : err}`,
+      );
+    }
+
+    return generic;
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const email = dto.email.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(email);
+
+    const generic = {
+      message:
+        'If an account exists for this email, we sent password reset instructions.',
+    };
+
+    if (!user || user.status !== 'active') {
+      return generic;
+    }
+
+    const rawToken = this.newOpaqueToken();
+    const tokenHash = this.hashOpaqueToken(rawToken);
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+
+    await this.passwordResetTokenRepository.invalidateUnusedForUser(user.id);
+    await this.passwordResetTokenRepository.create({
+      userId: user.id,
+      tokenHash,
+      expiresAt,
+    });
+
+    try {
+      await this.mailService.sendPasswordResetEmail({
+        to: user.email,
+        token: rawToken,
+      });
+    } catch (err) {
+      this.logger.warn(
+        `Password reset email failed: ${err instanceof Error ? err.message : err}`,
+      );
+    }
+
+    return generic;
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const tokenHash = this.hashOpaqueToken(dto.token);
+    const row =
+      await this.passwordResetTokenRepository.findUnusedByTokenHash(tokenHash);
+
+    if (!row) {
+      throw new AppError(
+        ErrorCodes.RESET_TOKEN_INVALID,
+        'Invalid or expired password reset link.',
+        400,
+      );
+    }
+
+    if (row.expiresAt <= new Date()) {
+      throw new AppError(
+        ErrorCodes.RESET_TOKEN_EXPIRED,
+        'This reset link has expired. Request a new one.',
+        400,
+      );
+    }
+
+    const user = await this.usersService.findById(row.userId);
+    if (!user || user.status !== 'active') {
+      throw new AppError(
+        ErrorCodes.RESET_TOKEN_INVALID,
+        'Invalid or expired password reset link.',
+        400,
+      );
+    }
+
+    const passwordHash = await argon2.hash(dto.password);
+    await this.usersService.updatePasswordHash(user.id, passwordHash);
+    await this.passwordResetTokenRepository.markUsed(row.id);
+    await this.tokenService.revokeAllForUser(user.id);
+
+    return {
+      message:
+        'Password updated. Sign in with your new password.',
     };
   }
 
@@ -85,6 +342,14 @@ export class AuthService {
       );
     }
 
+    if (!user.emailVerifiedAt) {
+      throw new AppError(
+        ErrorCodes.EMAIL_NOT_VERIFIED,
+        'Please verify your email before signing in.',
+        403,
+      );
+    }
+
     if (user.status !== 'active') {
       throw new AppError(
         ErrorCodes.ACCOUNT_SUSPENDED,
@@ -95,7 +360,7 @@ export class AuthService {
 
     const tokens = await this.tokenService.generateTokenPair(
       user.id,
-      undefined, // new familyId per login session
+      undefined,
       device,
       ip,
     );
@@ -113,7 +378,6 @@ export class AuthService {
     const oldToken =
       await this.tokenService.verifyRefreshToken(rawRefreshToken);
 
-    // Verify user is still active
     const user = await this.usersService.findById(oldToken.userId);
     if (!user || user.status !== 'active') {
       throw new AppError(
@@ -122,11 +386,16 @@ export class AuthService {
         403,
       );
     }
+    if (!user.emailVerifiedAt) {
+      throw new AppError(
+        ErrorCodes.EMAIL_NOT_VERIFIED,
+        'Please verify your email before signing in.',
+        403,
+      );
+    }
 
-    // Revoke old token (rotation)
     await this.tokenService.revokeRefreshToken(oldToken.id);
 
-    // Issue new pair carrying forward the familyId
     const tokens = await this.tokenService.generateTokenPair(
       oldToken.userId,
       oldToken.familyId,
@@ -142,10 +411,33 @@ export class AuthService {
 
   async getMe(userId: string) {
     const user = await this.usersService.findById(userId);
-    if (!user || user.status !== 'active') {
+    if (!user) {
       throw new AppError(ErrorCodes.UNAUTHORIZED, 'User not found', 401);
     }
+    if (!user.emailVerifiedAt) {
+      throw new AppError(
+        ErrorCodes.EMAIL_NOT_VERIFIED,
+        'Please verify your email before signing in.',
+        403,
+      );
+    }
+    if (user.status !== 'active') {
+      throw new AppError(ErrorCodes.ACCOUNT_SUSPENDED, 'Account suspended', 403);
+    }
     return { user: UserResponseDto.fromEntity(user) };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const patch: { firstName?: string; lastName?: string } = {};
+    if (dto.firstName !== undefined) patch.firstName = dto.firstName.trim();
+    if (dto.lastName !== undefined) patch.lastName = dto.lastName.trim();
+
+    if (Object.keys(patch).length === 0) {
+      return this.getMe(userId);
+    }
+
+    await this.usersService.updateProfile(userId, patch);
+    return this.getMe(userId);
   }
 
   async logout(rawRefreshToken: string): Promise<void> {

@@ -1,10 +1,16 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore, type AuthStatus } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth.api';
 import { connectSocket, joinOrgRoom } from '@/lib/socket';
+import { ApiError } from '@/types';
+
+/** Only clear the session when the server rejects credentials — not on timeouts or 5xx. */
+function isAuthFailure(error: unknown): boolean {
+  return error instanceof ApiError && (error.status === 401 || error.status === 403);
+}
 
 /**
  * Centralized session guard. Owns:
@@ -15,6 +21,7 @@ import { connectSocket, joinOrgRoom } from '@/lib/socket';
  */
 export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
   const router = useRouter();
+  const pathname = usePathname();
   const verifyingRef = useRef(false);
   const backgroundSyncRef = useRef(false);
   const {
@@ -48,13 +55,21 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
 
     verifyingRef.current = true;
 
-    authApi.me()
+    authApi
+      .me()
       .then(({ data }) => {
         const serverUser = data.data!.user;
         setAuth(serverUser, accessToken!, refreshToken!);
       })
-      .catch(() => {
-        logout();
+      .catch((err: unknown) => {
+        if (isAuthFailure(err)) {
+          logout();
+          return;
+        }
+        const { user: persistedUser } = useAuthStore.getState();
+        if (persistedUser) {
+          setStatus('authenticated');
+        }
       })
       .finally(() => {
         verifyingRef.current = false;
@@ -69,13 +84,16 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
 
     backgroundSyncRef.current = true;
 
-    authApi.me()
+    authApi
+      .me()
       .then(({ data }) => {
         setAuth(data.data!.user, accessToken!, refreshToken!);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         backgroundSyncRef.current = false;
-        logout();
+        if (isAuthFailure(err)) {
+          logout();
+        }
       });
   }, [_hasHydrated, status, accessToken, refreshToken, setAuth, logout]);
 
@@ -88,9 +106,10 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
       router.push('/login');
     }
     if (mode === 'guest' && status === 'authenticated') {
+      if (pathname === '/auth/verify-email') return;
       router.push('/');
     }
-  }, [_hasHydrated, status, mode, router]);
+  }, [_hasHydrated, status, mode, router, pathname]);
 
   // Connect socket when authenticated
   useEffect(() => {

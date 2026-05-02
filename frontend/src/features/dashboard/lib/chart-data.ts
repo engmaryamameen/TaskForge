@@ -6,7 +6,20 @@ export type TrendPoint = {
   completed: number;
 };
 
-/** Last N calendar days of task created / completed counts for charts */
+/** Days in the trend window where something was created or completed */
+export function countTrendDaysWithActivity(points: TrendPoint[]): number {
+  return points.filter((p) => p.created > 0 || p.completed > 0).length;
+}
+
+/**
+ * True when we have tasks but not enough distinct days of history for a meaningful trend chart.
+ */
+export function shouldUseTrendLowDataPlaceholder(tasks: Task[]): boolean {
+  if (tasks.length === 0) return false;
+  const points = buildTaskTrendData(tasks, 14);
+  return countTrendDaysWithActivity(points) < 2;
+}
+
 export function buildTaskTrendData(tasks: Task[], days = 14): TrendPoint[] {
   const result: TrendPoint[] = [];
   const now = new Date();
@@ -49,4 +62,9 @@ export function buildPriorityDistribution(tasks: Task[]): PrioritySlice[] {
     name: p.charAt(0).toUpperCase() + p.slice(1),
     value: tasks.filter((t) => t.priority === p).length,
   }));
+}
+
+/** Prefer horizontal status bars for small workspaces; donut when there is enough volume */
+export function shouldUseStatusDonut(totalTasks: number): boolean {
+  return totalTasks >= 5;
 }

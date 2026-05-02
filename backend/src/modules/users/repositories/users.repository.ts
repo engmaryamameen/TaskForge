@@ -34,4 +34,19 @@ export class UsersRepository {
   ): Promise<void> {
     await this.repo.update(userId, { currentOrganizationId: organizationId });
   }
+
+  async setEmailVerifiedAt(userId: string, at: Date): Promise<void> {
+    await this.repo.update(userId, { emailVerifiedAt: at });
+  }
+
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<void> {
+    await this.repo.update(userId, { passwordHash });
+  }
+
+  async updateProfile(
+    userId: string,
+    patch: { firstName?: string; lastName?: string },
+  ): Promise<void> {
+    await this.repo.update(userId, patch);
+  }
 }

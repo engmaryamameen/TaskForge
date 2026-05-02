@@ -1,41 +1,31 @@
 'use client';
 
+import { useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useActivity } from '@/features/activity/hooks/useActivity';
+import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
+import { useAuthStore } from '@/store/auth.store';
+import {
+  formatActivityLine,
+  filterActivities,
+  groupActivitiesByDate,
+} from '@/features/activity/lib/activity-format';
+import { ActivityFilters } from '@/features/activity/components/activity-filters';
+import { ActivityEmptyState } from '@/features/activity/components/activity-empty-state';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
-import { EmptyState } from '@/components/ui/empty-state';
 import { Card } from '@/components/ui/card';
 import { formatRelative } from '@/lib/utils';
-import { IconActivity } from '@/components/icons';
-import type { Activity } from '@/types';
+import type { ActivityTabFilter } from '@/types';
 
-function getActivityMessage(activity: Activity): string {
-  const snapshot = (activity.payload as Record<string, any>)?.snapshot;
-  const entityName = snapshot?.title || snapshot?.name || '';
-
-  switch (activity.eventType) {
-    case 'task.created':
-      return `Created task${entityName ? ` "${entityName}"` : ''}`;
-    case 'task.updated':
-      return `Updated task${entityName ? ` "${entityName}"` : ''}`;
-    case 'task.deleted':
-      return `Deleted task${entityName ? ` "${entityName}"` : ''}`;
-    case 'project.created':
-      return `Created project${entityName ? ` "${entityName}"` : ''}`;
-    case 'project.updated':
-      return `Updated project${entityName ? ` "${entityName}"` : ''}`;
-    case 'project.deleted':
-      return `Deleted project${entityName ? ` "${entityName}"` : ''}`;
-    case 'member.invited':
-      return 'Invited a team member';
-    case 'member.joined':
-      return 'Joined the organization';
-    case 'invite.created':
-      return 'Created an invitation';
-    default:
-      return activity.eventType.replace('.', ' ');
-  }
-}
+const VALID_TABS = new Set<ActivityTabFilter>([
+  'all',
+  'mine',
+  'assigned',
+  'tasks',
+  'projects',
+  'team',
+]);
 
 const ENTITY_CONFIG: Record<string, { color: string; icon: string }> = {
   task: { color: 'bg-primary-100 text-primary-700', icon: 'T' },
@@ -46,98 +36,142 @@ const ENTITY_CONFIG: Record<string, { color: string; icon: string }> = {
   user: { color: 'bg-info-100 text-info-600', icon: 'U' },
 };
 
-function groupByDate(activities: Activity[]): { label: string; items: Activity[] }[] {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const yesterday = new Date(today);
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  const groups: { label: string; items: Activity[] }[] = [
-    { label: 'Today', items: [] },
-    { label: 'Yesterday', items: [] },
-    { label: 'Earlier', items: [] },
-  ];
-
-  for (const activity of activities) {
-    const date = new Date(activity.createdAt);
-    date.setHours(0, 0, 0, 0);
-    if (date.getTime() >= today.getTime()) {
-      groups[0].items.push(activity);
-    } else if (date.getTime() >= yesterday.getTime()) {
-      groups[1].items.push(activity);
-    } else {
-      groups[2].items.push(activity);
-    }
-  }
-
-  return groups.filter((g) => g.items.length > 0);
-}
-
 export default function ActivityPage() {
-  const { data, isLoading, isError, refetch } = useActivity();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const user = useAuthStore((s) => s.user);
+  const { data: members } = useOrgMembers();
+
+  const viewRaw = searchParams.get('view') || '';
+  const tab: ActivityTabFilter = VALID_TABS.has(viewRaw as ActivityTabFilter)
+    ? (viewRaw as ActivityTabFilter)
+    : 'all';
+
+  const setTab = useCallback(
+    (next: ActivityTabFilter) => {
+      const p = new URLSearchParams(searchParams.toString());
+      if (next === 'all') {
+        p.delete('view');
+      } else {
+        p.set('view', next);
+      }
+      const qs = p.toString();
+      router.replace(qs ? `/activity?${qs}` : '/activity');
+    },
+    [router, searchParams],
+  );
+
+  const { data, isLoading, isError, refetch } = useActivity({ limit: 100 });
+
+  const nameByUserId = useMemo(() => {
+    const m = new Map<string, string>();
+    if (user) {
+      m.set(user.id, `${user.firstName} ${user.lastName}`.trim());
+    }
+    members?.forEach((mem) => {
+      if (mem.user) {
+        m.set(
+          mem.userId,
+          `${mem.user.firstName} ${mem.user.lastName}`.trim(),
+        );
+      }
+    });
+    return m;
+  }, [user, members]);
+
+  const activities = data?.data;
+  const filtered = useMemo(() => {
+    if (!activities || !user) return [];
+    return filterActivities(activities, tab, user.id);
+  }, [activities, tab, user]);
+
+  const groups = useMemo(() => groupActivitiesByDate(filtered), [filtered]);
 
   if (isLoading) return <PageSkeleton variant="table" />;
   if (isError) return <ErrorState onRetry={refetch} />;
 
-  const activities = data?.data;
   if (!activities || activities.length === 0) {
     return (
-      <div>
-        <div className="mb-8">
+      <div className="mx-auto max-w-3xl">
+        <header className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Activity</h1>
-          <p className="mt-1 text-sm text-neutral-500">Track all changes across your workspace.</p>
+          <p className="mt-1 text-sm text-neutral-500">
+            A living timeline of what happens in your workspace.
+          </p>
+        </header>
+        <ActivityFilters active={tab} onChange={setTab} />
+        <div className="mt-8">
+          <ActivityEmptyState />
         </div>
-        <EmptyState
-          title="No activity yet"
-          description="Activity will appear here as your team creates projects, tasks, and invites members."
-          icon={<IconActivity className="h-6 w-6" />}
-        />
       </div>
     );
   }
 
-  const groups = groupByDate(activities);
-
   return (
-    <div>
-      <div className="mb-8">
+    <div className="mx-auto max-w-3xl">
+      <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Activity</h1>
-        <p className="mt-1 text-sm text-neutral-500">Track all changes across your workspace.</p>
-      </div>
+        <p className="mt-1 text-sm text-neutral-500">
+          Follow workspace updates and your team&apos;s work in one place.
+        </p>
+      </header>
 
-      <div className="space-y-8">
-        {groups.map((group) => (
-          <div key={group.label}>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">{group.label}</h2>
-            <Card padding="none">
-              {group.items.map((activity, index) => {
-                const entityType = activity.entityType || activity.eventType?.split('.')[0] || 'default';
-                const config = ENTITY_CONFIG[entityType] || { color: 'bg-neutral-100 text-neutral-600', icon: '?' };
-                return (
-                  <div
-                    key={activity.id}
-                    className={`flex items-start gap-3.5 px-5 py-4 ${
-                      index < group.items.length - 1 ? 'border-b border-neutral-100' : ''
-                    }`}
-                  >
-                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${config.color}`}>
-                      {config.icon}
+      <ActivityFilters active={tab} onChange={setTab} />
+
+      {filtered.length === 0 ? (
+        <p className="mt-8 text-center text-sm text-neutral-500">
+          Nothing in this view yet. Try another filter or check back soon.
+        </p>
+      ) : (
+        <div className="mt-8 space-y-8">
+          {groups.map((group) => (
+            <div key={group.label}>
+              <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-400">
+                {group.label}
+              </h2>
+              <Card padding="none">
+                {group.items.map((activity, index) => {
+                  const entityType =
+                    activity.entityType ||
+                    activity.eventType?.split('.')[0] ||
+                    'default';
+                  const config = ENTITY_CONFIG[entityType] || {
+                    color: 'bg-neutral-100 text-neutral-600',
+                    icon: '?',
+                  };
+                  const message =
+                    user &&
+                    formatActivityLine(activity, user.id, nameByUserId);
+                  return (
+                    <div
+                      key={activity.id}
+                      className={`flex items-start gap-3.5 px-5 py-4 ${
+                        index < group.items.length - 1
+                          ? 'border-b border-neutral-100'
+                          : ''
+                      }`}
+                    >
+                      <div
+                        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[11px] font-bold ${config.color}`}
+                      >
+                        {config.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm leading-snug text-neutral-800">
+                          {message}
+                        </p>
+                        <p className="mt-1 text-[11px] text-neutral-400">
+                          {formatRelative(activity.createdAt)}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-neutral-800 leading-snug">
-                        {getActivityMessage(activity)}
-                      </p>
-                      <p className="mt-1 text-[11px] text-neutral-400">
-                        {formatRelative(activity.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </Card>
-          </div>
-        ))}
-      </div>
+                  );
+                })}
+              </Card>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

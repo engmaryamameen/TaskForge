@@ -25,8 +25,8 @@ export class User {
   @Column({ name: 'last_name' })
   lastName: string;
 
-  @Column({ name: 'is_email_verified', default: false })
-  isEmailVerified: boolean;
+  @Column({ name: 'email_verified_at', type: 'timestamptz', nullable: true })
+  emailVerifiedAt: Date | null;
 
   @Column({ default: 'active' })
   status: 'active' | 'suspended';
