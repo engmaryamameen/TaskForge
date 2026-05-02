@@ -13,10 +13,14 @@ export const envValidationSchema = Joi.object({
   DB_USERNAME: Joi.string().required(),
   DB_PASSWORD: Joi.string().required(),
   DB_NAME: Joi.string().required(),
+  DB_SSL: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
+  DB_SSL_REJECT_UNAUTHORIZED: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
 
   // Redis
   REDIS_HOST: Joi.string().required(),
   REDIS_PORT: Joi.number().default(6379),
+  REDIS_PASSWORD: Joi.string().optional().allow(''),
+  REDIS_TLS: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
 
   // Auth
   JWT_SECRET: Joi.string().min(32).required().messages({

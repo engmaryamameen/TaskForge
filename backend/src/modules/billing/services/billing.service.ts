@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ConfigService } from '@nestjs/config';
 import { SubscriptionService } from './subscription.service';
@@ -52,7 +52,7 @@ export class BillingService {
       customer.id,
     );
 
-    const usage = await this.usageService.getOrCreateUsage(organizationId);
+    await this.usageService.getOrCreateUsage(organizationId);
     // Initialize with 1 member (the creator)
     await this.usageService.incrementMembers(organizationId);
 

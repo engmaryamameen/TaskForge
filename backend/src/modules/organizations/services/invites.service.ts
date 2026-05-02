@@ -3,7 +3,6 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { DataSource } from 'typeorm';
 import { randomBytes, createHash } from 'crypto';
 import { InvitesRepository } from '../repositories/invites.repository';
-import { MembershipsRepository } from '../repositories/memberships.repository';
 import { MembershipsService } from './memberships.service';
 import { OrganizationsRepository } from '../repositories/organizations.repository';
 import { CreateInviteDto, AcceptInviteDto } from '../dto';
