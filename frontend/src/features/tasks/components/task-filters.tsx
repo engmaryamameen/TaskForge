@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
@@ -37,39 +39,50 @@ export function TaskFilters({
     setLocalSearch(search);
   }, [search]);
 
+  const statusOptions = [
+    { value: '', label: 'All statuses' },
+    ...Object.values(TaskStatus).map((s) => ({
+      value: s,
+      label: formatTaskStatus(s),
+    })),
+  ];
+
+  const priorityOptions = [
+    { value: '', label: 'All priorities' },
+    ...Object.values(TaskPriority).map((p) => ({
+      value: p,
+      label: formatTaskPriority(p),
+    })),
+  ];
+
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap items-end gap-3">
       {showSearch && (
-        <input
-          type="text"
-          value={localSearch}
-          onChange={(e) => setLocalSearch(e.target.value)}
-          placeholder="Search tasks..."
-          className="w-full max-w-xs rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
+        <div className="w-full max-w-xs">
+          <Input
+            type="text"
+            value={localSearch}
+            onChange={(e) => setLocalSearch(e.target.value)}
+            placeholder="Search tasks..."
+          />
+        </div>
       )}
 
-      <select
-        value={status}
-        onChange={(e) => onStatusChange(e.target.value)}
-        className="rounded border border-gray-300 px-3 py-2 text-sm"
-      >
-        <option value="">All statuses</option>
-        {Object.values(TaskStatus).map((s) => (
-          <option key={s} value={s}>{formatTaskStatus(s)}</option>
-        ))}
-      </select>
+      <div className="w-40">
+        <Select
+          value={status}
+          onChange={onStatusChange}
+          options={statusOptions}
+        />
+      </div>
 
-      <select
-        value={priority}
-        onChange={(e) => onPriorityChange(e.target.value)}
-        className="rounded border border-gray-300 px-3 py-2 text-sm"
-      >
-        <option value="">All priorities</option>
-        {Object.values(TaskPriority).map((p) => (
-          <option key={p} value={p}>{formatTaskPriority(p)}</option>
-        ))}
-      </select>
+      <div className="w-40">
+        <Select
+          value={priority}
+          onChange={onPriorityChange}
+          options={priorityOptions}
+        />
+      </div>
     </div>
   );
 }

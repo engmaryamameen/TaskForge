@@ -3,6 +3,9 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TasksRepository } from '../repositories/tasks.repository';
 import { ProjectsService } from '../../projects/services/projects.service';
 import { MembershipsService } from '../../organizations/services/memberships.service';
+import { OrganizationsService } from '../../organizations/services/organizations.service';
+import { UsersService } from '../../users/services/users.service';
+import { MailService } from '../../mail/mail.service';
 import { CreateTaskDto, UpdateTaskDto, TaskFilterDto } from '../dto';
 import { Task } from '../entities/task.entity';
 import { AppError } from '../../../shared/errors/app-error';
@@ -18,6 +21,9 @@ export class TasksService {
     private readonly tasksRepository: TasksRepository,
     private readonly projectsService: ProjectsService,
     private readonly membershipsService: MembershipsService,
+    private readonly organizationsService: OrganizationsService,
+    private readonly usersService: UsersService,
+    private readonly mailService: MailService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -54,12 +60,24 @@ export class TasksService {
           status: task.status,
           priority: task.priority,
           projectId,
+          assignedTo: task.assignedTo || undefined,
         },
       },
       occurredAt: new Date(),
       organizationId,
       triggeredBy: userId,
     } satisfies DomainEvent);
+
+    // Send task-assigned email (fire-and-forget)
+    if (dto.assignedTo) {
+      this.sendTaskAssignedNotification(
+        dto.assignedTo,
+        task,
+        projectId,
+        organizationId,
+        userId,
+      ).catch((err: Error) => this.logger.error(`Failed to send task-assigned email: ${err.message}`));
+    }
 
     return task;
   }
@@ -141,7 +159,20 @@ export class TasksService {
       triggeredBy: userId,
     } satisfies DomainEvent);
 
-    return { ...task, ...updateData } as Task;
+    const updatedTask = { ...task, ...updateData } as Task;
+
+    // Send task-assigned email if assignee changed (fire-and-forget)
+    if (dto.assignedTo && dto.assignedTo !== task.assignedTo) {
+      this.sendTaskAssignedNotification(
+        dto.assignedTo,
+        updatedTask,
+        task.projectId,
+        organizationId,
+        userId,
+      ).catch((err: Error) => this.logger.error(`Failed to send task-assigned email: ${err.message}`));
+    }
+
+    return updatedTask;
   }
 
   async remove(
@@ -192,5 +223,37 @@ export class TasksService {
         400,
       );
     }
+  }
+
+  private async sendTaskAssignedNotification(
+    assigneeId: string,
+    task: Task,
+    projectId: string,
+    organizationId: string,
+    assignerId: string,
+  ): Promise<void> {
+    const [assignee, assigner, org, project] = await Promise.all([
+      this.usersService.findById(assigneeId),
+      this.usersService.findById(assignerId),
+      this.organizationsService.findById(organizationId),
+      this.projectsService.findOne(projectId, organizationId).catch(() => null),
+    ]);
+
+    if (!assignee?.email) {
+      return;
+    }
+
+    await this.mailService.sendTaskAssignedEmail({
+      recipientEmail: assignee.email,
+      recipientName: assignee.firstName,
+      taskTitle: task.title,
+      taskDescription: task.description || undefined,
+      projectName: project?.name,
+      dueDate: task.dueDate ? new Date(task.dueDate).toLocaleDateString() : undefined,
+      priority: task.priority,
+      assignerName: assigner ? `${assigner.firstName} ${assigner.lastName}` : undefined,
+      organizationName: org?.name || 'your organization',
+      taskId: task.id,
+    });
   }
 }

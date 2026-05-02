@@ -8,12 +8,13 @@ import {
 } from '@/lib/api/organizations.api';
 import { useAuthStore } from '@/store/auth.store';
 import { leaveOrgRoom, joinOrgRoom } from '@/lib/socket';
-import type { OrganizationWithRole, Membership, Role } from '@/types';
+import type { OrganizationWithRole, Membership, Role, PendingInvite } from '@/types';
 
 export const orgKeys = {
   all: ['organizations'] as const,
   current: ['organizations', 'current'] as const,
   members: ['organizations', 'members'] as const,
+  invites: ['organizations', 'invites'] as const,
 };
 
 export function useOrganizations() {
@@ -36,6 +37,17 @@ export function useOrgMembers() {
   return useQuery({
     queryKey: orgKeys.members,
     queryFn: () => organizationsApi.getMembers().then((r) => r.data.data! as Membership[]),
+    enabled: !!currentOrganizationId,
+  });
+}
+
+export function usePendingInvites() {
+  const currentOrganizationId = useAuthStore((s) => s.currentOrganizationId);
+
+  return useQuery({
+    queryKey: orgKeys.invites,
+    queryFn: () =>
+      organizationsApi.listPendingInvites().then((r) => r.data.data! as PendingInvite[]),
     enabled: !!currentOrganizationId,
   });
 }
@@ -76,6 +88,7 @@ export function useSwitchOrganization() {
 
       queryClient.invalidateQueries({ queryKey: orgKeys.current });
       queryClient.invalidateQueries({ queryKey: orgKeys.members });
+      queryClient.invalidateQueries({ queryKey: orgKeys.invites });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['activity'] });
@@ -84,9 +97,26 @@ export function useSwitchOrganization() {
 }
 
 export function useCreateInvite() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (payload: CreateInvitePayload) =>
       organizationsApi.createInvite(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orgKeys.invites });
+      queryClient.invalidateQueries({ queryKey: orgKeys.members });
+    },
+  });
+}
+
+export function useResendInvite() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (inviteId: string) => organizationsApi.resendInvite(inviteId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: orgKeys.invites });
+    },
   });
 }
 
@@ -99,6 +129,7 @@ export function useAcceptInvite() {
       queryClient.invalidateQueries({ queryKey: orgKeys.all });
       queryClient.invalidateQueries({ queryKey: orgKeys.current });
       queryClient.invalidateQueries({ queryKey: orgKeys.members });
+      queryClient.invalidateQueries({ queryKey: orgKeys.invites });
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['tasks'] });
       queryClient.invalidateQueries({ queryKey: ['activity'] });

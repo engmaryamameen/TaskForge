@@ -1,5 +1,4 @@
 import { registerAs } from '@nestjs/config';
-import { getPostgresSslConfig } from './db-ssl';
 
 export default registerAs('database', () => ({
   host: process.env.DB_HOST || 'localhost',
@@ -7,5 +6,4 @@ export default registerAs('database', () => ({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'password',
   database: process.env.DB_NAME || 'taskforge',
-  ssl: getPostgresSslConfig(),
 }));

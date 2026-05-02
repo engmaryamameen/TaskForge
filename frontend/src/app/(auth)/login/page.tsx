@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLogin } from '@/features/auth/hooks/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { IconBolt, IconCheckSquare, IconUsers, IconFolder } from '@/components/icons';
 import { ApiError } from '@/types';
 
 function getAuthErrorMessage(error: Error): string {
@@ -52,59 +55,126 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="rounded-lg bg-white p-8 shadow">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">Sign in to TaskForge</h1>
+    <div className="flex min-h-screen">
+      {/* Left panel — immersive branding */}
+      <div className="hidden lg:flex lg:w-[52%] lg:flex-col lg:justify-between relative overflow-hidden">
+        {/* Background with gradient + pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900" />
+        <div className="absolute inset-0 opacity-[0.04]" style={{
+          backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }} />
+        {/* Decorative blobs */}
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+        <div className="absolute -bottom-32 -left-16 h-80 w-80 rounded-full bg-primary-400/10 blur-3xl" />
 
-      {login.error && (
-        <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
-          {getAuthErrorMessage(login.error)}
+        <div className="relative z-10 flex flex-col justify-between h-full p-10 xl:p-14">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/20">
+              <IconBolt className="h-5 w-5 text-white" />
+            </div>
+            <span className="text-xl font-bold text-white tracking-tight">TaskForge</span>
+          </div>
+
+          {/* Hero content */}
+          <div>
+            <h2 className="text-4xl xl:text-5xl font-bold text-white leading-[1.15] tracking-tight">
+              Where teams<br />
+              build what<br />
+              matters.
+            </h2>
+            <p className="mt-5 text-base text-white/60 max-w-md leading-relaxed">
+              The multi-tenant project management platform built for teams that ship fast and ship well.
+            </p>
+
+            {/* Feature pills */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconFolder className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Project Tracking</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconCheckSquare className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Task Boards</span>
+              </div>
+              <div className="flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-sm px-4 py-2 ring-1 ring-white/10">
+                <IconUsers className="h-4 w-4 text-white/70" />
+                <span className="text-[13px] font-medium text-white/80">Team Workspaces</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <p className="text-[13px] text-white/30">
+            &copy; {new Date().getFullYear()} TaskForge. Built for modern engineering teams.
+          </p>
         </div>
-      )}
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email}</p>}
+      {/* Right panel — form */}
+      <div className="flex flex-1 items-center justify-center px-6 py-12 bg-white">
+        <div className="w-full max-w-[380px]">
+          {/* Mobile logo */}
+          <div className="mb-10 lg:mb-12">
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-primary-600 shadow-medium lg:hidden mx-auto">
+              <IconBolt className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-[28px] font-bold tracking-tight text-neutral-900 text-center lg:text-left">
+              Welcome back
+            </h1>
+            <p className="mt-2 text-[15px] text-neutral-500 text-center lg:text-left">
+              Sign in to continue to your workspace
+            </p>
+          </div>
+
+          {login.error && (
+            <div className="mb-6 flex items-start gap-3 rounded-xl border border-danger-200 bg-danger-50 px-4 py-3.5">
+              <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger-100">
+                <span className="text-danger-600 text-xs font-bold">!</span>
+              </div>
+              <p className="text-sm text-danger-700 leading-relaxed">{getAuthErrorMessage(login.error)}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <Input
+              id="email"
+              label="Email address"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); setErrors((prev) => ({ ...prev, email: undefined })); }}
+              error={errors.email}
+              placeholder="you@company.com"
+            />
+
+            <div>
+              <Input
+                id="password"
+                label="Password"
+                type="password"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
+                error={errors.password}
+                placeholder="Enter your password"
+              />
+            </div>
+
+            <Button type="submit" loading={login.isPending} className="w-full !py-2.5 !text-[15px]" size="lg">
+              Sign in
+            </Button>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-neutral-500">
+              Don&apos;t have an account?{' '}
+              <Link href="/register" className="font-semibold text-primary-600 hover:text-primary-700 transition-colors">
+                Create an account
+              </Link>
+            </p>
+          </div>
         </div>
-
-        <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setErrors((prev) => ({ ...prev, password: undefined })); }}
-            className="w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          />
-          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password}</p>}
-        </div>
-
-        <button
-          type="submit"
-          disabled={login.isPending}
-          className="w-full rounded bg-blue-600 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-        >
-          {login.isPending ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-blue-600 hover:underline">
-          Register
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }

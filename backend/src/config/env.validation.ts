@@ -13,16 +13,10 @@ export const envValidationSchema = Joi.object({
   DB_USERNAME: Joi.string().required(),
   DB_PASSWORD: Joi.string().required(),
   DB_NAME: Joi.string().required(),
-  /** Neon / managed Postgres: set to true */
-  DB_SSL: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
-  /** Default true when DB_SSL is set; set false only if TLS verify fails in your host */
-  DB_SSL_REJECT_UNAUTHORIZED: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
 
   // Redis
   REDIS_HOST: Joi.string().required(),
   REDIS_PORT: Joi.number().default(6379),
-  REDIS_PASSWORD: Joi.string().optional().allow(''),
-  REDIS_TLS: Joi.string().valid('true', 'false', '1', '0', '').optional().allow(''),
 
   // Auth
   JWT_SECRET: Joi.string().min(32).required().messages({
@@ -45,4 +39,12 @@ export const envValidationSchema = Joi.object({
   STRIPE_PRICE_ID_PRO: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_ENTERPRISE: Joi.string().optional().allow(''),
   FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+
+  // Email (SMTP)
+  SMTP_HOST: Joi.string().optional().default('localhost'),
+  SMTP_PORT: Joi.number().optional().default(587),
+  SMTP_SECURE: Joi.boolean().optional().default(false),
+  SMTP_USER: Joi.string().optional().allow(''),
+  SMTP_PASS: Joi.string().optional().allow(''),
+  SMTP_FROM: Joi.string().optional().default('TaskForge <noreply@taskforge.io>'),
 });

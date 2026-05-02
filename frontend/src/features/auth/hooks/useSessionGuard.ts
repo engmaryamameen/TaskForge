@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore, type AuthStatus } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth.api';
@@ -8,32 +8,45 @@ import { connectSocket, joinOrgRoom } from '@/lib/socket';
 
 /**
  * Centralized session guard. Owns:
- * 1. Session verification (call /me on load if tokens exist)
- * 2. Navigation decisions (redirect based on status)
- * 3. Socket connection lifecycle
- *
- * Returns current auth status so layouts can render accordingly.
+ * 1. Waiting for Zustand hydration from localStorage
+ * 2. Session verification (call /me on load if tokens exist)
+ * 3. Navigation decisions (redirect based on status)
+ * 4. Socket connection lifecycle
  */
 export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
   const router = useRouter();
+  const verifyingRef = useRef(false);
+  const backgroundSyncRef = useRef(false);
   const {
     status,
     accessToken,
     refreshToken,
     currentOrganizationId,
+    _hasHydrated,
     setAuth,
     setStatus,
     logout,
   } = useAuthStore();
 
-  // Verify session once when status is 'loading' (after hydration with tokens)
   useEffect(() => {
+    if (status === 'unauthenticated') {
+      verifyingRef.current = false;
+      backgroundSyncRef.current = false;
+    }
+  }, [status]);
+
+  // Token but no persisted user: must block on /me once.
+  useEffect(() => {
+    if (!_hasHydrated) return;
     if (status !== 'loading') return;
+    if (verifyingRef.current) return;
 
     if (!accessToken) {
       setStatus('unauthenticated');
       return;
     }
+
+    verifyingRef.current = true;
 
     authApi.me()
       .then(({ data }) => {
@@ -42,11 +55,33 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
       })
       .catch(() => {
         logout();
+      })
+      .finally(() => {
+        verifyingRef.current = false;
       });
-  }, [status]);
+  }, [_hasHydrated, status, accessToken, refreshToken, setAuth, setStatus, logout]);
 
-  // Handle navigation based on status and mode
+  // Optimistic session: verify in background so the UI does not wait on /me.
   useEffect(() => {
+    if (!_hasHydrated) return;
+    if (status !== 'authenticated' || !accessToken) return;
+    if (backgroundSyncRef.current) return;
+
+    backgroundSyncRef.current = true;
+
+    authApi.me()
+      .then(({ data }) => {
+        setAuth(data.data!.user, accessToken!, refreshToken!);
+      })
+      .catch(() => {
+        backgroundSyncRef.current = false;
+        logout();
+      });
+  }, [_hasHydrated, status, accessToken, refreshToken, setAuth, logout]);
+
+  // Handle navigation based on status and mode — only after hydration
+  useEffect(() => {
+    if (!_hasHydrated) return;
     if (status === 'loading') return;
 
     if (mode === 'protected' && status === 'unauthenticated') {
@@ -55,7 +90,7 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
     if (mode === 'guest' && status === 'authenticated') {
       router.push('/');
     }
-  }, [status, mode]);
+  }, [_hasHydrated, status, mode, router]);
 
   // Connect socket when authenticated
   useEffect(() => {
