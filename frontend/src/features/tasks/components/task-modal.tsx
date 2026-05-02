@@ -112,13 +112,12 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
             id="task-project"
             label="Project"
             value={selectedProjectId}
-            onChange={(e) => setSelectedProjectId(e.target.value)}
-          >
-            <option value="">Select a project</option>
-            {projects?.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </Select>
+            onChange={setSelectedProjectId}
+            placeholder="Select a project"
+            options={[
+              ...(projects?.map((p) => ({ value: p.id, label: p.name })) ?? []),
+            ]}
+          />
         )}
 
         <Input
@@ -143,23 +142,23 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
             id="task-status"
             label="Status"
             value={status}
-            onChange={(e) => setStatus(e.target.value as TaskStatus)}
-          >
-            {Object.values(TaskStatus).map((s) => (
-              <option key={s} value={s}>{formatTaskStatus(s)}</option>
-            ))}
-          </Select>
+            onChange={(v) => setStatus(v as TaskStatus)}
+            options={Object.values(TaskStatus).map((s) => ({
+              value: s,
+              label: formatTaskStatus(s),
+            }))}
+          />
 
           <Select
             id="task-priority"
             label="Priority"
             value={priority}
-            onChange={(e) => setPriority(e.target.value as TaskPriority)}
-          >
-            {Object.values(TaskPriority).map((p) => (
-              <option key={p} value={p}>{formatTaskPriority(p)}</option>
-            ))}
-          </Select>
+            onChange={(v) => setPriority(v as TaskPriority)}
+            options={Object.values(TaskPriority).map((p) => ({
+              value: p,
+              label: formatTaskPriority(p),
+            }))}
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -167,15 +166,16 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
             id="task-assignee"
             label="Assignee"
             value={assignedTo}
-            onChange={(e) => setAssignedTo(e.target.value)}
-          >
-            <option value="">Unassigned</option>
-            {members?.map((m) => (
-              <option key={m.userId} value={m.userId}>
-                {m.user ? `${m.user.firstName} ${m.user.lastName}` : m.userId}
-              </option>
-            ))}
-          </Select>
+            onChange={setAssignedTo}
+            placeholder="Unassigned"
+            options={[
+              { value: '', label: 'Unassigned' },
+              ...(members?.map((m) => ({
+                value: m.userId,
+                label: m.user ? `${m.user.firstName} ${m.user.lastName}` : m.userId,
+              })) ?? []),
+            ]}
+          />
 
           <Input
             id="task-due"

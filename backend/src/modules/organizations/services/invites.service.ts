@@ -32,26 +32,36 @@ export class InvitesService {
     private readonly dataSource: DataSource,
   ) {}
 
+  async listPendingInvites(organizationId: string) {
+    const rows = await this.invitesRepository.findPendingByOrganization(
+      organizationId,
+    );
+    return rows.map((inv) => ({
+      id: inv.id,
+      email: inv.email,
+      role: inv.role,
+      expiresAt: inv.expiresAt.toISOString(),
+      createdAt: inv.createdAt.toISOString(),
+    }));
+  }
+
   async createInvite(
     ctx: RequestContext,
     dto: CreateInviteDto,
-  ): Promise<{ token: string }> {
-    const email = dto.email?.trim().toLowerCase();
+  ): Promise<{ emailSent: boolean }> {
+    const email = dto.email.trim().toLowerCase();
     const role = dto.role ?? Role.MEMBER;
 
-    // Check for duplicate active invite
-    if (email) {
-      const existing = await this.invitesRepository.findActiveByEmailAndOrg(
-        email,
-        ctx.organizationId!,
+    const existing = await this.invitesRepository.findActiveByEmailAndOrg(
+      email,
+      ctx.organizationId!,
+    );
+    if (existing) {
+      throw new AppError(
+        ErrorCodes.INVITE_ALREADY_USED,
+        'An active invite already exists for this email in this organization',
+        409,
       );
-      if (existing) {
-        throw new AppError(
-          ErrorCodes.INVITE_ALREADY_USED,
-          'An active invite already exists for this email in this organization',
-          409,
-        );
-      }
     }
 
     const rawToken = randomBytes(32).toString('hex');
@@ -62,7 +72,7 @@ export class InvitesService {
 
     await this.invitesRepository.create({
       organizationId: ctx.organizationId!,
-      email: email || undefined,
+      email,
       tokenHash,
       role,
       expiresAt,
@@ -81,23 +91,102 @@ export class InvitesService {
       triggeredBy: ctx.userId,
     } satisfies DomainEvent);
 
-    // Send invitation email
-    if (email) {
-      const [creator, org] = await Promise.all([
-        this.usersService.findById(ctx.userId),
-        this.organizationsRepository.findById(ctx.organizationId!),
-      ]);
-      this.mailService.sendInvitationEmail({
+    const [creator, org] = await Promise.all([
+      this.usersService.findById(ctx.userId),
+      this.organizationsRepository.findById(ctx.organizationId!),
+    ]);
+
+    let emailSent = false;
+    try {
+      await this.mailService.sendInvitationEmail({
         recipientEmail: email,
         organizationName: org?.name || 'your organization',
         inviterName: creator ? `${creator.firstName} ${creator.lastName}` : undefined,
         role,
         inviteToken: rawToken,
-      }).catch((err) => this.logger.error(`Failed to send invite email: ${err.message}`));
+      });
+      emailSent = true;
+    } catch (err) {
+      this.logger.error(
+        `Failed to send invite email: ${err instanceof Error ? err.message : err}`,
+      );
     }
 
-    // Raw token returned once — never stored server-side
-    return { token: rawToken };
+    return { emailSent };
+  }
+
+  /** Same invite row: refresh token + expiry and send email again (no new DB row). */
+  async resendInvite(
+    ctx: RequestContext,
+    inviteId: string,
+  ): Promise<{ emailSent: boolean }> {
+    const orgId = ctx.organizationId!;
+    const invite = await this.invitesRepository.findByIdAndOrganization(
+      inviteId,
+      orgId,
+    );
+
+    if (!invite) {
+      throw new AppError(ErrorCodes.INVITE_NOT_FOUND, 'Invite not found', 404);
+    }
+
+    if (invite.usedAt) {
+      throw new AppError(
+        ErrorCodes.INVITE_ALREADY_USED,
+        'This invite has already been accepted',
+        409,
+      );
+    }
+
+    if (invite.expiresAt <= new Date()) {
+      throw new AppError(
+        ErrorCodes.INVITE_EXPIRED,
+        'This invite has expired. Send a new invitation instead.',
+        400,
+      );
+    }
+
+    if (!invite.email) {
+      throw new AppError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Cannot resend an invite without an email address',
+        400,
+      );
+    }
+
+    const rawToken = randomBytes(32).toString('hex');
+    const tokenHash = this.hashToken(rawToken);
+    const expiresAt = new Date(
+      Date.now() + INVITE_TOKEN_TTL_HOURS * 60 * 60 * 1000,
+    );
+
+    await this.invitesRepository.updateInviteToken(invite.id, {
+      tokenHash,
+      expiresAt,
+    });
+
+    const [creator, org] = await Promise.all([
+      this.usersService.findById(ctx.userId),
+      this.organizationsRepository.findById(orgId),
+    ]);
+
+    let emailSent = false;
+    try {
+      await this.mailService.sendInvitationEmail({
+        recipientEmail: invite.email,
+        organizationName: org?.name || 'your organization',
+        inviterName: creator ? `${creator.firstName} ${creator.lastName}` : undefined,
+        role: invite.role,
+        inviteToken: rawToken,
+      });
+      emailSent = true;
+    } catch (err) {
+      this.logger.error(
+        `Failed to resend invite email: ${err instanceof Error ? err.message : err}`,
+      );
+    }
+
+    return { emailSent };
   }
 
   async validateInvite(rawToken: string) {

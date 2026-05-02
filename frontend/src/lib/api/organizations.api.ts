@@ -1,13 +1,13 @@
 import { apiClient } from './client';
 import { normalizeError } from './errors';
-import type { ApiResponse, Organization, Membership, Role } from '@/types';
+import type { ApiResponse, Organization, Membership, Role, PendingInvite } from '@/types';
 
 export interface CreateOrganizationPayload {
   name: string;
 }
 
 export interface CreateInvitePayload {
-  email?: string;
+  email: string;
   role?: Role;
 }
 
@@ -38,10 +38,21 @@ export const organizationsApi = {
       .catch(normalizeError);
   },
 
+  listPendingInvites() {
+    return apiClient.get<ApiResponse<PendingInvite[]>>('/organizations/invites')
+      .catch(normalizeError);
+  },
+
   createInvite(payload: CreateInvitePayload) {
-    return apiClient.post<ApiResponse<{ token: string }>>(
+    return apiClient.post<ApiResponse<{ emailSent: boolean }>>(
       '/organizations/invites',
       payload,
+    ).catch(normalizeError);
+  },
+
+  resendInvite(inviteId: string) {
+    return apiClient.post<ApiResponse<{ emailSent: boolean }>>(
+      `/organizations/invites/${inviteId}/resend`,
     ).catch(normalizeError);
   },
 

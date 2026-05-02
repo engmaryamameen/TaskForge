@@ -12,13 +12,22 @@ export function getSocket(): Socket | null {
 export function connectSocket(token: string): Socket {
   if (socket?.connected) return socket;
 
+  if (socket) {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
+  }
+
   socket = io(SOCKET_URL, {
+    path: '/socket.io',
     auth: { token },
-    transports: ['websocket', 'polling'],
+    // Polling first often succeeds when raw WebSocket upgrade fails (dev proxies / some browsers).
+    transports: ['polling', 'websocket'],
     reconnection: true,
     reconnectionAttempts: 10,
     reconnectionDelay: 1000,
     reconnectionDelayMax: 30000,
+    timeout: 20_000,
   });
 
   socket.on('connect', () => {

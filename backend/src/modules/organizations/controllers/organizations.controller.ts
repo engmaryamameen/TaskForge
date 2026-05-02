@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, ParseUUIDPipe } from '@nestjs/common';
 import { OrganizationsService } from '../services/organizations.service';
 import { InvitesService } from '../services/invites.service';
 import { MembershipsService } from '../services/memberships.service';
@@ -59,6 +59,13 @@ export class OrganizationsController {
   }
 
   @OrgScoped()
+  @Roles(Role.ADMIN, Role.MEMBER)
+  @Get('invites')
+  async listInvites(@CurrentUser() user: RequestContext) {
+    return this.invitesService.listPendingInvites(user.organizationId!);
+  }
+
+  @OrgScoped()
   @Roles(Role.ADMIN)
   @Post('invites')
   async createInvite(
@@ -66,5 +73,15 @@ export class OrganizationsController {
     @Body() dto: CreateInviteDto,
   ) {
     return this.invitesService.createInvite(user, dto);
+  }
+
+  @OrgScoped()
+  @Roles(Role.ADMIN)
+  @Post('invites/:inviteId/resend')
+  async resendInvite(
+    @CurrentUser() user: RequestContext,
+    @Param('inviteId', ParseUUIDPipe) inviteId: string,
+  ) {
+    return this.invitesService.resendInvite(user, inviteId);
   }
 }

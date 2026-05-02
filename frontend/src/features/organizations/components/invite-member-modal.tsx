@@ -22,76 +22,70 @@ function getInviteErrorMessage(error: Error): string {
         return 'You need admin access to invite members.';
       case 'PLAN_LIMIT_EXCEEDED':
         return 'Your plan has reached the member limit.';
+      case 'INVITE_ALREADY_USED':
+        return error.message;
+      case 'VALIDATION_ERROR':
+        return error.message;
     }
   }
-  return 'Failed to create invite. Please try again.';
+  return error.message || 'Failed to send invitation. Please try again.';
 }
 
 export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<Role>(Role.MEMBER);
-  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const createInvite = useCreateInvite();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setInviteUrl(null);
+    const trimmed = email.trim();
+    if (!trimmed) return;
 
-    const { data } = await createInvite.mutateAsync({
-      email: email.trim() || undefined,
+    const res = await createInvite.mutateAsync({
+      email: trimmed,
       role,
     });
 
-    const token = data.data!.token;
-    if (typeof window !== 'undefined') {
-      setInviteUrl(`${window.location.origin}/invite/${token}`);
-    }
-  }
-
-  function handleCopy() {
-    if (inviteUrl) {
-      navigator.clipboard.writeText(inviteUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    setSentTo(trimmed);
+    setEmailSent(res.data.data?.emailSent ?? false);
   }
 
   function handleClose() {
     setEmail('');
     setRole(Role.MEMBER);
-    setInviteUrl(null);
-    setCopied(false);
+    setSentTo(null);
+    setEmailSent(null);
     createInvite.reset();
     onClose();
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Invite Member">
-      {createInvite.error && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-100 p-3 text-sm text-red-700">
+    <Modal isOpen={isOpen} onClose={handleClose} title="Invite member">
+      {createInvite.error && !sentTo && (
+        <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-700">
           {getInviteErrorMessage(createInvite.error)}
         </div>
       )}
 
-      {inviteUrl ? (
+      {sentTo ? (
         <div className="space-y-4">
-          <p className="text-sm text-neutral-600">
-            Share this link to invite {email ? <strong>{email}</strong> : 'someone'} to the organization:
+          <p className="text-sm leading-relaxed text-neutral-600">
+            {emailSent ? (
+              <>
+                We sent an invitation email to <strong className="text-neutral-900">{sentTo}</strong>. They can
+                accept from their inbox to join this workspace.
+              </>
+            ) : (
+              <>
+                We couldn&apos;t send email to <strong className="text-neutral-900">{sentTo}</strong> right now.
+                Check SMTP settings on the server. The invitation is still pending—you can see it in Team Members.
+              </>
+            )}
           </p>
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              readOnly
-              value={inviteUrl}
-              className="flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700"
-            />
-            <Button size="sm" onClick={handleCopy}>
-              {copied ? 'Copied!' : 'Copy'}
-            </Button>
-          </div>
           <div className="flex justify-end">
-            <Button variant="secondary" onClick={handleClose}>Done</Button>
+            <Button onClick={handleClose}>Done</Button>
           </div>
         </div>
       ) : (
@@ -99,14 +93,16 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
           <div>
             <Input
               id="invite-email"
-              label="Email (optional)"
+              label="Email"
               type="email"
+              required
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="teammate@company.com"
             />
             <p className="mt-1 text-xs text-neutral-500">
-              Leave empty to create a generic invite link.
+              We&apos;ll email them a secure link to join—nothing to copy manually.
             </p>
           </div>
 
@@ -114,15 +110,20 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
             id="invite-role"
             label="Role"
             value={role}
-            onChange={(e) => setRole(e.target.value as Role)}
-          >
-            <option value={Role.MEMBER}>Member</option>
-            <option value={Role.ADMIN}>Admin</option>
-          </Select>
+            onChange={(v) => setRole(v as Role)}
+            options={[
+              { value: Role.MEMBER, label: 'Member' },
+              { value: Role.ADMIN, label: 'Admin' },
+            ]}
+          />
 
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={handleClose}>Cancel</Button>
-            <Button type="submit" loading={createInvite.isPending}>Create Invite</Button>
+            <Button type="button" variant="secondary" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit" loading={createInvite.isPending} disabled={!email.trim()}>
+              Send invitation
+            </Button>
           </div>
         </form>
       )}
