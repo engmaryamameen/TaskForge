@@ -2,7 +2,11 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { authApi, type RegisterPayload, type LoginPayload } from '@/lib/api/auth.api';
+import {
+  authApi,
+  type RegisterPayload,
+  type LoginPayload,
+} from '@/lib/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 import { connectSocket, disconnectSocket, joinOrgRoom } from '@/lib/socket';
 
@@ -13,7 +17,9 @@ export function useLogin(redirectTo?: string) {
   return useMutation({
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: ({ data }) => {
-      const { user, accessToken, refreshToken } = data.data!;
+      const inner = data.data;
+      if (!inner?.user || !inner.accessToken || !inner.refreshToken) return;
+      const { user, accessToken, refreshToken } = inner;
       setAuth(user, accessToken, refreshToken);
 
       const socket = connectSocket(accessToken);
@@ -26,17 +32,68 @@ export function useLogin(redirectTo?: string) {
   });
 }
 
-export function useRegister(redirectTo?: string) {
+export function useRegister() {
   const router = useRouter();
-  const setAuth = useAuthStore((s) => s.setAuth);
 
   return useMutation({
     mutationFn: (payload: RegisterPayload) => authApi.register(payload),
     onSuccess: ({ data }) => {
-      const { user, accessToken, refreshToken } = data.data!;
-      setAuth(user, accessToken, refreshToken);
-      connectSocket(accessToken);
-      router.push(redirectTo || '/');
+      const inner = data.data;
+      if (inner?.nextStep === 'VERIFY_EMAIL' && inner.email) {
+        router.push(
+          `/auth/check-email?email=${encodeURIComponent(inner.email)}`,
+        );
+        return;
+      }
+    },
+  });
+}
+
+type VerifyEmailOptions = {
+  /** Default `/`. Set `null` to stay on the page (e.g. verification success UI). */
+  redirectTo?: string | null;
+};
+
+export function useVerifyEmail(options?: VerifyEmailOptions) {
+  const router = useRouter();
+  const setAuth = useAuthStore((s) => s.setAuth);
+  const redirectTo = options?.redirectTo !== undefined ? options.redirectTo : '/';
+
+  return useMutation({
+    mutationFn: (token: string) => authApi.verifyEmail(token),
+    onSuccess: ({ data }) => {
+      const inner = data.data;
+      if (!inner?.accessToken || !inner.user) return;
+      setAuth(inner.user, inner.accessToken, inner.refreshToken);
+      const socket = connectSocket(inner.accessToken);
+      if (inner.user.currentOrganizationId) {
+        socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
+      }
+      if (redirectTo != null) router.push(redirectTo);
+    },
+  });
+}
+
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: (email: string) => authApi.resendVerificationEmail(email),
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => authApi.forgotPassword(email),
+  });
+}
+
+export function useResetPassword() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: (args: { token: string; password: string }) =>
+      authApi.resetPassword(args.token, args.password),
+    onSuccess: () => {
+      router.push('/login?reset=1');
     },
   });
 }

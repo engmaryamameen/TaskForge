@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore, type AuthStatus } from '@/store/auth.store';
 import { authApi } from '@/lib/api/auth.api';
 import { connectSocket, joinOrgRoom } from '@/lib/socket';
@@ -15,6 +15,7 @@ import { connectSocket, joinOrgRoom } from '@/lib/socket';
  */
 export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
   const router = useRouter();
+  const pathname = usePathname();
   const verifyingRef = useRef(false);
   const backgroundSyncRef = useRef(false);
   const {
@@ -88,9 +89,10 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
       router.push('/login');
     }
     if (mode === 'guest' && status === 'authenticated') {
+      if (pathname === '/auth/verify-email') return;
       router.push('/');
     }
-  }, [_hasHydrated, status, mode, router]);
+  }, [_hasHydrated, status, mode, router, pathname]);
 
   // Connect socket when authenticated
   useEffect(() => {

@@ -34,7 +34,7 @@ export const envValidationSchema = Joi.object({
   STRIPE_WEBHOOK_SECRET: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_PRO: Joi.string().optional().allow(''),
   STRIPE_PRICE_ID_ENTERPRISE: Joi.string().optional().allow(''),
-  FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+  FRONTEND_URL: Joi.string().default('http://localhost:3001'),
 
   // Email (SMTP) — env vars are strings; mail.config uses SMTP_SECURE === 'true'
   SMTP_HOST: Joi.string().optional().default('localhost'),
