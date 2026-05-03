@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="screenshots/dashboard/1.png" alt="TaskForge Dashboard" width="700" />
-</p>
+![TaskForge Dashboard](screenshots/dashboard/1.png)
 
 # TaskForge — Multi-Tenant SaaS Project Management Platform
 
@@ -10,11 +8,11 @@ It includes organization-based multi-tenancy, role-based access control, Kanban 
 
 ## Live Demo
 
-🌐 **Demo:** [https://task-forge-demo.vercel.app](https://task-forge-demo.vercel.app)
+**Demo:** [https://task-forge-demo.vercel.app](https://task-forge-demo.vercel.app)
 
 ### Demo Account
 
-| | |
+| Field | Value |
 |---|---|
 | **Email** | `demo@taskforge.com` |
 | **Password** | `Demo@12345` |
@@ -27,7 +25,7 @@ It includes organization-based multi-tenancy, role-based access control, Kanban 
 
 - **Multi-tenant SaaS architecture** — organization-scoped data isolation
 - **Role-based access control** — Admin / Member with guard chain enforcement
-- **Kanban board** with drag-and-drop tasks (dnd-kit)
+- **Kanban board** with drag-and-drop tasks using dnd-kit
 - **Real-time notifications** using Socket.IO
 - **Email notifications** using Nodemailer
 - **Stripe subscription billing** structure

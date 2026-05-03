@@ -8,7 +8,7 @@ assignees: ""
 
 ## Problem
 
-A clear description of the problem you're trying to solve. Example: "I'm always frustrated when..."
+A clear description of the problem you're trying to solve.
 
 ## Proposed Solution
 
@@ -20,4 +20,4 @@ A description of any alternative solutions or features you've considered.
 
 ## Additional Context
 
-Add any mockups, screenshots, or examples from other tools that illustrate the feature.
+Add mockups, screenshots, examples, or references if helpful.
