@@ -1,59 +1,115 @@
-# TaskForge
+<p align="center">
+  <img src="screenshots/dashboard/1.png" alt="TaskForge Dashboard" width="700" />
+</p>
 
-**A production-grade, multi-tenant SaaS project management platform.**
+# TaskForge — Multi-Tenant SaaS Project Management Platform
 
-TaskForge is a full-stack project management application built with modern architecture. It features multi-tenant organization management, real-time collaboration via WebSockets, email notifications, and a polished dashboard UI designed for portfolio presentation.
+TaskForge is a production-grade SaaS project management platform built with **Next.js, NestJS, PostgreSQL, Redis, Socket.IO, Stripe, Docker, and CI/CD**.
+
+It includes organization-based multi-tenancy, role-based access control, Kanban task management, real-time notifications, email workflows, billing architecture, and a polished dashboard UI.
+
+## Live Demo
+
+🌐 **Demo:** [https://task-forge-demo.vercel.app](https://task-forge-demo.vercel.app)
+
+### Demo Account
+
+| | |
+|---|---|
+| **Email** | `demo@taskforge.com` |
+| **Password** | `Demo@12345` |
+
+> The demo account has sample projects, tasks, members, notifications, and dashboard data pre-loaded.
 
 ---
 
-## Key Features
+## Why This Project Stands Out
 
-### Multi-Tenant SaaS Architecture
-- Organization-scoped data isolation enforced at the guard layer
-- 4-guard request chain: `Throttler -> JWT -> OrgMembership -> Roles`
-- 3-tier membership cache: request-level -> Redis (5 min) -> database
-- Role-based access control: `admin` | `member` per organization
+- **Multi-tenant SaaS architecture** — organization-scoped data isolation
+- **Role-based access control** — Admin / Member with guard chain enforcement
+- **Kanban board** with drag-and-drop tasks (dnd-kit)
+- **Real-time notifications** using Socket.IO
+- **Email notifications** using Nodemailer
+- **Stripe subscription billing** structure
+- **JWT auth** with refresh token rotation and theft detection
+- **PostgreSQL + Redis** backend architecture
+- **Docker-based** local and production setup
+- **CI/CD pipeline** with GitHub Actions
 
-### Project & Task Management
-- Create and manage projects within organizations
-- Kanban board with drag-and-drop task management (To Do / In Progress / Done)
-- Task priority levels: low, medium, high, urgent
-- Task assignment with due dates and descriptions
-- Soft delete with audit trail
+---
 
-### Email Notifications (Nodemailer)
-- Professional HTML email templates with plain text fallback
-- **Invitation emails** sent when admins invite users to organizations
-- **Task assignment emails** sent when tasks are assigned or reassigned
-- SMTP configuration via environment variables
-- Graceful fallback: logs emails when SMTP is not configured
+## Screenshots
 
-### Real-Time WebSocket Notifications
-- Socket.IO for real-time event broadcasting
-- In-app notification center with unread count and bell icon
-- Notifications for: task assignments, member joins, and more
-- Tenant-aware: notifications never leak across organizations
-- Persistent notifications stored in database via API
+### Dashboard & Analytics
 
-### Authentication & Security
-- JWT access tokens (15 min) + refresh token rotation (7 day)
-- Argon2 password hashing
-- Token theft detection via family ID revocation
-- Redis-backed rate limiting (100 req/min default, 10/min on auth)
+**Overview** — Stats cards, task flow over time, and status mix.
 
-### Billing Integration
-- Stripe-driven subscription lifecycle
-- Entitlements computed from plan + usage counters
-- Webhook idempotency via ProcessedWebhook table
+![Dashboard overview with metrics and charts](screenshots/dashboard/1.png)
 
-### Premium Dashboard UI
-- Responsive design (desktop, tablet, mobile)
-- Split-panel auth pages with branding
-- Dashboard overview with stats cards, task breakdown, and activity feed
-- Polished sidebar navigation with search, org switcher, and section labels
-- Professional notification dropdown with type icons
-- Kanban board with priority badges and avatar assignments
-- Command palette (Cmd+K) for quick navigation
+**Operational view** — Workflow health, activity feed, priority mix, deadlines, and "My work."
+
+![Dashboard with workflow health and activity](screenshots/dashboard/2.png)
+
+### Kanban Board
+
+![Kanban task board](screenshots/dashboard/tasks.png)
+
+### Projects
+
+**Project grid** — Workspace projects with search and card layout.
+
+![Projects grid](screenshots/dashboard/projects.png)
+
+**Project detail** — Single project header with board/table switcher and Kanban columns.
+
+![Project detail board view](screenshots/dashboard/project-detail.png)
+
+### Organization Members
+
+**Organizations** — Active workspace, metadata, and team access summary.
+
+![Organizations workspace](screenshots/dashboard/organization.png)
+
+**Team roster** — Members and pending invitations with role badges.
+
+![Team members and invitations](screenshots/dashboard/organization-2.png)
+
+**Invite member** — Modal with email, role, and send invitation.
+
+![Invite member modal](screenshots/dashboard/send-invitation.png)
+
+### Real-Time Notifications
+
+![Notification dropdown](screenshots/dashboard/notifications.png)
+
+### Authentication
+
+Split-panel auth with shared branding.
+
+![Login](screenshots/auth/login.png)
+
+![Create workspace — registration](screenshots/auth/register.png)
+
+![Forgot password](screenshots/auth/forgot-password.png)
+
+### Mobile & Responsive
+
+![Mobile dashboard](screenshots/mobile-view/dashboard.png)
+![Mobile project list](screenshots/mobile-view/project-list.png)
+![Mobile project detail](screenshots/mobile-view/project-detail.png)
+![Mobile organizations](screenshots/mobile-view/organization.png)
+
+---
+
+## Use TaskForge as a Reference For
+
+- Building multi-tenant SaaS apps
+- Structuring a Next.js + NestJS monorepo
+- Implementing organization-based RBAC
+- Adding real-time notifications with Socket.IO
+- Designing project/task management workflows
+- Integrating Stripe billing architecture
+- Setting up Docker and CI/CD for full-stack apps
 
 ---
 
@@ -114,6 +170,42 @@ TaskForge/
 
 ---
 
+## Getting Started
+
+### Prerequisites
+- Node.js 20+
+- PostgreSQL 16+
+- Redis 7+
+
+### Backend Setup
+
+```bash
+cd backend
+cp .env.example .env          # Edit with your credentials
+npm install
+npm run migration:run         # Create database tables
+npm run start:dev             # Start API on port 3000
+npm run start:worker:dev      # Start background worker (separate terminal)
+```
+
+### Frontend Setup
+
+```bash
+cd frontend
+cp .env.local.example .env.local
+npm install
+npm run dev                   # Start on port 3001
+```
+
+### Access the App
+
+1. Open `http://localhost:3001`
+2. Register a new account
+3. Create an organization
+4. Start creating projects and tasks
+
+---
+
 ## Environment Variables
 
 ### Backend (.env)
@@ -159,42 +251,6 @@ FRONTEND_URL=http://localhost:3001
 NEXT_PUBLIC_API_URL=http://localhost:3000
 NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
 ```
-
----
-
-## Getting Started
-
-### Prerequisites
-- Node.js 20+
-- PostgreSQL 16+
-- Redis 7+
-
-### Backend Setup
-
-```bash
-cd backend
-cp .env.example .env          # Edit with your credentials
-npm install
-npm run migration:run         # Create database tables
-npm run start:dev             # Start API on port 3000
-npm run start:worker:dev      # Start background worker (separate terminal)
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-cp .env.local.example .env.local
-npm install
-npm run dev                   # Start on port 3001
-```
-
-### Access the App
-
-1. Open `http://localhost:3001`
-2. Register a new account
-3. Create an organization
-4. Start creating projects and tasks
 
 ---
 
@@ -246,12 +302,6 @@ TaskForge uses Socket.IO for real-time notifications:
 4. **Notifications**: Task assignments and member joins create persistent notifications
 5. **Frontend**: Bell icon with unread count, dropdown with notification list
 
-### Testing WebSocket Notifications
-
-1. Open the app in two browser windows with different users in the same org
-2. Assign a task to the other user
-3. The assigned user should see a notification bell badge and notification in the dropdown
-
 ---
 
 ## API Endpoints
@@ -294,111 +344,6 @@ TaskForge uses Socket.IO for real-time notifications:
 
 ---
 
-## Testing Guide
-
-### Test Invitation Emails
-1. Configure SMTP (or use Mailtrap)
-2. Log in as an admin of an organization
-3. Go to Organizations > Invite Member
-4. Enter an email address and send the invite
-5. Check the recipient's inbox (or Mailtrap) for the invitation email
-
-### Test Task Assignment Emails
-1. Have at least 2 users in the same organization
-2. Create a task and assign it to another user
-3. Check the assigned user's email for the task notification
-4. Reassign the task to a different user and verify the new user gets notified
-
-### Test WebSocket Notifications
-1. Open two browser sessions with different users in the same org
-2. In session 1: Create a task assigned to user 2
-3. In session 2: See the notification bell badge update
-4. Click the bell to see the notification in the dropdown
-
----
-
-## Portfolio Screenshots
-
-Assets live under [`screenshots/`](screenshots/) for READMEs, résumés, and case studies. Each block below maps to a feature area a reviewer can scan quickly.
-
-### Dashboard & analytics
-
-**Overview** — Stats cards, task flow over time, and status mix.
-
-![Dashboard overview with metrics and charts](screenshots/dashboard/1.png)
-
-**Operational view** — Workflow health, activity feed, priority mix, deadlines, and “My work.”
-
-![Dashboard with workflow health and activity](screenshots/dashboard/2.png)
-
-### Projects & tasks
-
-**Project grid** — Workspace projects with search and card layout.
-
-![Projects grid](screenshots/dashboard/projects.png)
-
-**Project detail** — Single project header with board/table switcher and Kanban columns.
-
-![Project detail board view](screenshots/dashboard/project-detail.png)
-
-**Workspace task board** — To Do / In Progress / Done with priorities and assignees.
-
-![Kanban task board](screenshots/dashboard/tasks.png)
-
-### Organizations & invitations
-
-**Organizations** — Active workspace, metadata, and team access summary.
-
-![Organizations workspace](screenshots/dashboard/organization.png)
-
-**Team roster** — Members and pending invitations with role badges.
-
-![Team members and invitations](screenshots/dashboard/organization-2.png)
-
-**Invite member** — Modal with email, role, and send invitation.
-
-![Invite member modal](screenshots/dashboard/send-invitation.png)
-
-### Notifications
-
-**In-app center** — Unread count, list with icons, and mark-all-read.
-
-![Notification dropdown](screenshots/dashboard/notifications.png)
-
-### Authentication
-
-Split-panel auth with shared branding (login, registration, password recovery).
-
-![Login](screenshots/auth/login.png)
-
-![Create workspace — registration](screenshots/auth/register.png)
-
-![Forgot password](screenshots/auth/forgot-password.png)
-
-### Mobile & responsive
-
-Same product on narrow viewports: condensed chrome, stacked cards, and touch-friendly actions.
-
-![Mobile dashboard](screenshots/mobile-view/dashboard.png)
-
-![Mobile dashboard — additional viewport](screenshots/mobile-view/dashboard-3.png)
-
-![Mobile project list](screenshots/mobile-view/project-list.png)
-
-![Mobile project detail](screenshots/mobile-view/project-detail.png)
-
-![Mobile new project](screenshots/mobile-view/new-project.png)
-
-![Mobile organizations](screenshots/mobile-view/organization.png)
-
-![Mobile invite members](screenshots/mobile-view/invite-members.png)
-
-### Optional captures (not in repo)
-
-If you extend this folder later, strong additions are: **Settings** (profile / workspace), and an **invitation or task-assignment email** opened in an inbox or Mailtrap (HTML template proof).
-
----
-
 ## Architecture Highlights
 
 ### Request Flow
@@ -428,6 +373,14 @@ Client -> Next.js -> NestJS API
 - All mutations emit domain events
 - Events consumed by: Activity Logger, WebSocket Broadcaster, Notification Creator, Email Sender
 - Background worker processes audit log asynchronously
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read the [Contributing Guide](CONTRIBUTING.md) before submitting a pull request.
+
+See the [open issues](https://github.com/engmaryamameen/TaskForge/issues) for a list of known issues and planned features.
 
 ---
 
