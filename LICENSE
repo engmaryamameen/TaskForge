@@ -1,42 +1,21 @@
-Proprietary Software License
+MIT License
 
-Copyright (c) 2026 engmaryamameen. All Rights Reserved.
+Copyright (c) 2026 engmaryamameen
 
-NOTICE: This software and all associated documentation, source code, and
-materials (collectively, the "Software") are the exclusive property of
-engmaryamameen. The Software is protected by copyright laws and international
-treaty provisions.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-1. RESTRICTIONS
-   You may NOT, without prior written permission from the copyright holder:
-   - Copy, reproduce, or duplicate the Software or any portion thereof.
-   - Modify, adapt, translate, or create derivative works based on the Software.
-   - Distribute, sublicense, lease, rent, loan, or otherwise transfer the
-     Software to any third party.
-   - Reverse engineer, decompile, disassemble, or otherwise attempt to derive
-     the source code of the Software.
-   - Use the Software for any commercial or non-commercial purpose.
-   - Remove or alter any proprietary notices, labels, or marks on the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-2. OWNERSHIP
-   The copyright holder retains all right, title, and interest in and to the
-   Software, including all intellectual property rights therein. No rights are
-   granted to you other than as expressly set forth herein.
-
-3. NO WARRANTY
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-
-4. LIMITATION OF LIABILITY
-   IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR
-   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-   ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-   DEALINGS IN THE SOFTWARE.
-
-5. TERMINATION
-   Any unauthorized use, reproduction, or distribution of the Software will
-   result in immediate termination of any implied rights and may result in
-   civil and criminal penalties.
-
-For licensing inquiries, contact the copyright holder.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
