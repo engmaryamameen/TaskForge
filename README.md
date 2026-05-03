@@ -319,16 +319,83 @@ TaskForge uses Socket.IO for real-time notifications:
 
 ## Portfolio Screenshots
 
-Suggested screenshots for portfolio presentation:
+Assets live under [`screenshots/`](screenshots/) for READMEs, résumés, and case studies. Each block below maps to a feature area a reviewer can scan quickly.
 
-1. **Dashboard Overview** — Stats cards, task breakdown chart, recent activity
-2. **Task Board** — Kanban board with drag-and-drop, priority badges, assignee avatars
-3. **Projects Page** — Project grid with cards, search, pagination
-4. **Organizations** — Team members with avatars, role badges, invite modal
-5. **Notification Dropdown** — Bell icon with unread count, notification list
-6. **Settings Page** — Profile info, workspace details
-7. **Login Page** — Split-panel design with branding
-8. **Invitation Email** — Professional HTML email template in Mailtrap
+### Dashboard & analytics
+
+**Overview** — Stats cards, task flow over time, and status mix.
+
+![Dashboard overview with metrics and charts](screenshots/dashboard/1.png)
+
+**Operational view** — Workflow health, activity feed, priority mix, deadlines, and “My work.”
+
+![Dashboard with workflow health and activity](screenshots/dashboard/2.png)
+
+### Projects & tasks
+
+**Project grid** — Workspace projects with search and card layout.
+
+![Projects grid](screenshots/dashboard/projects.png)
+
+**Project detail** — Single project header with board/table switcher and Kanban columns.
+
+![Project detail board view](screenshots/dashboard/project-detail.png)
+
+**Workspace task board** — To Do / In Progress / Done with priorities and assignees.
+
+![Kanban task board](screenshots/dashboard/tasks.png)
+
+### Organizations & invitations
+
+**Organizations** — Active workspace, metadata, and team access summary.
+
+![Organizations workspace](screenshots/dashboard/organization.png)
+
+**Team roster** — Members and pending invitations with role badges.
+
+![Team members and invitations](screenshots/dashboard/organization-2.png)
+
+**Invite member** — Modal with email, role, and send invitation.
+
+![Invite member modal](screenshots/dashboard/send-invitation.png)
+
+### Notifications
+
+**In-app center** — Unread count, list with icons, and mark-all-read.
+
+![Notification dropdown](screenshots/dashboard/notifications.png)
+
+### Authentication
+
+Split-panel auth with shared branding (login, registration, password recovery).
+
+![Login](screenshots/auth/login.png)
+
+![Create workspace — registration](screenshots/auth/register.png)
+
+![Forgot password](screenshots/auth/forgot-password.png)
+
+### Mobile & responsive
+
+Same product on narrow viewports: condensed chrome, stacked cards, and touch-friendly actions.
+
+![Mobile dashboard](screenshots/mobile-view/dashboard.png)
+
+![Mobile dashboard — additional viewport](screenshots/mobile-view/dashboard-3.png)
+
+![Mobile project list](screenshots/mobile-view/project-list.png)
+
+![Mobile project detail](screenshots/mobile-view/project-detail.png)
+
+![Mobile new project](screenshots/mobile-view/new-project.png)
+
+![Mobile organizations](screenshots/mobile-view/organization.png)
+
+![Mobile invite members](screenshots/mobile-view/invite-members.png)
+
+### Optional captures (not in repo)
+
+If you extend this folder later, strong additions are: **Settings** (profile / workspace), and an **invitation or task-assignment email** opened in an inbox or Mailtrap (HTML template proof).
 
 ---
 
