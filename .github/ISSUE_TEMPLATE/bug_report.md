@@ -37,4 +37,4 @@ If applicable, add screenshots to help explain your problem.
 
 ## Additional Context
 
-Add any other context about the problem here (error logs, related issues, etc.).
+Add any other context about the problem here.
