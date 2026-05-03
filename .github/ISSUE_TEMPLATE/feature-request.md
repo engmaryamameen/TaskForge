@@ -3,20 +3,21 @@ name: Feature Request
 about: Suggest a new feature or improvement for TaskForge
 title: "[Feature] "
 labels: enhancement
-assignees: ""
+assignees: ''
+
 ---
 
 ## Problem
 
-A clear description of the problem you're trying to solve.
+What problem does this feature solve?
 
 ## Proposed Solution
 
-A clear description of what you'd like to happen.
+Describe the feature or improvement you want.
 
 ## Alternatives Considered
 
-A description of any alternative solutions or features you've considered.
+Have you considered any alternative solutions?
 
 ## Additional Context
 
