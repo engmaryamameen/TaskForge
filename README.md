@@ -161,9 +161,7 @@ TaskForge/
 │       │   └── health/          # Health checks
 │       ├── infrastructure/      # Database, Redis, Queue
 │       ├── common/              # Guards, filters, decorators
-│       └── shared/              # Enums, interfaces, errors
-│
-└── UI/                          # Design reference templates (not deployed)
+│       └── shared/              # Enums, interfaces, errors│
 ```
 
 ---
