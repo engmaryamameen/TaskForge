@@ -71,6 +71,18 @@ export class TokenService {
     this.logger.log(`Refresh token ${tokenId} revoked`);
   }
 
+  /**
+   * Atomically revokes a refresh token. Returns the token if revocation
+   * succeeded, or null if the token was already revoked (race/theft).
+   */
+  async atomicRevokeRefreshToken(tokenId: string): Promise<RefreshToken | null> {
+    const result = await this.refreshTokenRepository.atomicRevoke(tokenId);
+    if (result) {
+      this.logger.log(`Refresh token ${tokenId} atomically revoked`);
+    }
+    return result;
+  }
+
   async revokeAllForUser(userId: string): Promise<void> {
     await this.refreshTokenRepository.revokeAllForUser(userId);
     this.logger.log(`All refresh tokens revoked for user ${userId}`);

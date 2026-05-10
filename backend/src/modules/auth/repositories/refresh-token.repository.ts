@@ -36,6 +36,27 @@ export class RefreshTokenRepository {
     await this.repo.update(id, { revokedAt: new Date() });
   }
 
+  /**
+   * Atomically revokes a token only if it hasn't already been revoked.
+   * Returns the token if revocation succeeded (we won the race), or null
+   * if someone else revoked it first (lost the race — possible token theft).
+   */
+  async atomicRevoke(id: string): Promise<RefreshToken | null> {
+    const result = await this.repo
+      .createQueryBuilder()
+      .update(RefreshToken)
+      .set({ revokedAt: new Date() })
+      .where('id = :id AND revoked_at IS NULL', { id })
+      .returning('*')
+      .execute();
+
+    if (result.affected === 0) {
+      return null; // Already revoked — concurrent use or theft
+    }
+
+    return result.raw[0] as RefreshToken;
+  }
+
   async revokeAllForUser(userId: string): Promise<void> {
     await this.repo.update(
       { userId, revokedAt: IsNull() },

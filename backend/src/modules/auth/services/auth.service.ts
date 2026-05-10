@@ -378,6 +378,23 @@ export class AuthService {
     const oldToken =
       await this.tokenService.verifyRefreshToken(rawRefreshToken);
 
+    // Atomically revoke the old token — if this fails, the token was already
+    // consumed (concurrent request or theft). Revoke the entire family.
+    const revoked = await this.tokenService.atomicRevokeRefreshToken(oldToken.id);
+    if (!revoked) {
+      // Token was already revoked — this is either a race condition or token theft.
+      // Revoke the entire family to be safe (defense-in-depth).
+      this.logger.warn(
+        `Refresh token reuse detected for family ${oldToken.familyId} — revoking family`,
+      );
+      await this.tokenService.revokeByFamily(oldToken.familyId);
+      throw new AppError(
+        ErrorCodes.REFRESH_TOKEN_INVALID,
+        'Invalid or expired refresh token',
+        401,
+      );
+    }
+
     const user = await this.usersService.findById(oldToken.userId);
     if (!user || user.status !== 'active') {
       throw new AppError(
@@ -393,8 +410,6 @@ export class AuthService {
         403,
       );
     }
-
-    await this.tokenService.revokeRefreshToken(oldToken.id);
 
     const tokens = await this.tokenService.generateTokenPair(
       oldToken.userId,
