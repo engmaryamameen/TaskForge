@@ -3,6 +3,7 @@ import { Request } from 'express';
 import { BillingService } from '../services/billing.service';
 import { StripeService } from '../services/stripe.service';
 import { Public } from '../../../common/decorators/public.decorator';
+import { SkipTenantScope } from '../../../infrastructure/tenant';
 import { AppError } from '../../../shared/errors/app-error';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
 
@@ -10,6 +11,7 @@ interface RawBodyRequest extends Request {
   rawBody?: Buffer;
 }
 
+@SkipTenantScope()
 @Controller('billing/webhooks')
 export class WebhookController {
   constructor(

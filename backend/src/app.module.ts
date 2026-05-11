@@ -1,5 +1,5 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -16,6 +16,7 @@ import { DatabaseModule } from './infrastructure/database/database.module';
 import { RedisModule } from './infrastructure/redis';
 import { CacheModule } from './infrastructure/cache';
 import { QueueProducerModule } from './infrastructure/queue';
+import { TenantModule, TenantTransactionInterceptor } from './infrastructure/tenant';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import { ThrottlerRedisStorage } from './infrastructure/redis/throttler-redis.storage';
 
@@ -79,6 +80,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     // Infrastructure
     RedisModule,
     CacheModule,
+    TenantModule,
 
     // Rate limiting (100 req/min default, Redis-backed)
     ThrottlerModule.forRoot({
@@ -107,6 +109,9 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: OrgMembershipGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    // Tenant transaction interceptor — wraps org-scoped requests in
+    // a transaction with SET LOCAL for RLS enforcement
+    { provide: APP_INTERCEPTOR, useClass: TenantTransactionInterceptor },
   ],
 })
 export class AppModule implements NestModule {

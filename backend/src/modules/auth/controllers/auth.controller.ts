@@ -14,8 +14,10 @@ import {
 } from '../dto';
 import { Public } from '../../../common/decorators/public.decorator';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { SkipTenantScope } from '../../../infrastructure/tenant';
 import { RequestContext } from '../../../shared/interfaces';
 
+@SkipTenantScope()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
