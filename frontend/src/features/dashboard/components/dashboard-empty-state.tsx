@@ -95,10 +95,10 @@ function PreviewKpiCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">{label}</p>
-          <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-300">0</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
           <p className="mt-1 text-sm text-neutral-400">Awaiting data</p>
         </div>
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg} ring-1 ring-neutral-100`}>
           <span className={iconColor}>{icon}</span>
         </div>
       </div>
