@@ -44,8 +44,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <Topbar />
-            <main className="flex-1 overflow-auto bg-neutral-50/60">
-              <div className="mx-auto px-4 py-6 md:px-6 lg:px-8">
+            <main className="flex-1 overflow-auto bg-white">
+              <div className="mx-auto px-4 py-5 md:px-5 lg:px-6">
                 {children}
               </div>
             </main>

@@ -36,7 +36,7 @@ function AppShellSkeleton() {
           </div>
         </div>
         {/* Content placeholder */}
-        <div className="flex-1 bg-neutral-50/60 p-6 md:p-8">
+        <div className="flex-1 bg-white p-5 md:p-5 lg:p-6">
           <div className="mx-auto max-w-5xl space-y-6">
             <div className="h-5 w-36 animate-shimmer rounded-md" />
             <div className="h-8 w-56 animate-shimmer rounded-md" />

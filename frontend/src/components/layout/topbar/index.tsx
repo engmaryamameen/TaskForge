@@ -3,9 +3,10 @@
 import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { useSocketStatus } from '@/hooks/useSocketStatus';
+import { useCommandPalette } from '@/features/command/use-command-palette';
 import { UserMenu } from './user-menu';
 import { NotificationDropdown } from './notification-dropdown';
-import { IconMenu, IconChevronRight } from '@/components/icons';
+import { IconMenu, IconChevronRight, IconSearch } from '@/components/icons';
 
 interface Crumb {
   label: string;
@@ -27,11 +28,12 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
 export function Topbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { connected } = useSocketStatus();
+  const { open: openPalette } = useCommandPalette();
   const pathname = usePathname();
   const crumbs = buildBreadcrumbs(pathname);
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 md:px-6">
+    <header className="flex h-14 shrink-0 items-center justify-between border-b border-neutral-200 bg-white px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
@@ -49,7 +51,7 @@ export function Topbar() {
               <span key={i} className="flex items-center gap-1.5">
                 {i > 0 && <IconChevronRight className="h-3.5 w-3.5 text-neutral-300" />}
                 {isLast ? (
-                  <span className="text-sm font-semibold text-neutral-900">{crumb.label}</span>
+                  <span className="text-sm font-medium text-neutral-800">{crumb.label}</span>
                 ) : (
                   <span className="text-sm text-neutral-400">{crumb.label}</span>
                 )}
@@ -59,7 +61,7 @@ export function Topbar() {
         </nav>
 
         {/* Mobile: show current page name */}
-        <span className="text-sm font-semibold text-neutral-900 md:hidden">
+        <span className="text-sm font-medium text-neutral-800 md:hidden">
           {crumbs[crumbs.length - 1].label}
         </span>
 
@@ -70,7 +72,18 @@ export function Topbar() {
         )}
       </div>
 
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
+        {/* Search trigger */}
+        <button
+          onClick={openPalette}
+          className="hidden md:flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:border-neutral-300 hover:bg-white cursor-pointer"
+        >
+          <IconSearch className="h-3.5 w-3.5" />
+          <span>Search...</span>
+          <kbd className="ml-2 rounded bg-white px-1.5 py-0.5 text-[11px] font-medium text-neutral-400 border border-neutral-200">
+            &#8984;K
+          </kbd>
+        </button>
         <NotificationDropdown />
         <UserMenu />
       </div>
