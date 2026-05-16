@@ -23,10 +23,11 @@ export function UserMenu() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center rounded-full transition-all hover:ring-2 hover:ring-neutral-200 cursor-pointer"
+        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all hover:bg-neutral-50 cursor-pointer"
         aria-label="User menu"
       >
-        <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" />
+        <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" className="bg-primary-600!" />
+        <span className="hidden md:block text-sm font-medium text-neutral-700">{user.firstName}</span>
       </button>
 
       {isOpen && (
