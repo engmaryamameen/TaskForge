@@ -65,12 +65,12 @@ export function Sidebar() {
         } ${collapsed ? 'md:w-16' : 'md:w-60'} w-60`}
       >
         {/* Logo */}
-        <div className={`flex shrink-0 items-center border-b border-neutral-100 ${collapsed ? 'justify-center py-4' : 'px-4 py-3.5'}`}>
-          <Link href="/" className="flex items-center">
+        <div className={`shrink-0 border-b border-neutral-100 ${collapsed ? 'flex justify-center py-3' : 'px-3 py-3'}`}>
+          <Link href="/" className="block">
             {collapsed ? (
-              <img src="/brand/taskforge-icon.svg" alt="TaskForge" className="h-8 w-8" />
+              <img src="/brand/taskforge-app-icon-transparent.png" alt="TaskForge" className="h-10 w-10 object-contain" />
             ) : (
-              <img src="/brand/taskforge-logo-sidebar.svg" alt="TaskForge" className="h-10 w-auto" />
+              <img src="/brand/taskforge-primary-horizontal-transparent.png" alt="TaskForge" className="w-full h-auto object-contain" />
             )}
           </Link>
         </div>
