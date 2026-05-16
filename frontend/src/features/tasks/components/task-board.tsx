@@ -25,6 +25,12 @@ import { IconPlus } from '@/components/icons';
 import { useToast } from '@/components/toast/toast-provider';
 import { Button } from '@/components/ui/button';
 
+const STATUS_COUNT_STYLE: Record<TaskStatus, string> = {
+  [TaskStatus.TODO]: 'bg-primary-100 text-primary-700',
+  [TaskStatus.IN_PROGRESS]: 'bg-warning-100 text-warning-700',
+  [TaskStatus.DONE]: 'bg-success-100 text-success-700',
+};
+
 interface TaskBoardProps {
   tasks: Task[];
   projectId?: string;
@@ -51,7 +57,7 @@ function DroppableColumn({
       className={`min-h-[220px] rounded-xl p-1.5 transition-all duration-200 ${
         isOver
           ? 'bg-primary-50 ring-2 ring-primary-300 ring-inset'
-          : 'bg-neutral-100/90'
+          : 'bg-neutral-50/80'
       }`}
     >
       {children}
@@ -74,13 +80,13 @@ function EmptyColumnPlaceholder({
   if (hasActiveFilters) {
     return (
       <div className="rounded-lg border border-dashed border-primary-200/70 bg-primary-50/40 px-3 py-6 text-center">
-        <p className="text-[13px] font-medium text-neutral-800">No matching tasks</p>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-neutral-600">
-          Tasks may still exist in this column—they can be hidden by your filters. Clear filters to see the full board.
+        <p className="text-sm font-medium text-neutral-800">No matching tasks</p>
+        <p className="mt-1.5 text-xs leading-relaxed text-neutral-600">
+          Tasks may still exist in this column — they can be hidden by your filters.
         </p>
         <Link
           href="/tasks"
-          className="mt-3 inline-block cursor-pointer text-[12px] font-semibold text-primary-600 hover:text-primary-700"
+          className="mt-3 inline-block cursor-pointer text-xs font-semibold text-primary-600 hover:text-primary-700"
         >
           Clear filters
         </Link>
@@ -93,8 +99,8 @@ function EmptyColumnPlaceholder({
 
   return (
     <div className="rounded-lg border border-dashed border-neutral-200/80 bg-white/60 px-3 py-6 text-center">
-      <p className="text-[13px] font-medium text-neutral-700">No tasks here</p>
-      <p className="mt-1 text-[11px] text-neutral-500">
+      <p className="text-sm font-medium text-neutral-700">No tasks here</p>
+      <p className="mt-1 text-xs text-neutral-500">
         Drop a task here or create one.
       </p>
       <Button variant="outline" size="xs" className="mt-3 cursor-pointer" onClick={onCreate}>
@@ -181,12 +187,12 @@ export function TaskBoard({ tasks, projectId, hasActiveFilters = false }: TaskBo
       >
         <div className="flex flex-col gap-4 pb-4 md:flex-row md:gap-3 md:overflow-x-auto">
           {COLUMNS.map((status) => (
-            <div key={status} className="w-full min-w-0 md:min-w-[280px] md:flex-1">
+            <div key={status} className="w-full min-w-0 md:min-w-[300px] md:flex-1">
               <div className="mb-2 flex items-center justify-between px-2 py-1.5">
-                <span className="text-xs font-bold uppercase tracking-wide text-neutral-500">
+                <span className="text-sm font-semibold text-neutral-700">
                   {formatTaskStatus(status)}
                 </span>
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-neutral-200/90 px-1 text-[10px] font-bold text-neutral-600">
+                <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold ${STATUS_COUNT_STYLE[status]}`}>
                   {grouped[status].length}
                 </span>
               </div>
@@ -218,7 +224,7 @@ export function TaskBoard({ tasks, projectId, hasActiveFilters = false }: TaskBo
                 <button
                   type="button"
                   onClick={() => setCreateInStatus(status)}
-                  className="mt-1.5 flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-[13px] text-neutral-500 transition-colors hover:bg-neutral-200/80 hover:text-neutral-800"
+                  className="mt-1.5 flex w-full cursor-pointer items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-neutral-500 transition-colors hover:bg-neutral-200/80 hover:text-neutral-800"
                 >
                   <IconPlus className="h-4 w-4" />
                   Create
@@ -230,8 +236,8 @@ export function TaskBoard({ tasks, projectId, hasActiveFilters = false }: TaskBo
 
         <DragOverlay dropAnimation={null}>
           {activeTask && (
-            <div className="w-[268px] rounded-lg border border-primary-300 bg-white px-3 py-2.5 shadow-lg ring-2 ring-primary-100">
-              <p className="text-[13px] font-semibold text-neutral-900">{activeTask.title}</p>
+            <div className="w-[280px] rounded-lg border border-primary-300 bg-white px-3 py-2.5 shadow-lg ring-2 ring-primary-100">
+              <p className="text-sm font-semibold text-neutral-900 line-clamp-2">{activeTask.title}</p>
             </div>
           )}
         </DragOverlay>
