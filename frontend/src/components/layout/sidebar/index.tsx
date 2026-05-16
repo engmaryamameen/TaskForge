@@ -5,17 +5,16 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { NavItem } from './nav-item';
 import { OrgSwitcher } from './org-switcher';
+import { IconBolt, IconChevronLeft } from '@/components/icons';
 import {
-  IconHome,
-  IconFolder,
-  IconCheckSquare,
-  IconUsers,
-  IconActivity,
-  IconSettings,
-  IconBolt,
-  IconSearch,
-  IconChevronLeft,
-} from '@/components/icons';
+  DashboardCardsIcon,
+  ProjectsLayersIcon,
+  TasksCircleCheckIcon,
+  OrganizationsTeamIcon,
+  ActivityTimelineIcon,
+  SettingsSlidersIcon,
+  SearchIcon,
+} from '@/components/icons-taskforge';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { matchTasksSubNav } from '@/features/tasks/lib/task-subnav-match';
 
@@ -23,11 +22,11 @@ const navigation = [
   {
     section: 'Main',
     items: [
-      { href: '/', label: 'Dashboard', icon: IconHome, exact: true },
+      { href: '/', label: 'Dashboard', icon: DashboardCardsIcon, exact: true },
       {
         href: '/projects',
         label: 'Projects',
-        icon: IconFolder,
+        icon: ProjectsLayersIcon,
         exact: false,
         subLinks: [
           { href: '/projects', label: 'All Projects' },
@@ -36,7 +35,7 @@ const navigation = [
       {
         href: '/tasks',
         label: 'Tasks',
-        icon: IconCheckSquare,
+        icon: TasksCircleCheckIcon,
         exact: false,
         subLinks: [
           { href: '/tasks', label: 'Board view' },
@@ -55,17 +54,17 @@ const navigation = [
       {
         href: '/organizations',
         label: 'Organizations',
-        icon: IconUsers,
+        icon: OrganizationsTeamIcon,
         exact: false,
         subLinks: [
           { href: '/organizations', label: 'My Organizations' },
         ],
       },
-      { href: '/activity', label: 'Activity', icon: IconActivity, exact: false },
+      { href: '/activity', label: 'Activity', icon: ActivityTimelineIcon, exact: false },
       {
         href: '/settings',
         label: 'Settings',
-        icon: IconSettings,
+        icon: SettingsSlidersIcon,
         exact: false,
         subLinks: [
           { href: '/settings', label: 'General' },
@@ -120,7 +119,7 @@ export function Sidebar() {
               onClick={() => { openPalette(); closeMobileSidebar(); }}
               className="flex w-full items-center gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-sm text-neutral-400 transition-all hover:border-neutral-300 hover:bg-white hover:shadow-xs cursor-pointer"
             >
-              <IconSearch className="h-4 w-4 shrink-0" />
+              <SearchIcon className="h-4 w-4 shrink-0" />
               <span className="flex-1 text-left">Search...</span>
               <kbd className="hidden rounded border border-neutral-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-neutral-400 sm:inline-block">
                 &#8984;K
@@ -135,7 +134,7 @@ export function Sidebar() {
               className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-600 cursor-pointer"
               title="Search (⌘K)"
             >
-              <IconSearch className="h-5 w-5" />
+              <SearchIcon className="h-5 w-5" />
             </button>
           </div>
         )}
