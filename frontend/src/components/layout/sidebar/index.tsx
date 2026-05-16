@@ -7,7 +7,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { NavItem } from './nav-item';
 import { OrgSwitcher } from './org-switcher';
-import { IconBolt, IconChevronLeft } from '@/components/icons';
+import { IconChevronLeft } from '@/components/icons';
 import { Avatar } from '@/components/ui/avatar';
 import {
   DashboardCardsIcon,
@@ -65,15 +65,14 @@ export function Sidebar() {
         } ${collapsed ? 'md:w-16' : 'md:w-60'} w-60`}
       >
         {/* Logo */}
-        <div className={`flex shrink-0 items-center border-b border-neutral-100 ${collapsed ? 'justify-center py-4' : 'gap-2.5 px-5 py-4'}`}>
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-600">
-            <IconBolt className="h-4 w-4 text-white" />
-          </div>
-          {!collapsed && (
-            <Link href="/" className="text-base font-bold tracking-tight text-neutral-900">
-              TaskForge
-            </Link>
-          )}
+        <div className={`flex shrink-0 items-center border-b border-neutral-100 ${collapsed ? 'justify-center py-4' : 'px-4 py-3.5'}`}>
+          <Link href="/" className="flex items-center">
+            {collapsed ? (
+              <img src="/brand/taskforge-icon.svg" alt="TaskForge" className="h-8 w-8" />
+            ) : (
+              <img src="/brand/taskforge-logo-sidebar.svg" alt="TaskForge" className="h-10 w-auto" />
+            )}
+          </Link>
         </div>
 
         {/* User profile section */}

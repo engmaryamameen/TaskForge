@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   title: 'TaskForge',
   description: 'Multi-tenant project management platform',
   icons: {
-    icon: '/favicon.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: '32x32' },
+      { url: '/brand/taskforge-icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/brand/taskforge-icon-180.png',
   },
 };
 
