@@ -16,10 +16,10 @@ interface NavItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
+  collapsed?: boolean;
   onClick?: () => void;
   badge?: number;
   subLinks?: SubLink[];
-  /** When set, overrides default pathname matching for sub-links (e.g. query-aware Tasks links). */
   subLinkIsActive?: (href: string) => boolean;
 }
 
@@ -28,6 +28,7 @@ export function NavItem({
   label,
   icon: Icon,
   isActive,
+  collapsed,
   onClick,
   badge,
   subLinks,
@@ -52,20 +53,40 @@ export function NavItem({
 
   const hasSubLinks = subLinks && subLinks.length > 0;
 
+  const activeClasses = 'bg-primary-50 text-primary-700 font-semibold';
+  const inactiveClasses = 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900';
+  const iconActive = 'text-primary-600';
+  const iconInactive = 'text-neutral-400';
+
+  /* ── Collapsed: icon-only with tooltip ── */
+  if (collapsed) {
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        title={label}
+        className={`flex h-9 w-full items-center justify-center rounded-lg transition-colors duration-150 ${
+          isActive ? activeClasses : inactiveClasses
+        }`}
+      >
+        <Icon className={`h-5 w-5 shrink-0 ${isActive ? iconActive : iconInactive}`} />
+      </Link>
+    );
+  }
+
+  /* ── Expanded: with sub-links ── */
   if (hasSubLinks) {
     return (
       <div>
         <button
           type="button"
           onClick={() => setExpanded(!expanded)}
-          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200 cursor-pointer ${
-            isActive
-              ? 'text-primary-700'
-              : 'text-neutral-600 hover:text-neutral-900'
+          className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 cursor-pointer ${
+            isActive ? activeClasses : inactiveClasses
           }`}
         >
-          <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
-          <span className={`flex-1 text-left ${isActive ? 'font-semibold' : ''}`}>{label}</span>
+          <Icon className={`h-5 w-5 shrink-0 ${isActive ? iconActive : iconInactive}`} />
+          <span className="flex-1 text-left">{label}</span>
           <IconChevronRight
             className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform duration-200 ${
               expanded ? 'rotate-90' : ''
@@ -87,7 +108,7 @@ export function NavItem({
                   key={sub.href}
                   href={sub.href}
                   onClick={onClick}
-                  className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-[12.5px] transition-colors duration-150 ${
+                  className={`flex items-center justify-between rounded-md px-2.5 py-1.5 text-xs transition-colors duration-150 ${
                     subActive
                       ? 'font-semibold text-primary-600'
                       : 'font-normal text-neutral-500 hover:text-neutral-800'
@@ -95,7 +116,7 @@ export function NavItem({
                 >
                   {sub.label}
                   {sub.badge && (
-                    <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[9px] font-bold text-primary-700 uppercase">
+                    <span className="rounded-full bg-primary-100 px-1.5 py-0.5 text-[11px] font-bold text-primary-700 uppercase">
                       {sub.badge}
                     </span>
                   )}
@@ -108,18 +129,19 @@ export function NavItem({
     );
   }
 
+  /* ── Expanded: simple link ── */
   return (
     <Link
       href={href}
       onClick={onClick}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors duration-200 ${
-        isActive ? 'font-semibold text-primary-700' : 'text-neutral-600 hover:text-neutral-900'
+      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+        isActive ? activeClasses : inactiveClasses
       }`}
     >
-      <Icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
+      <Icon className={`h-5 w-5 shrink-0 ${isActive ? iconActive : iconInactive}`} />
       <span className="flex-1">{label}</span>
       {badge !== undefined && badge > 0 && (
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-100 px-1.5 text-[10px] font-semibold text-primary-700">
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary-100 px-1.5 text-xs font-semibold text-primary-700">
           {badge}
         </span>
       )}

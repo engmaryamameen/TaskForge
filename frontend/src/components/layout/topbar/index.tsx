@@ -5,34 +5,33 @@ import { useUIStore } from '@/store/ui.store';
 import { useSocketStatus } from '@/hooks/useSocketStatus';
 import { UserMenu } from './user-menu';
 import { NotificationDropdown } from './notification-dropdown';
-import { IconMenu } from '@/components/icons';
+import { IconMenu, IconChevronRight } from '@/components/icons';
 
-const PAGE_TITLES: Record<string, string> = {
-  '/': 'Dashboard',
-  '/projects': 'Projects',
-  '/tasks': 'Tasks',
-  '/organizations': 'Organizations',
-  '/activity': 'Activity',
-  '/settings': 'Settings',
-};
+interface Crumb {
+  label: string;
+  href?: string;
+}
 
-function getPageTitle(pathname: string): string {
-  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
-  if (pathname.startsWith('/projects/')) return 'Project Details';
-  for (const [path, title] of Object.entries(PAGE_TITLES)) {
-    if (pathname.startsWith(path) && path !== '/') return title;
-  }
-  return 'Dashboard';
+function buildBreadcrumbs(pathname: string): Crumb[] {
+  if (pathname === '/') return [{ label: 'Dashboard' }];
+  if (pathname === '/projects') return [{ label: 'Projects' }];
+  if (pathname.startsWith('/projects/'))
+    return [{ label: 'Projects', href: '/projects' }, { label: 'Project Details' }];
+  if (pathname === '/tasks') return [{ label: 'Tasks' }];
+  if (pathname === '/organizations') return [{ label: 'Organizations' }];
+  if (pathname === '/activity') return [{ label: 'Activity' }];
+  if (pathname === '/settings') return [{ label: 'Settings' }];
+  return [{ label: 'Dashboard' }];
 }
 
 export function Topbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
   const { connected } = useSocketStatus();
   const pathname = usePathname();
-  const pageTitle = getPageTitle(pathname);
+  const crumbs = buildBreadcrumbs(pathname);
 
   return (
-    <header className="flex h-14 flex-shrink-0 items-center justify-between border-b border-neutral-200/80 bg-white px-4 md:px-6">
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200/80 bg-white px-4 md:px-6">
       <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
@@ -42,9 +41,27 @@ export function Topbar() {
           <IconMenu className="h-5 w-5" />
         </button>
 
-        <div className="hidden md:block">
-          <h1 className="text-base font-semibold text-neutral-900">{pageTitle}</h1>
-        </div>
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="hidden md:flex items-center gap-1.5">
+          {crumbs.map((crumb, i) => {
+            const isLast = i === crumbs.length - 1;
+            return (
+              <span key={i} className="flex items-center gap-1.5">
+                {i > 0 && <IconChevronRight className="h-3.5 w-3.5 text-neutral-300" />}
+                {isLast ? (
+                  <span className="text-sm font-semibold text-neutral-900">{crumb.label}</span>
+                ) : (
+                  <span className="text-sm text-neutral-400">{crumb.label}</span>
+                )}
+              </span>
+            );
+          })}
+        </nav>
+
+        {/* Mobile: show current page name */}
+        <span className="text-sm font-semibold text-neutral-900 md:hidden">
+          {crumbs[crumbs.length - 1].label}
+        </span>
 
         {!connected && (
           <span className="rounded-full bg-warning-50 px-2.5 py-1 text-[11px] font-medium text-warning-700 ring-1 ring-warning-500/20 animate-pulse">
@@ -53,7 +70,7 @@ export function Topbar() {
         )}
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <NotificationDropdown />
         <UserMenu />
       </div>
