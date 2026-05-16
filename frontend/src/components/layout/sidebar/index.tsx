@@ -14,7 +14,7 @@ import {
   ActivityTimelineIcon,
   SettingsSlidersIcon,
   SearchIcon,
-} from '@/components/icons-taskforge';
+} from '@/assets/svg';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { matchTasksSubNav } from '@/features/tasks/lib/task-subnav-match';
 
@@ -28,9 +28,6 @@ const navigation = [
         label: 'Projects',
         icon: ProjectsLayersIcon,
         exact: false,
-        subLinks: [
-          { href: '/projects', label: 'All Projects' },
-        ],
       },
       {
         href: '/tasks',
@@ -39,11 +36,7 @@ const navigation = [
         exact: false,
         subLinks: [
           { href: '/tasks', label: 'Board view' },
-          { href: '/tasks?status=todo', label: 'To Do' },
-          { href: '/tasks?status=in-progress', label: 'In progress' },
-          { href: '/tasks?status=done', label: 'Done' },
           { href: '/tasks?assignee=me', label: 'My tasks' },
-          { href: '/tasks?due=soon', label: 'Due soon' },
         ],
       },
     ],
@@ -51,25 +44,9 @@ const navigation = [
   {
     section: 'Workspace',
     items: [
-      {
-        href: '/organizations',
-        label: 'Organizations',
-        icon: OrganizationsTeamIcon,
-        exact: false,
-        subLinks: [
-          { href: '/organizations', label: 'My Organizations' },
-        ],
-      },
+      { href: '/organizations', label: 'Organizations', icon: OrganizationsTeamIcon, exact: false },
       { href: '/activity', label: 'Activity', icon: ActivityTimelineIcon, exact: false },
-      {
-        href: '/settings',
-        label: 'Settings',
-        icon: SettingsSlidersIcon,
-        exact: false,
-        subLinks: [
-          { href: '/settings', label: 'General' },
-        ],
-      },
+      { href: '/settings', label: 'Settings', icon: SettingsSlidersIcon, exact: false },
     ],
   },
 ];
