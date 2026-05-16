@@ -45,7 +45,7 @@ export default function ProjectsPage() {
   const singleColumnComfort = hasProjects && projects!.length === 1;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto">
       {/* Page header */}
       <header className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
         <div

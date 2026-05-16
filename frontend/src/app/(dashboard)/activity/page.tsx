@@ -108,7 +108,7 @@ export default function ActivityPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="mx-auto">
       <header className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Activity</h1>
         <p className="mt-1 text-sm text-neutral-500">

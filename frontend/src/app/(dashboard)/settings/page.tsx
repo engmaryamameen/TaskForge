@@ -18,7 +18,7 @@ export default function SettingsPage() {
   if (isError) return <ErrorState onRetry={refetch} />;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto space-y-8">
       <header>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Settings</h1>
         <p className="mt-1 text-sm text-neutral-500">
