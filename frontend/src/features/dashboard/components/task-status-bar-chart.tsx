@@ -25,7 +25,7 @@ function BarTooltip({
   if (!active || !payload?.[0]) return null;
   const { name, value } = payload[0].payload;
   return (
-    <div className="rounded-lg border border-neutral-200/90 bg-white px-3 py-2 text-xs shadow-lg">
+    <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-lg">
       <span className="font-medium text-neutral-800">{name}</span>
       <span className="ml-2 tabular-nums text-neutral-600">{value} tasks</span>
     </div>

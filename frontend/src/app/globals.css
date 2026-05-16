@@ -17,17 +17,17 @@
   --color-primary-800: #083D8C;
   --color-primary-900: #0A2540;
 
-  /* Neutral — refined slate grays */
-  --color-neutral-50: #F8FAFC;
-  --color-neutral-100: #F1F5F9;
-  --color-neutral-200: #E2E8F0;
-  --color-neutral-300: #CBD5E1;
-  --color-neutral-400: #94A3B8;
-  --color-neutral-500: #64748B;
-  --color-neutral-600: #475569;
-  --color-neutral-700: #334155;
-  --color-neutral-800: #1E293B;
-  --color-neutral-900: #0F172A;
+  /* Neutral — true neutral grays (no blue tint) */
+  --color-neutral-50: #FAFAFA;
+  --color-neutral-100: #F4F4F5;
+  --color-neutral-200: #E4E4E7;
+  --color-neutral-300: #D4D4D8;
+  --color-neutral-400: #A1A1AA;
+  --color-neutral-500: #71717A;
+  --color-neutral-600: #52525B;
+  --color-neutral-700: #3F3F46;
+  --color-neutral-800: #27272A;
+  --color-neutral-900: #18181B;
 
   /* Success */
   --color-success-50: #ECFDF5;
@@ -77,17 +77,17 @@
   --color-teal-600: #0D9488;
 
   /* Surface & Background */
-  --color-surface: #F8FAFC;
+  --color-surface: #F4F4F5;
   --color-surface-raised: #FFFFFF;
   --color-surface-overlay: #FFFFFF;
 
-  /* Elevation shadows */
-  --shadow-xs: 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-soft: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-medium: 0 4px 6px -1px rgba(15,23,42,0.07), 0 2px 4px -2px rgba(15,23,42,0.05);
-  --shadow-large: 0 10px 15px -3px rgba(15,23,42,0.08), 0 4px 6px -4px rgba(15,23,42,0.04);
-  --shadow-overlay: 0 20px 25px -5px rgba(15,23,42,0.10), 0 8px 10px -6px rgba(15,23,42,0.06);
-  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.12);
+  /* Elevation shadows — warm neutral base, slightly stronger for crisp card pop */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.02);
+  --shadow-soft: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-medium: 0 4px 8px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
+  --shadow-large: 0 12px 20px -4px rgba(0,0,0,0.10), 0 4px 8px -4px rgba(0,0,0,0.04);
+  --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.12), 0 8px 16px -4px rgba(0,0,0,0.06);
+  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.15);
 }
 
 @layer base {

@@ -96,7 +96,7 @@ export function RecentActivityCard({
           })}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-neutral-200/90 bg-gradient-to-b from-neutral-50/80 to-white px-4 py-8 text-center">
+        <div className="rounded-xl border border-dashed border-neutral-200 bg-gradient-to-b from-neutral-50/80 to-white px-4 py-8 text-center">
           <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white shadow-xs ring-1 ring-neutral-100">
             <IconBolt className="h-5 w-5 text-primary-500" />
           </div>

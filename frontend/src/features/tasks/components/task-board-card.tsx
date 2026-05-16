@@ -62,7 +62,7 @@ export function TaskBoardCard({ task, onOpenDetails, onEdit }: TaskBoardCardProp
       className={`group cursor-grab rounded-lg border bg-white transition-all select-none active:cursor-grabbing ${priorityBorder} ${
         isDragging
           ? 'border-primary-300 shadow-medium ring-2 ring-primary-100'
-          : 'border-neutral-200/90 shadow-xs hover:border-neutral-300 hover:shadow-soft'
+          : 'border-neutral-200 shadow-xs hover:border-neutral-300 hover:shadow-soft'
       }`}
     >
       {/* Main content — clickable to open details */}

@@ -16,11 +16,11 @@ export const CHART_COLORS = {
   danger:       '#DC2626', // --color-danger-600
 
   /* neutrals used for grids, axes, fallbacks */
-  grid:         '#E2E8F0', // --color-neutral-200
-  axisLabel:    '#94A3B8', // --color-neutral-400
-  axisLabelDark:'#64748B', // --color-neutral-500
-  empty:        '#E2E8F0', // --color-neutral-200
-  fallback:     '#64748B', // --color-neutral-500
+  grid:         '#E4E4E7', // --color-neutral-200
+  axisLabel:    '#A1A1AA', // --color-neutral-400
+  axisLabelDark:'#71717A', // --color-neutral-500
+  empty:        '#E4E4E7', // --color-neutral-200
+  fallback:     '#71717A', // --color-neutral-500
 } as const;
 
 /* ── per-status colors (used by donut, bar, and status badges) ── */

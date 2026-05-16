@@ -137,7 +137,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                     options={assigneeOptions}
                     size="sm"
                     placeholder="Unassigned"
-                    triggerClassName="cursor-pointer border-neutral-200/90 bg-white text-left text-[11px] font-semibold normal-case tracking-normal text-neutral-800 shadow-xs"
+                    triggerClassName="cursor-pointer border-neutral-200 bg-white text-left text-[11px] font-semibold normal-case tracking-normal text-neutral-800 shadow-xs"
                   />
                 </td>
                 <td className="px-4 py-2.5">

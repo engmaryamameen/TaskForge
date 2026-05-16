@@ -161,7 +161,7 @@ export default function OrganizationsPage() {
           {memberCount === 0 && pendingCount === 0 ? (
             <p className="text-sm text-neutral-500">No members or pending invites yet.</p>
           ) : (
-            <Card padding="none" className="overflow-hidden rounded-2xl border-neutral-200/80 shadow-xs">
+            <Card padding="none" className="overflow-hidden rounded-2xl border-neutral-200 shadow-xs">
               {pendingCount > 0 && (
                 <div className="border-b border-neutral-100 bg-neutral-50/50 px-5 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">

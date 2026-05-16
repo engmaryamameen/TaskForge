@@ -62,7 +62,7 @@ export function TasksTrendChart({ tasks, height = 280 }: TasksTrendChartProps) {
             content={({ active, payload, label }) => {
               if (!active || !payload?.length) return null;
               return (
-                <div className="rounded-lg border border-neutral-200/90 bg-white px-3 py-2 text-xs shadow-lg">
+                <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-lg">
                   <p className="mb-1.5 font-medium text-neutral-700">{label}</p>
                   <ul className="space-y-0.5">
                     {payload.map((p) => (

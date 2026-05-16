@@ -98,7 +98,7 @@ function EmptyColumnPlaceholder({
   }
 
   return (
-    <div className="rounded-lg border border-dashed border-neutral-200/80 bg-white/60 px-3 py-6 text-center">
+    <div className="rounded-lg border border-dashed border-neutral-200 bg-white/60 px-3 py-6 text-center">
       <p className="text-sm font-medium text-neutral-700">No tasks here</p>
       <p className="mt-1 text-xs text-neutral-500">
         Drop a task here or create one.

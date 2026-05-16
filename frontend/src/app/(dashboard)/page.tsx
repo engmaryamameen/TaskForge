@@ -198,7 +198,7 @@ export default function DashboardPage() {
 
       <section className="grid gap-4 xl:grid-cols-12">
         <div className="xl:col-span-8">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
             <div className="flex flex-col gap-1 border-b border-neutral-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-base font-semibold text-neutral-900">Task flow</h2>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="min-w-0 xl:col-span-4">
-          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
+          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
             <div className="border-b border-neutral-100 px-5 py-4">
               <h2 className="text-base font-semibold text-neutral-900">Status mix</h2>
               <p className="text-sm text-neutral-500">Share of tasks by column</p>

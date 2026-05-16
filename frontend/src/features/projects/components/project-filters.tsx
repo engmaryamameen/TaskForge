@@ -31,7 +31,7 @@ export function ProjectFilters({ search, onSearchChange, className = '' }: Proje
         onChange={(e) => setLocalSearch(e.target.value)}
         placeholder="Search by name or description..."
         leftIcon={<IconSearch className="h-4 w-4" />}
-        className="h-10 rounded-xl border-neutral-200/90 bg-neutral-50/50 shadow-xs placeholder:text-neutral-400 focus:bg-white"
+        className="h-10 rounded-xl border-neutral-200 bg-neutral-50/50 shadow-xs placeholder:text-neutral-400 focus:bg-white"
       />
     </div>
   );

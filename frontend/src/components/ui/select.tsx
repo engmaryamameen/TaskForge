@@ -187,7 +187,7 @@ export function Select({
         tabIndex={-1}
         style={menuStyle}
         onKeyDown={onMenuKeyDown}
-        className="overflow-hidden rounded-xl border border-neutral-200/90 bg-white py-1 shadow-overlay outline-none ring-1 ring-neutral-900/4"
+        className="overflow-hidden rounded-xl border border-neutral-200 bg-white py-1 shadow-overlay outline-none ring-1 ring-neutral-900/4"
       >
         <div className="max-h-[min(280px,calc(100vh-120px))] overflow-y-auto overscroll-contain px-1 py-0.5">
           {options.map((opt, index) => {
@@ -224,7 +224,7 @@ export function Select({
   const triggerMd = `relative flex w-full items-center gap-2 rounded-lg border bg-white py-2.5 pl-3 pr-10 text-left text-sm font-medium text-neutral-900 shadow-xs transition-all duration-150 ${
     error
       ? 'border-danger-300 focus-visible:border-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-300'
-      : 'border-neutral-200/90 hover:border-neutral-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-100'
+      : 'border-neutral-200 hover:border-neutral-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-100'
   }`;
 
   const triggerSm = `relative inline-flex max-w-full items-center gap-1 rounded-md px-2 py-1 pr-7 text-left text-[11px] font-bold uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 ${triggerClassName}`;

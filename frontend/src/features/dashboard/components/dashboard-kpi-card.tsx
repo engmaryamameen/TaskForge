@@ -20,7 +20,7 @@ export function DashboardKpiCard({
   iconColorClass = 'text-primary-600',
 }: DashboardKpiCardProps) {
   return (
-    <div className="flex h-full min-h-[124px] flex-col justify-between rounded-2xl border border-neutral-200/90 bg-white p-5 shadow-xs transition-shadow hover:shadow-soft">
+    <div className="flex h-full min-h-[124px] flex-col justify-between rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs transition-shadow hover:shadow-soft">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">{label}</p>
