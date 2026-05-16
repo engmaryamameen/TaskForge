@@ -29,6 +29,7 @@ export { SettingsGearIcon } from './settings-gear';
 export { SettingsControlIcon } from './settings-control';
 
 // Utility
+export { BellIcon } from './bell';
 export { SearchIcon } from './search';
 export { CollapseIcon } from './collapse';
 export { ExpandIcon } from './expand';

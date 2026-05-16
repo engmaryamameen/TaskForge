@@ -4,7 +4,8 @@ import { useRef, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNotificationStore } from '@/store/notification.store';
 import { useClickOutside } from '@/hooks/useClickOutside';
-import { IconBell, IconInbox } from '@/components/icons';
+import { IconInbox } from '@/components/icons';
+import { BellIcon } from '@/assets/svg';
 import { formatRelative } from '@/lib/utils';
 
 const ROUTE_MAP: Record<string, (id: string) => string> = {
@@ -48,7 +49,7 @@ export function NotificationDropdown() {
         className="relative rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors"
         aria-label="Notifications"
       >
-        <IconBell className="h-5 w-5" />
+        <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
           <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-500 px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -97,7 +98,7 @@ export function NotificationDropdown() {
                       !n.read ? 'bg-primary-50/40' : ''
                     }`}
                   >
-                    <div className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${typeConfig.bg} text-sm`}>
+                    <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${typeConfig.bg} text-sm`}>
                       {typeConfig.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -107,7 +108,7 @@ export function NotificationDropdown() {
                       </p>
                     </div>
                     {!n.read && (
-                      <div className="mt-2 h-2 w-2 flex-shrink-0 rounded-full bg-primary-500" />
+                      <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary-500" />
                     )}
                   </button>
                 );
