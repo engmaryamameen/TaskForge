@@ -26,7 +26,7 @@ export function UserMenu() {
         className="flex items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all hover:bg-neutral-50 cursor-pointer"
         aria-label="User menu"
       >
-        <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" className="bg-primary-600!" />
+        <Avatar firstName={user.firstName} size="sm" className="bg-primary-600!" />
         <span className="hidden md:block text-sm font-medium text-neutral-700">{user.firstName}</span>
       </button>
 
@@ -34,7 +34,6 @@ export function UserMenu() {
         <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-neutral-200 bg-white shadow-overlay animate-slide-down">
           <div className="border-b border-neutral-100 px-4 py-3.5">
             <div className="flex items-center gap-3">
-              <Avatar firstName={user.firstName} lastName={user.lastName} size="lg" />
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-neutral-900 truncate">
                   {user.firstName} {user.lastName}

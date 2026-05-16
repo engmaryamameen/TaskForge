@@ -52,14 +52,14 @@ export function Topbar() {
       </div>
 
       {/* Center: search — grows to fill available space */}
-      <div className="hidden md:block flex-1 max-w-md mx-auto">
+      <div className="hidden md:block flex-1 max-w-sm mx-auto">
         <button
           onClick={openPalette}
-          className="flex w-full items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-sm text-neutral-400 transition-colors hover:border-neutral-300 hover:bg-neutral-100 cursor-pointer"
+          className="flex w-full items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-500 shadow-xs transition-all hover:border-neutral-300 hover:shadow-soft cursor-pointer"
         >
           <SearchIcon className="h-4 w-4 shrink-0 text-neutral-400" />
-          <span className="flex-1 text-left">Search tasks, projects...</span>
-          <kbd className="rounded border border-neutral-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-neutral-400">
+          <span className="flex-1 text-left">Search...</span>
+          <kbd className="rounded border border-neutral-200 bg-neutral-50 px-1.5 py-0.5 text-[11px] font-medium text-neutral-400">
             &#8984;K
           </kbd>
         </button>
