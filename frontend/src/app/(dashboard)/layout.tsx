@@ -28,11 +28,12 @@ function AppShellSkeleton() {
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Topbar skeleton */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-neutral-200 px-6">
+        <div className="flex h-14 shrink-0 items-center gap-4 border-b border-neutral-200 px-5">
           <div className="h-4 w-20 animate-shimmer rounded-md" />
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 animate-shimmer rounded-lg" />
-            <div className="h-8 w-8 animate-shimmer rounded-full" />
+          <div className="mx-auto hidden md:block h-8 w-full max-w-md animate-shimmer rounded-lg" />
+          <div className="flex items-center gap-1.5 ml-auto">
+            <div className="h-7 w-7 animate-shimmer rounded-lg" />
+            <div className="h-7 w-7 animate-shimmer rounded-full" />
           </div>
         </div>
         {/* Content placeholder */}
