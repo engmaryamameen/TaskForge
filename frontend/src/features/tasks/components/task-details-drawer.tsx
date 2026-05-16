@@ -18,7 +18,8 @@ import {
   IconUserCircle,
 } from '@/components/icons';
 
-const DRAWER_MS = 320;
+const DRAWER_MS = 300;
+const DRAWER_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 interface TaskDetailsDrawerProps {
   task: Task | null;
@@ -144,8 +145,8 @@ export function TaskDetailsDrawer({
     <div className="fixed inset-0 z-60 flex justify-end">
       <button
         type="button"
-        className={`absolute inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${backdropClass}`}
-        style={{ transitionDuration: `${DRAWER_MS}ms` }}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity ${backdropClass}`}
+        style={{ transitionDuration: `${DRAWER_MS}ms`, transitionTimingFunction: DRAWER_EASING }}
         aria-label="Close panel"
         onClick={onClose}
       />

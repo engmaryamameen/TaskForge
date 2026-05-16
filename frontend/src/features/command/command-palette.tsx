@@ -95,10 +95,10 @@ export function CommandPalette({
 
   return (
     <div className="fixed inset-0 z-50">
-      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-      <div className="fixed left-1/2 top-1/4 z-10 w-full max-w-lg -translate-x-1/2">
+      <div className="fixed inset-0 bg-black/40 animate-fade-in" onClick={onClose} />
+      <div className="fixed left-1/2 top-[20%] z-10 w-full max-w-lg -translate-x-1/2 animate-content-show">
         <Cmdk
-          className="rounded-lg border border-neutral-200 bg-white shadow-2xl"
+          className="rounded-xl border border-neutral-200 bg-white shadow-overlay"
           onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
           <Cmdk.Input

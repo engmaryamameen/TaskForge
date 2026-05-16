@@ -187,7 +187,7 @@ export function Select({
         tabIndex={-1}
         style={menuStyle}
         onKeyDown={onMenuKeyDown}
-        className="overflow-hidden rounded-xl border border-neutral-200 bg-white py-1 shadow-overlay outline-none ring-1 ring-neutral-900/4"
+        className="overflow-hidden rounded-xl border border-neutral-200 bg-white py-1 shadow-overlay outline-none ring-1 ring-neutral-900/4 animate-dropdown-in"
       >
         <div className="max-h-[min(280px,calc(100vh-120px))] overflow-y-auto overscroll-contain px-1 py-0.5">
           {options.map((opt, index) => {

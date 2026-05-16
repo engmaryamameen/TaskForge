@@ -65,9 +65,10 @@ export function Modal({ isOpen, onClose, title, description, children, footer, s
     <div className="fixed inset-0 z-50 flex max-md:items-end md:items-center md:justify-center max-md:justify-center md:p-4">
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/40 transition-opacity duration-300 ease-out ${
+        className={`fixed inset-0 bg-black/40 transition-opacity duration-200 ${
           animating ? 'opacity-100' : 'opacity-0'
         }`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
         onClick={onClose}
         aria-hidden
       />
@@ -77,7 +78,8 @@ export function Modal({ isOpen, onClose, title, description, children, footer, s
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className={`relative z-10 flex w-full flex-col overflow-hidden bg-white shadow-overlay transition-[transform,opacity] duration-300 ease-out max-md:max-h-[min(92dvh,100%)] max-md:rounded-b-none max-md:rounded-t-2xl md:max-h-[min(90vh,100%)] md:rounded-2xl ${sizeStyles[size]} ${panelMotion}`}
+        className={`relative z-10 flex w-full flex-col overflow-hidden bg-white shadow-overlay transition-[transform,opacity] duration-[280ms] max-md:max-h-[min(92dvh,100%)] max-md:rounded-b-none max-md:rounded-t-2xl md:max-h-[min(90vh,100%)] md:rounded-2xl ${sizeStyles[size]} ${panelMotion}`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)' }}
       >
         {/* Header */}
         <div className="flex shrink-0 items-start justify-between border-b border-neutral-100 px-6 py-4 max-md:pt-5">

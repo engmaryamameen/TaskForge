@@ -7,7 +7,6 @@ import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { NavItem } from './nav-item';
 import { OrgSwitcher } from './org-switcher';
-import { IconChevronLeft } from '@/components/icons';
 import { Avatar } from '@/components/ui/avatar';
 import {
   DashboardCardsIcon,
@@ -40,7 +39,7 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { sidebarOpen, setSidebarOpen, sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
+  const { sidebarOpen, setSidebarOpen, sidebarCollapsed } = useUIStore();
   const user = useAuthStore((s) => s.user);
   const role = useCurrentOrgRole();
   const collapsed = sidebarCollapsed;
@@ -60,17 +59,17 @@ export function Sidebar() {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-neutral-200 transition-all duration-200 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:relative md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } ${collapsed ? 'md:w-16' : 'md:w-60'} w-60`}
       >
         {/* Logo */}
-        <div className={`shrink-0 border-b border-neutral-100 ${collapsed ? 'flex justify-center py-3' : 'flex items-center px-4 py-3'}`}>
-          <Link href="/" className="block">
+        <div className={`shrink-0 border-b border-neutral-100 ${collapsed ? 'flex justify-center px-2 py-5' : 'px-5 py-5'}`}>
+          <Link href="/">
             {collapsed ? (
-              <img src="/brand/taskforge-app-icon-transparent.png" alt="TaskForge" className="h-9 w-9 object-contain" />
+              <img src="/brand/taskforge-app-icon-transparent.png" alt="TaskForge" className="h-8 w-auto" />
             ) : (
-              <img src="/brand/taskforge-primary-horizontal-transparent.png" alt="TaskForge" className="h-10 w-auto max-w-full object-contain" />
+              <img src="/brand/taskforge-primary-horizontal-transparent.png" alt="TaskForge" className="h-8 w-auto" />
             )}
           </Link>
         </div>
@@ -123,19 +122,8 @@ export function Sidebar() {
           </div>
         </nav>
 
-        {/* Footer */}
-        <div className="shrink-0 border-t border-neutral-100 p-3">
-          <button
-            onClick={toggleSidebarCollapsed}
-            className={`hidden md:flex items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-50 hover:text-neutral-600 cursor-pointer ${
-              collapsed ? 'mx-auto h-8 w-8' : 'w-full gap-2 px-3 py-1.5 text-xs'
-            }`}
-            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            <IconChevronLeft className={`h-4 w-4 shrink-0 transition-transform duration-200 ${collapsed ? 'rotate-180' : ''}`} />
-            {!collapsed && <span>Collapse</span>}
-          </button>
-        </div>
+        {/* Footer spacer */}
+        <div className="shrink-0 h-3" />
       </aside>
     </>
   );

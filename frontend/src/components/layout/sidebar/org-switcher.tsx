@@ -48,7 +48,7 @@ export function OrgSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 right-0 z-50 mt-1.5 rounded-xl border border-neutral-200 bg-white py-1.5 shadow-overlay animate-slide-down">
+        <div className="absolute left-0 right-0 z-50 mt-1.5 rounded-xl border border-neutral-200 bg-white py-1.5 shadow-overlay animate-dropdown-in">
           <p className="px-3 pb-1.5 pt-1 text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
             Workspaces
           </p>

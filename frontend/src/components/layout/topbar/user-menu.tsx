@@ -31,7 +31,7 @@ export function UserMenu() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-neutral-200 bg-white shadow-overlay animate-slide-down">
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-neutral-200 bg-white shadow-overlay animate-dropdown-in">
           <div className="border-b border-neutral-100 px-4 py-3.5">
             <div className="flex items-center gap-3">
               <div className="min-w-0">

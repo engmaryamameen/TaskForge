@@ -7,7 +7,7 @@ import { useSocketStatus } from '@/hooks/useSocketStatus';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { UserMenu } from './user-menu';
 import { NotificationDropdown } from './notification-dropdown';
-import { IconMenu } from '@/components/icons';
+import { IconMenu, IconChevronLeft } from '@/components/icons';
 import { SearchIcon } from '@/assets/svg';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -27,6 +27,8 @@ function getPageTitle(pathname: string): string {
 
 export function Topbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
+  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
+  const toggleSidebarCollapsed = useUIStore((s) => s.toggleSidebarCollapsed);
   const { connected } = useSocketStatus();
   const { open: openPalette } = useCommandPalette();
   const pathname = usePathname();
@@ -63,14 +65,23 @@ export function Topbar() {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-4 border-b border-neutral-200 bg-white px-4 md:px-5">
-      {/* Left: mobile menu + page title */}
-      <div className="flex items-center gap-3">
+      {/* Left: sidebar toggle + page title */}
+      <div className="flex items-center gap-2">
+        {/* Mobile hamburger */}
         <button
           onClick={toggleSidebar}
           className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors md:hidden"
           aria-label="Toggle sidebar"
         >
           <IconMenu className="h-5 w-5" />
+        </button>
+        {/* Desktop collapse toggle */}
+        <button
+          onClick={toggleSidebarCollapsed}
+          className="hidden md:flex items-center justify-center rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors cursor-pointer"
+          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <IconChevronLeft className={`h-4 w-4 transition-transform duration-200 ${sidebarCollapsed ? 'rotate-180' : ''}`} />
         </button>
         <h1 className="text-sm font-semibold text-neutral-800">{title}</h1>
 
