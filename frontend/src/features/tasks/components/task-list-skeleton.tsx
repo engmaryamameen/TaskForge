@@ -12,15 +12,15 @@ export function TaskListSkeleton({ rows = 5 }: { rows?: number }) {
             <th className="px-4 py-3 w-16"></th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-neutral-100 animate-pulse">
+        <tbody className="divide-y divide-neutral-100">
           {Array.from({ length: rows }).map((_, i) => (
             <tr key={i}>
-              <td className="px-4 py-3"><div className="h-4 w-40 rounded bg-neutral-200" /></td>
-              <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-neutral-200" /></td>
-              <td className="px-4 py-3"><div className="h-5 w-16 rounded-full bg-neutral-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-neutral-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-20 rounded bg-neutral-200" /></td>
-              <td className="px-4 py-3"><div className="h-4 w-8 rounded bg-neutral-200" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-40 animate-shimmer rounded" /></td>
+              <td className="px-4 py-3"><div className="h-5 w-20 animate-shimmer rounded-full" /></td>
+              <td className="px-4 py-3"><div className="h-5 w-16 animate-shimmer rounded-full" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-24 animate-shimmer rounded" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-20 animate-shimmer rounded" /></td>
+              <td className="px-4 py-3"><div className="h-4 w-8 animate-shimmer rounded" /></td>
             </tr>
           ))}
         </tbody>

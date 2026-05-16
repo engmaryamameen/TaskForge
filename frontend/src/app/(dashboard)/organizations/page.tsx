@@ -76,7 +76,7 @@ export default function OrganizationsPage() {
         </Button>
       </div>
 
-      {isLoading && <PageSkeleton variant="cards" />}
+      {isLoading && <PageSkeleton variant="org" />}
 
       {!isLoading && isError && <ErrorState onRetry={refetch} />}
 

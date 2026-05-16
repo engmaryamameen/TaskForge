@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useRegister } from '@/features/auth/hooks/useAuth';
 import { AuthShell, PasswordInput, PasswordRules } from '@/features/auth/components';
 import { useToast } from '@/components/toast';
@@ -206,11 +207,7 @@ function RegisterPageContent() {
 export default function RegisterPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <RegisterPageContent />
     </Suspense>

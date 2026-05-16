@@ -83,8 +83,18 @@ export default function AcceptInvitePage({
   // Loading
   if (validating || !hydrated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="w-full max-w-md px-4">
+          <div className="rounded-2xl border border-neutral-200 bg-white p-8 shadow-xs">
+            <div className="h-7 w-48 animate-shimmer rounded-md mx-auto" />
+            <div className="mt-3 h-4 w-64 animate-shimmer rounded-md mx-auto" />
+            <div className="mt-6 h-4 w-56 animate-shimmer rounded-md mx-auto" />
+            <div className="mt-8 space-y-3">
+              <div className="h-10 w-full animate-shimmer rounded-lg" />
+              <div className="h-10 w-full animate-shimmer rounded-lg" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

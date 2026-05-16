@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CircleCheck, Loader2 } from 'lucide-react';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useVerifyEmail } from '@/features/auth/hooks/useAuth';
 import { AuthShell, FormErrorAlert } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
@@ -241,11 +242,7 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <VerifyEmailContent />
     </Suspense>

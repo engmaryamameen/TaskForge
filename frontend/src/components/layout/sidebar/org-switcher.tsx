@@ -26,7 +26,7 @@ export function OrgSwitcher() {
 
   if (currentLoading) {
     return (
-      <div className="h-9 animate-pulse rounded-lg bg-neutral-100" />
+      <div className="h-9 animate-shimmer rounded-lg" />
     );
   }
 
