@@ -211,7 +211,7 @@ export default function DashboardPage() {
                     Created
                   </span>
                   <span className="flex items-center gap-2">
-                    <span className="h-0.5 w-6 rounded-full border border-dashed border-[#93C5FD] bg-[#93C5FD]" />
+                    <span className="h-0.5 w-6 rounded-full border border-dashed border-primary-300 bg-primary-300" />
                     Completed
                   </span>
                 </div>
