@@ -96,7 +96,7 @@ export default function DashboardPage() {
 
   if (!hasAnyOrganization) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="space-y-6">
         <DashboardHeader
           actionsDisabled
           onNewProject={openProjectModal}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
   if (!hasValidOrgContext) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6">
+      <div className="space-y-6">
         <DashboardHeader
           actionsDisabled
           onNewProject={openProjectModal}
@@ -137,7 +137,7 @@ export default function DashboardPage() {
 
   if (maturity !== 'active') {
     return (
-      <div className="mx-auto max-w-5xl">
+      <div className="space-y-6">
         <DashboardEmptyState
           firstName={firstName}
           totalProjects={totalProjects}
@@ -181,7 +181,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardHeader
         onNewProject={openProjectModal}
         onNewTask={openTaskModal}
