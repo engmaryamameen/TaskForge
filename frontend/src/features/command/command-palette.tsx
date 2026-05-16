@@ -14,6 +14,7 @@ import {
 
 interface CommandPaletteProps {
   isOpen: boolean;
+  initialQuery?: string;
   onClose: () => void;
   onOpenTaskModal: () => void;
   onOpenProjectModal: () => void;
@@ -28,6 +29,7 @@ interface SearchResult {
 
 export function CommandPalette({
   isOpen,
+  initialQuery = '',
   onClose,
   onOpenTaskModal,
   onOpenProjectModal,
@@ -78,13 +80,16 @@ export function CommandPalette({
     });
   }, [debouncedSearch]);
 
-  // Reset on close
+  // Seed initial query when opening, reset on close
   useEffect(() => {
+    if (isOpen && initialQuery) {
+      setSearch(initialQuery);
+    }
     if (!isOpen) {
       setSearch('');
       setSearchResults([]);
     }
-  }, [isOpen]);
+  }, [isOpen, initialQuery]);
 
   if (!isOpen) return null;
 

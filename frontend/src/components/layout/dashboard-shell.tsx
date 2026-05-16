@@ -13,7 +13,7 @@ import { DashboardModalsContext } from '@/components/layout/dashboard-modals-con
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isOpen: paletteOpen, close: closePalette } = useCommandPalette();
+  const { isOpen: paletteOpen, initialQuery, close: closePalette } = useCommandPalette();
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -54,6 +54,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <CommandPalette
           isOpen={paletteOpen}
+          initialQuery={initialQuery}
           onClose={closePalette}
           onOpenTaskModal={openTaskModal}
           onOpenProjectModal={openProjectModal}

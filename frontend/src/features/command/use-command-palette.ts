@@ -4,15 +4,21 @@ import { useState, useEffect, useCallback } from 'react';
 
 export function useCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
+  const [initialQuery, setInitialQuery] = useState('');
 
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
+  const open = useCallback((query?: string) => {
+    setInitialQuery(query ?? '');
+    setIsOpen(true);
+  }, []);
+
+  const close = useCallback(() => {
+    setIsOpen(false);
+    setInitialQuery('');
+  }, []);
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Guard: don't trigger when typing in inputs
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-        // Allow Ctrl+K even in inputs (standard command palette behavior)
         if (!((e.metaKey || e.ctrlKey) && e.key === 'k')) return;
       }
 
@@ -31,5 +37,5 @@ export function useCommandPalette() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
-  return { isOpen, open, close };
+  return { isOpen, initialQuery, open, close };
 }
