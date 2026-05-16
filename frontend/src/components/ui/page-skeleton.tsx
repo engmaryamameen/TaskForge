@@ -4,7 +4,7 @@ interface PageSkeletonProps {
 
 function Shimmer({ className = '' }: { className?: string }) {
   return (
-    <div className={`animate-pulse rounded-md bg-neutral-200/70 ${className}`} />
+    <div className={`animate-shimmer rounded-md ${className}`} />
   );
 }
 

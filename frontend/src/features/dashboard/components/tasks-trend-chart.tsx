@@ -12,10 +12,11 @@ import {
 } from 'recharts';
 import type { Task } from '@/types';
 import { buildTaskTrendData } from '@/features/dashboard/lib/chart-data';
+import { CHART_COLORS } from '@/features/dashboard/lib/chart-colors';
 
-const PRIMARY = '#0C5FD9';
-const PRIMARY_SOFT = '#93C5FD';
-const GRID = '#E2E8F0';
+const PRIMARY = CHART_COLORS.primary;
+const PRIMARY_SOFT = CHART_COLORS.primarySoft;
+const GRID = CHART_COLORS.grid;
 
 interface TasksTrendChartProps {
   tasks: Task[];
@@ -42,7 +43,7 @@ export function TasksTrendChart({ tasks, height = 280 }: TasksTrendChartProps) {
           <CartesianGrid stroke={GRID} strokeDasharray="4 4" vertical={false} />
           <XAxis
             dataKey="label"
-            tick={{ fontSize: 11, fill: '#94A3B8' }}
+            tick={{ fontSize: 11, fill: CHART_COLORS.axisLabel }}
             tickLine={false}
             axisLine={false}
             interval="preserveStartEnd"
@@ -51,7 +52,7 @@ export function TasksTrendChart({ tasks, height = 280 }: TasksTrendChartProps) {
             height={36}
           />
           <YAxis
-            tick={{ fontSize: 11, fill: '#94A3B8' }}
+            tick={{ fontSize: 11, fill: CHART_COLORS.axisLabel }}
             tickLine={false}
             axisLine={false}
             allowDecimals={false}

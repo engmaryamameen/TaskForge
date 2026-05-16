@@ -36,12 +36,15 @@ interface AvatarProps {
 
 export function Avatar({ firstName = '', lastName = '', size = 'md', className = '' }: AvatarProps) {
   const initials = getInitials(firstName, lastName);
+  const fullName = `${firstName} ${lastName}`.trim();
   const color = getColorFromName(`${firstName}${lastName}`);
 
   return (
     <div
       className={`inline-flex items-center justify-center rounded-full font-semibold text-white ${sizeStyles[size]} ${color} ${className}`}
-      title={`${firstName} ${lastName}`.trim()}
+      title={fullName}
+      aria-label={fullName || undefined}
+      role="img"
     >
       {initials}
     </div>

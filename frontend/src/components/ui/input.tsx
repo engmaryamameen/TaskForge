@@ -31,7 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               leftIcon ? 'pl-9' : ''
             } ${
               error
-                ? 'border-2 border-danger-500 hover:border-danger-600 focus:border-danger-600 focus:ring-danger-200 focus-visible:border-danger-600 focus-visible:ring-danger-200'
+                ? 'border-2 border-danger-500 hover:border-danger-600 focus:border-danger-600 focus:ring-danger-300 focus-visible:border-danger-600 focus-visible:ring-danger-300'
                 : 'border border-neutral-200 hover:border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
             } ${className}`}
           />
@@ -73,7 +73,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           aria-invalid={error ? true : ariaInvalidProp}
           className={`w-full rounded-lg border bg-white px-3 py-2 text-sm transition-all duration-150 placeholder:text-neutral-400 focus:outline-none focus:ring-2 ${
             error
-              ? 'border-2 border-danger-500 hover:border-danger-600 focus:border-danger-600 focus:ring-danger-200 focus-visible:border-danger-600 focus-visible:ring-danger-200'
+              ? 'border-2 border-danger-500 hover:border-danger-600 focus:border-danger-600 focus:ring-danger-300 focus-visible:border-danger-600 focus-visible:ring-danger-300'
               : 'border border-neutral-200 hover:border-neutral-300 focus:border-primary-500 focus:ring-primary-100'
           } ${className}`}
         />

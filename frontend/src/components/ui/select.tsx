@@ -221,9 +221,9 @@ export function Select({
       document.body,
     );
 
-  const triggerMd = `relative flex w-full items-center gap-2 rounded-xl border bg-white py-2.5 pl-3 pr-10 text-left text-sm font-medium text-neutral-900 shadow-xs transition-all duration-150 ${
+  const triggerMd = `relative flex w-full items-center gap-2 rounded-lg border bg-white py-2.5 pl-3 pr-10 text-left text-sm font-medium text-neutral-900 shadow-xs transition-all duration-150 ${
     error
-      ? 'border-danger-300 focus-visible:border-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-100'
+      ? 'border-danger-300 focus-visible:border-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-300'
       : 'border-neutral-200/90 hover:border-neutral-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-100'
   }`;
 
