@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { useAuthStore } from '@/store/auth.store';
+import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { NavItem } from './nav-item';
 import { OrgSwitcher } from './org-switcher';
 import { IconBolt, IconChevronLeft } from '@/components/icons';
@@ -41,6 +42,7 @@ export function Sidebar() {
   const searchParams = useSearchParams();
   const { sidebarOpen, setSidebarOpen, sidebarCollapsed, toggleSidebarCollapsed } = useUIStore();
   const user = useAuthStore((s) => s.user);
+  const role = useCurrentOrgRole();
   const collapsed = sidebarCollapsed;
 
   function closeMobileSidebar() {
@@ -82,7 +84,7 @@ export function Sidebar() {
               <p className="text-sm font-semibold text-neutral-900 truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-xs text-neutral-400 truncate">{user.email}</p>
+              <p className="text-xs text-neutral-400 capitalize">{role ?? 'Member'}</p>
             </div>
           </div>
         )}
