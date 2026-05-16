@@ -15,7 +15,7 @@ import {
   NoOrganizationState,
   WorkspaceSelectionPrompt,
   DashboardHeader,
-  DashboardSetupBanner,
+  DashboardEmptyState,
   DashboardKpiRow,
   StatusDistributionCard,
   WorkflowSummaryCard,
@@ -82,15 +82,9 @@ export default function DashboardPage() {
   const trendLowData = totalTasks > 0 && shouldUseTrendLowDataPlaceholder(allTasks);
 
   const activityItems = activityData?.data ?? [];
+  const firstName = user?.firstName || 'there';
 
-  const header = (
-    <DashboardHeader
-      actionsDisabled={!hasValidOrgContext}
-      onNewProject={openProjectModal}
-      onNewTask={openTaskModal}
-      onInvite={openInviteModal}
-    />
-  );
+  /* ── Loading / Error / Pre-org gates ── */
 
   if (orgsLoading) {
     return <PageSkeleton variant="dashboard" />;
@@ -102,8 +96,13 @@ export default function DashboardPage() {
 
   if (!hasAnyOrganization) {
     return (
-      <div className="space-y-6">
-        {header}
+      <div className="mx-auto max-w-5xl space-y-6">
+        <DashboardHeader
+          actionsDisabled
+          onNewProject={openProjectModal}
+          onNewTask={openTaskModal}
+          onInvite={openInviteModal}
+        />
         <NoOrganizationState />
       </div>
     );
@@ -111,8 +110,13 @@ export default function DashboardPage() {
 
   if (!hasValidOrgContext) {
     return (
-      <div className="space-y-6">
-        {header}
+      <div className="mx-auto max-w-5xl space-y-6">
+        <DashboardHeader
+          actionsDisabled
+          onNewProject={openProjectModal}
+          onNewTask={openTaskModal}
+          onInvite={openInviteModal}
+        />
         <WorkspaceSelectionPrompt />
       </div>
     );
@@ -129,16 +133,28 @@ export default function DashboardPage() {
     return <ErrorState onRetry={() => { refetchProjects(); refetchTasks(); }} />;
   }
 
+  /* ── Empty / onboarding state ── */
+
+  if (maturity !== 'active') {
+    return (
+      <div className="mx-auto max-w-5xl">
+        <DashboardEmptyState
+          firstName={firstName}
+          totalProjects={totalProjects}
+          totalTasks={totalTasks}
+          totalMembers={totalMembers}
+          onCreateProject={openProjectModal}
+          onCreateTask={openTaskModal}
+          onInvite={openInviteModal}
+        />
+      </div>
+    );
+  }
+
+  /* ── Active dashboard ── */
+
   const taskFlowBody =
-    totalTasks === 0 ? (
-      <EmptyChartPlaceholder
-        compact
-        title="No task flow yet"
-        description="Create and complete tasks to see progress over time."
-        icon={<IconActivity className="h-6 w-6" />}
-        minHeight={240}
-      />
-    ) : trendLowData ? (
+    trendLowData ? (
       <EmptyChartPlaceholder
         compact
         title="Not enough task history yet"
@@ -150,119 +166,103 @@ export default function DashboardPage() {
       <TasksTrendChart tasks={allTasks} height={340} />
     );
 
-  const statusBody =
-    totalTasks === 0 ? (
-      <EmptyChartPlaceholder
-        compact
-        title="No status mix yet"
-        description="Once you add tasks, we’ll show how work spreads across columns."
-        icon={<IconCheckSquare className="h-6 w-6" />}
-      />
-    ) : (
-      <StatusDistributionCard
-        tasks={allTasks}
-        empty={
-          <EmptyChartPlaceholder
-            compact
-            title="No status mix yet"
-            description="Once you add tasks, we’ll show how work spreads across columns."
-            icon={<IconCheckSquare className="h-6 w-6" />}
-          />
-        }
-      />
-    );
+  const statusBody = (
+    <StatusDistributionCard
+      tasks={allTasks}
+      empty={
+        <EmptyChartPlaceholder
+          compact
+          title="No status mix yet"
+          description="Once you add tasks, we'll show how work spreads across columns."
+          icon={<IconCheckSquare className="h-6 w-6" />}
+        />
+      }
+    />
+  );
 
   return (
-    <div className="space-y-6">
-      {header}
+    <div className="mx-auto max-w-7xl space-y-6">
+      <DashboardHeader
+        onNewProject={openProjectModal}
+        onNewTask={openTaskModal}
+        onInvite={openInviteModal}
+      />
 
-      {maturity === 'no_projects' && (
-        <DashboardSetupBanner variant="no_projects" onPrimary={openProjectModal} />
-      )}
+      <DashboardKpiRow
+        totalProjects={totalProjects}
+        totalTasks={totalTasks}
+        inProgressCount={inProgressCount}
+        completionRate={completionRate}
+        doneCount={doneCount}
+      />
 
-      {maturity !== 'no_projects' && (
-        <>
-          {maturity === 'projects_no_tasks' && (
-            <DashboardSetupBanner variant="projects_no_tasks" onPrimary={openTaskModal} />
-          )}
+      <section className="grid gap-4 xl:grid-cols-12">
+        <div className="xl:col-span-8">
+          <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
+            <div className="flex flex-col gap-1 border-b border-neutral-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-neutral-900">Task flow</h2>
+                <p className="text-sm text-neutral-500">Tasks created vs completed over time</p>
+              </div>
+              <span className="text-xs font-medium text-neutral-400">Last 14 days</span>
+            </div>
+            <div className="px-3 pb-1 pt-3">{taskFlowBody}</div>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-neutral-100 px-5 py-3 text-xs text-neutral-500">
+              <span className="flex items-center gap-2">
+                <span className="h-0.5 w-6 rounded-full bg-primary-600" />
+                Created
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-0.5 w-6 rounded-full border border-dashed border-primary-300 bg-primary-300" />
+                Completed
+              </span>
+            </div>
+          </div>
+        </div>
 
-          <DashboardKpiRow
-            totalProjects={totalProjects}
-            totalTasks={totalTasks}
+        <div className="min-w-0 xl:col-span-4">
+          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
+            <div className="border-b border-neutral-100 px-5 py-4">
+              <h2 className="text-base font-semibold text-neutral-900">Status mix</h2>
+              <p className="text-sm text-neutral-500">Share of tasks by column</p>
+            </div>
+            {statusBody}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-12">
+        <div className="min-w-0 lg:col-span-7">
+          <WorkflowSummaryCard
+            todoCount={todoCount}
             inProgressCount={inProgressCount}
-            completionRate={completionRate}
             doneCount={doneCount}
+            totalTasks={totalTasks}
+            completionRate={completionRate}
           />
+        </div>
+        <div className="min-w-0 lg:col-span-5">
+          <RecentActivityCard
+            activities={activityItems}
+            members={members}
+            currentUserId={user?.id}
+            onCreateTask={openTaskModal}
+          />
+        </div>
+      </section>
 
-          <section className="grid gap-4 xl:grid-cols-12">
-            <div className="xl:col-span-8">
-              <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
-                <div className="flex flex-col gap-1 border-b border-neutral-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-base font-semibold text-neutral-900">Task flow</h2>
-                    <p className="text-sm text-neutral-500">Tasks created vs completed over time</p>
-                  </div>
-                  <span className="text-xs font-medium text-neutral-400">Last 14 days</span>
-                </div>
-                <div className="px-3 pb-1 pt-3">{taskFlowBody}</div>
-                <div className="flex flex-wrap gap-x-6 gap-y-2 border-t border-neutral-100 px-5 py-3 text-xs text-neutral-500">
-                  <span className="flex items-center gap-2">
-                    <span className="h-0.5 w-6 rounded-full bg-primary-600" />
-                    Created
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <span className="h-0.5 w-6 rounded-full border border-dashed border-primary-300 bg-primary-300" />
-                    Completed
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="min-w-0 xl:col-span-4">
-              <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs">
-                <div className="border-b border-neutral-100 px-5 py-4">
-                  <h2 className="text-base font-semibold text-neutral-900">Status mix</h2>
-                  <p className="text-sm text-neutral-500">Share of tasks by column</p>
-                </div>
-                {statusBody}
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-6 lg:grid-cols-12">
-            <div className="min-w-0 lg:col-span-7">
-              <WorkflowSummaryCard
-                todoCount={todoCount}
-                inProgressCount={inProgressCount}
-                doneCount={doneCount}
-                totalTasks={totalTasks}
-                completionRate={completionRate}
-              />
-            </div>
-            <div className="min-w-0 lg:col-span-5">
-              <RecentActivityCard
-                activities={activityItems}
-                members={members}
-                currentUserId={user?.id}
-                onCreateTask={openTaskModal}
-              />
-            </div>
-          </section>
-
-          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <PriorityMixCard tasks={allTasks} />
-            <WorkspaceHealthCard
-              totalMembers={totalMembers}
-              totalProjects={totalProjects}
-              activeTasks={activeTaskCount}
-              completionRate={completionRate}
-              pendingInviteCount={pendingInviteCount}
-            />
-            <UpcomingDeadlinesCard tasks={allTasks} />
-            <UpcomingWorkCard tasks={allTasks} currentUserId={user?.id} />
-          </section>
-        </>
-      )}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <PriorityMixCard tasks={allTasks} />
+        <WorkspaceHealthCard
+          totalMembers={totalMembers}
+          totalProjects={totalProjects}
+          activeTasks={activeTaskCount}
+          completionRate={completionRate}
+          pendingInviteCount={pendingInviteCount}
+        />
+        <UpcomingDeadlinesCard tasks={allTasks} />
+        <UpcomingWorkCard tasks={allTasks} currentUserId={user?.id} />
+      </section>
     </div>
   );
 }

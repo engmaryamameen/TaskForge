@@ -13,7 +13,7 @@ interface Crumb {
 }
 
 function buildBreadcrumbs(pathname: string): Crumb[] {
-  if (pathname === '/') return [{ label: 'Dashboard' }];
+  if (pathname === '/') return [{ label: 'Overview' }];
   if (pathname === '/projects') return [{ label: 'Projects' }];
   if (pathname.startsWith('/projects/'))
     return [{ label: 'Projects', href: '/projects' }, { label: 'Project Details' }];
@@ -21,7 +21,7 @@ function buildBreadcrumbs(pathname: string): Crumb[] {
   if (pathname === '/organizations') return [{ label: 'Organizations' }];
   if (pathname === '/activity') return [{ label: 'Activity' }];
   if (pathname === '/settings') return [{ label: 'Settings' }];
-  return [{ label: 'Dashboard' }];
+  return [{ label: 'Overview' }];
 }
 
 export function Topbar() {

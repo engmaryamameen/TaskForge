@@ -4,6 +4,7 @@ export { WorkspaceReadyState } from './workspace-ready-state';
 export { WorkspaceSelectionPrompt } from './workspace-selection-prompt';
 export { DashboardHeader } from './dashboard-header';
 export { DashboardSetupBanner } from './dashboard-setup-banner';
+export { DashboardEmptyState } from './dashboard-empty-state';
 export { DashboardKpiCard } from './dashboard-kpi-card';
 export { DashboardKpiRow } from './dashboard-kpi-row';
 export { StatusHorizontalBars } from './status-horizontal-bars';
