@@ -6,9 +6,9 @@ import { PlanRepository } from '../repositories/plan.repository';
 import { CreateCheckoutSessionDto } from '../dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { OrgScoped } from '../../../common/decorators/org-scoped.decorator';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { RequirePermission } from '../../../common/decorators/require-permission.decorator';
 import { RequestContext } from '../../../shared/interfaces';
-import { Role } from '../../../shared/enums';
+import { Permission } from '../../../shared/rbac';
 
 @Controller('billing')
 export class BillingController {
@@ -44,7 +44,7 @@ export class BillingController {
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN)
+  @RequirePermission(Permission.BILLING_MANAGE)
   @Post('checkout-session')
   async createCheckoutSession(
     @CurrentUser() user: RequestContext,
@@ -57,7 +57,7 @@ export class BillingController {
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN)
+  @RequirePermission(Permission.BILLING_MANAGE)
   @Post('portal-session')
   async createPortalSession(@CurrentUser() user: RequestContext) {
     const frontendUrl = 'http://localhost:3000';

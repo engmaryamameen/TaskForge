@@ -11,7 +11,8 @@ import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
 import { PageHero } from '@/components/ui/page-hero';
-import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { usePermission } from '@/hooks/usePermission';
+import { Permission } from '@/lib/rbac';
 import { IconPlus, IconFolder } from '@/components/icons';
 
 export default function ProjectsPage() {
@@ -22,8 +23,9 @@ export default function ProjectsPage() {
   const search = searchParams.get('search') || '';
 
   const { data, isLoading, isError, refetch } = useProjects({ page, search: search || undefined });
-  const role = useCurrentOrgRole();
-  const isAdmin = role === 'admin';
+  const { can } = usePermission();
+  const canCreate = can(Permission.PROJECT_CREATE);
+  const canDelete = can(Permission.PROJECT_DELETE);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleSearchChange = useCallback((value: string) => {
@@ -59,7 +61,7 @@ export default function ProjectsPage() {
           : 'Create a project to organize tasks, members, and delivery in one place.'}
         count={!isLoading && !isError ? total : undefined}
         countLabel={total === 1 ? 'project' : 'projects'}
-        actions={isAdmin ? (
+        actions={canCreate ? (
           <Button
             onClick={() => setShowCreateModal(true)}
             leftIcon={<IconPlus className="h-4 w-4" />}
@@ -154,9 +156,9 @@ export default function ProjectsPage() {
         <div className="mt-10">
           <EmptyState
             title="No projects yet"
-            description={isAdmin ? "Create your first project to start organizing your team's work." : "Your team hasn't created any projects yet. Check back soon."}
+            description={canCreate ? "Create your first project to start organizing your team's work." : "Your team hasn't created any projects yet. Check back soon."}
             icon={<IconFolder className="h-6 w-6" />}
-            action={isAdmin ? { label: 'Create your first project', onClick: () => setShowCreateModal(true) } : undefined}
+            action={canCreate ? { label: 'Create your first project', onClick: () => setShowCreateModal(true) } : undefined}
           />
         </div>
       )}

@@ -3,7 +3,8 @@
 import { useRef, useState, useCallback } from 'react';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { useDashboardModals } from '@/components/layout/dashboard-modals-context';
-import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { usePermission } from '@/hooks/usePermission';
+import { Permission } from '@/lib/rbac';
 import { IconPlus, IconCheckSquare, IconFolder, IconUserPlus } from '@/components/icons';
 
 interface CreateAction {
@@ -41,8 +42,7 @@ export function CreateMenu() {
   useClickOutside(ref, close);
 
   const { openTaskModal, openProjectModal, openInviteModal } = useDashboardModals();
-  const role = useCurrentOrgRole();
-  const isAdmin = role === 'admin';
+  const { can } = usePermission();
 
   const actions: CreateAction[] = [
     {
@@ -75,7 +75,7 @@ export function CreateMenu() {
     },
   ];
 
-  const visibleActions = actions.filter((a) => !a.adminOnly || isAdmin);
+  const visibleActions = actions.filter((a) => !a.adminOnly || can(Permission.MEMBER_INVITE));
 
   return (
     <div ref={ref} className="relative">

@@ -7,7 +7,9 @@ import blankProfilePic from '@/assets/images/blank-profile-pic.png';
 import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { useAuthStore } from '@/store/auth.store';
-import { useCurrentOrganization, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
+import { usePermission } from '@/hooks/usePermission';
+import { Permission } from '@/lib/rbac';
 import { useLogout } from '@/features/auth/hooks/useAuth';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { Avatar } from '@/components/ui/avatar';
@@ -48,7 +50,7 @@ export function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useUIStore();
   const user = useAuthStore((s) => s.user);
   const { data: currentOrg } = useCurrentOrganization();
-  const role = useCurrentOrgRole();
+  const { can, role } = usePermission();
   const logout = useLogout();
 
   const [profileOpen, setProfileOpen] = useState(false);
@@ -56,7 +58,7 @@ export function Sidebar() {
   const closeProfile = useCallback(() => setProfileOpen(false), []);
   useClickOutside(profileRef, closeProfile);
 
-  const isAdmin = role === 'admin' || role === 'owner';
+  const isAdmin = can(Permission.ORGANIZATION_UPDATE);
 
   function closeMobile() {
     setSidebarOpen(false);

@@ -13,15 +13,16 @@ import { ProjectsService } from '../services/projects.service';
 import { CreateProjectDto, UpdateProjectDto, ListProjectsDto } from '../dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { OrgScoped } from '../../../common/decorators/org-scoped.decorator';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { RequirePermission } from '../../../common/decorators/require-permission.decorator';
 import { RequestContext } from '../../../shared/interfaces';
-import { Role } from '../../../shared/enums';
+import { Permission } from '../../../shared/rbac';
 
 @Controller('projects')
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @OrgScoped()
+  @RequirePermission(Permission.PROJECT_CREATE)
   @Post()
   async create(
     @CurrentUser() user: RequestContext,
@@ -31,6 +32,7 @@ export class ProjectsController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.PROJECT_VIEW)
   @Get()
   async findAll(
     @CurrentUser() user: RequestContext,
@@ -40,6 +42,7 @@ export class ProjectsController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.PROJECT_VIEW)
   @Get(':id')
   async findOne(
     @CurrentUser() user: RequestContext,
@@ -49,6 +52,7 @@ export class ProjectsController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.PROJECT_UPDATE)
   @Patch(':id')
   async update(
     @CurrentUser() user: RequestContext,
@@ -65,7 +69,7 @@ export class ProjectsController {
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN)
+  @RequirePermission(Permission.PROJECT_DELETE)
   @Delete(':id')
   async remove(
     @CurrentUser() user: RequestContext,
