@@ -10,3 +10,7 @@ export function getDashboardMaturity(totalProjects: number, totalTasks: number):
   if (totalTasks === 0) return 'projects_no_tasks';
   return 'active';
 }
+
+export function shouldShowActiveDashboard(totalProjects: number): boolean {
+  return totalProjects > 0;
+}

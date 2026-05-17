@@ -31,6 +31,9 @@ export class Project {
   @Column({ type: 'text', nullable: true })
   description: string | null;
 
+  @Column({ type: 'varchar', length: 20, default: 'public' })
+  visibility: 'public' | 'private';
+
   @Column({ name: 'created_by' })
   createdBy: string;
 

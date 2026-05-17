@@ -13,13 +13,16 @@ import { TasksService } from '../services/tasks.service';
 import { CreateTaskDto, UpdateTaskDto, TaskFilterDto } from '../dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { OrgScoped } from '../../../common/decorators/org-scoped.decorator';
+import { RequirePermission } from '../../../common/decorators/require-permission.decorator';
 import { RequestContext } from '../../../shared/interfaces';
+import { Permission } from '../../../shared/rbac';
 
 @Controller()
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_CREATE)
   @Post('projects/:projectId/tasks')
   async create(
     @CurrentUser() user: RequestContext,
@@ -35,6 +38,7 @@ export class TasksController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_VIEW)
   @Get('projects/:projectId/tasks')
   async findByProject(
     @CurrentUser() user: RequestContext,
@@ -49,6 +53,7 @@ export class TasksController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_VIEW)
   @Get('tasks')
   async findAll(
     @CurrentUser() user: RequestContext,
@@ -58,6 +63,7 @@ export class TasksController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_VIEW)
   @Get('tasks/:id')
   async findOne(
     @CurrentUser() user: RequestContext,
@@ -67,6 +73,7 @@ export class TasksController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_UPDATE)
   @Patch('tasks/:id')
   async update(
     @CurrentUser() user: RequestContext,
@@ -82,6 +89,7 @@ export class TasksController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.TASK_DELETE)
   @Delete('tasks/:id')
   async remove(
     @CurrentUser() user: RequestContext,

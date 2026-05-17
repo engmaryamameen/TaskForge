@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useCreateInvite } from '@/features/organizations/hooks/useOrganizations';
+import { useCreateInvite, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
+import { RoleSelect } from '@/components/ui/role-select';
+import { Permission } from '@/lib/rbac';
 import { Role, ApiError } from '@/types';
 
 interface InviteMemberModalProps {
@@ -19,7 +20,7 @@ function getInviteErrorMessage(error: Error): string {
       case 'ALREADY_MEMBER':
         return 'This user is already a member of the organization.';
       case 'INSUFFICIENT_ROLE':
-        return 'You need admin access to invite members.';
+        return 'You do not have permission to invite with this role.';
       case 'PLAN_LIMIT_EXCEEDED':
         return 'Your plan has reached the member limit.';
       case 'INVITE_ALREADY_USED':
@@ -33,10 +34,12 @@ function getInviteErrorMessage(error: Error): string {
 
 export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState<Role>(Role.MEMBER);
+  const [role, setRole] = useState<string>(Role.MEMBER);
+  const [customPermissions, setCustomPermissions] = useState<Permission[]>([]);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const createInvite = useCreateInvite();
+  const currentRole = useCurrentOrgRole();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +48,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
 
     const res = await createInvite.mutateAsync({
       email: trimmed,
-      role,
+      role: role as Role,
     });
 
     setSentTo(trimmed);
@@ -55,6 +58,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   function handleClose() {
     setEmail('');
     setRole(Role.MEMBER);
+    setCustomPermissions([]);
     setSentTo(null);
     setEmailSent(null);
     createInvite.reset();
@@ -64,7 +68,7 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Invite member">
       {createInvite.error && !sentTo && (
-        <div className="mb-4 rounded-lg border border-red-100 bg-red-50 p-3 text-sm text-red-700">
+        <div className="mb-4 rounded-lg border border-danger-100 bg-danger-50 p-3 text-sm text-danger-700">
           {getInviteErrorMessage(createInvite.error)}
         </div>
       )}
@@ -75,12 +79,12 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
             {emailSent ? (
               <>
                 We sent an invitation email to <strong className="text-neutral-900">{sentTo}</strong>. They can
-                accept from their inbox to join this workspace.
+                accept from their inbox to join this organization.
               </>
             ) : (
               <>
                 We couldn&apos;t send email to <strong className="text-neutral-900">{sentTo}</strong> right now.
-                Check SMTP settings on the server. The invitation is still pending—you can see it in Team Members.
+                Check SMTP settings on the server. The invitation is still pending.
               </>
             )}
           </p>
@@ -90,34 +94,26 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Input
-              id="invite-email"
-              label="Email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="teammate@company.com"
-            />
-            <p className="mt-1 text-xs text-neutral-500">
-              We&apos;ll email them a secure link to join this workspace.
-            </p>
-          </div>
-
-          <Select
-            id="invite-role"
-            label="Role"
-            value={role}
-            onChange={(v) => setRole(v as Role)}
-            options={[
-              { value: Role.MEMBER, label: 'Member' },
-              { value: Role.ADMIN, label: 'Admin' },
-            ]}
+          <Input
+            id="invite-email"
+            label="Email"
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="teammate@company.com"
           />
 
-          <div className="flex justify-end gap-3">
+          <RoleSelect
+            value={role}
+            onChange={setRole}
+            customPermissions={customPermissions}
+            onCustomPermissionsChange={setCustomPermissions}
+            actorRole={currentRole ?? 'member'}
+          />
+
+          <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="secondary" onClick={handleClose}>
               Cancel
             </Button>

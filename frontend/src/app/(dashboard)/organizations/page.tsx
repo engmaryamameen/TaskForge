@@ -6,7 +6,6 @@ import {
   useCurrentOrganization,
   useSwitchOrganization,
   useOrgMembers,
-  useCurrentOrgRole,
   usePendingInvites,
   useResendInvite,
 } from '@/features/organizations/hooks/useOrganizations';
@@ -26,6 +25,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar } from '@/components/ui/avatar';
 import { useAuthStore } from '@/store/auth.store';
+import { usePermission } from '@/hooks/usePermission';
+import { Permission } from '@/lib/rbac';
 import {
   IconPlus,
   IconGlobe,
@@ -42,13 +43,13 @@ export default function OrganizationsPage() {
   const { data: tasksData } = useTasks({ limit: 100 });
   const { data: projectsData } = useProjects({ limit: 100 });
   const switchOrg = useSwitchOrganization();
-  const currentRole = useCurrentOrgRole();
+  const { can } = usePermission();
   const resendInvite = useResendInvite();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const isAdmin = currentRole === Role.ADMIN;
+  const isAdmin = can(Permission.MEMBER_INVITE);
   const memberCount = members?.length ?? 0;
   const pendingCount = pendingInvites?.length ?? 0;
   const taskCount = tasksData?.data?.length ?? 0;

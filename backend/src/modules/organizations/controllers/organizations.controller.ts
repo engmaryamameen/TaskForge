@@ -9,9 +9,9 @@ import {
 } from '../dto';
 import { CurrentUser } from '../../../common/decorators/current-user.decorator';
 import { OrgScoped } from '../../../common/decorators/org-scoped.decorator';
-import { Roles } from '../../../common/decorators/roles.decorator';
+import { RequirePermission } from '../../../common/decorators/require-permission.decorator';
 import { RequestContext } from '../../../shared/interfaces';
-import { Role } from '../../../shared/enums';
+import { Permission } from '../../../shared/rbac';
 
 @Controller('organizations')
 export class OrganizationsController {
@@ -53,20 +53,21 @@ export class OrganizationsController {
   }
 
   @OrgScoped()
+  @RequirePermission(Permission.MEMBER_VIEW)
   @Get('members')
   async listMembers(@CurrentUser() user: RequestContext) {
     return this.membershipsService.listOrgMembers(user.organizationId!);
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN, Role.MEMBER)
+  @RequirePermission(Permission.MEMBER_VIEW)
   @Get('invites')
   async listInvites(@CurrentUser() user: RequestContext) {
     return this.invitesService.listPendingInvites(user.organizationId!);
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN)
+  @RequirePermission(Permission.MEMBER_INVITE)
   @Post('invites')
   async createInvite(
     @CurrentUser() user: RequestContext,
@@ -76,7 +77,7 @@ export class OrganizationsController {
   }
 
   @OrgScoped()
-  @Roles(Role.ADMIN)
+  @RequirePermission(Permission.MEMBER_INVITE)
   @Post('invites/:inviteId/resend')
   async resendInvite(
     @CurrentUser() user: RequestContext,

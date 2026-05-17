@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsOptional } from 'class-validator';
-import { Role } from '../../../shared/enums';
+import { Role } from '../../../shared/rbac';
 
 export class CreateInviteDto {
   @IsEmail()

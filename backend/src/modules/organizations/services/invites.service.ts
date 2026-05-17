@@ -11,7 +11,8 @@ import { Invite } from '../entities/invite.entity';
 import { RequestContext } from '../../../shared/interfaces';
 import { AppError } from '../../../shared/errors/app-error';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
-import { EventType, Role } from '../../../shared/enums';
+import { EventType } from '../../../shared/enums';
+import { Role, canAssignRole } from '../../../shared/rbac';
 import { DomainEvent } from '../../../shared/interfaces';
 import { INVITE_TOKEN_TTL_HOURS } from '../../../shared/constants';
 import { UsersService } from '../../users/services/users.service';
@@ -50,6 +51,23 @@ export class InvitesService {
   ): Promise<{ emailSent: boolean }> {
     const email = dto.email.trim().toLowerCase();
     const role = dto.role ?? Role.MEMBER;
+
+    if (role === Role.OWNER) {
+      throw new AppError(
+        ErrorCodes.VALIDATION_ERROR,
+        'Cannot invite as Owner. Ownership must be transferred explicitly.',
+        400,
+      );
+    }
+
+    const actorRole = ctx.role as Role;
+    if (actorRole && !canAssignRole(actorRole, role)) {
+      throw new AppError(
+        ErrorCodes.INSUFFICIENT_ROLE,
+        'You cannot assign a role equal to or higher than your own.',
+        403,
+      );
+    }
 
     const existing = await this.invitesRepository.findActiveByEmailAndOrg(
       email,

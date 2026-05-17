@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, MaxLength, IsIn, IsArray, IsUUID } from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
@@ -10,4 +10,13 @@ export class CreateProjectDto {
   @IsString()
   @MaxLength(2000)
   description?: string;
+
+  @IsOptional()
+  @IsIn(['public', 'private'])
+  visibility?: 'public' | 'private';
+
+  @IsOptional()
+  @IsArray()
+  @IsUUID('4', { each: true })
+  memberIds?: string[];
 }

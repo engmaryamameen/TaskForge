@@ -136,8 +136,10 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
       }
     >
       {error && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-100 p-3 text-sm text-red-700">
-          Failed to {isEdit ? 'update' : 'create'} task. Please try again.
+        <div className="mb-4 rounded-lg bg-danger-50 border border-danger-100 p-3 text-sm text-danger-700">
+          {error instanceof Error && 'code' in error && (error as { code: string }).code === 'INSUFFICIENT_ROLE'
+            ? `You don\u2019t have permission to ${isEdit ? 'update' : 'create'} tasks.`
+            : `Failed to ${isEdit ? 'update' : 'create'} task. Please try again.`}
         </div>
       )}
 

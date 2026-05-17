@@ -5,6 +5,8 @@ import type { ApiResponse, Project, PaginationParams } from '@/types';
 export interface CreateProjectPayload {
   name: string;
   description?: string;
+  visibility?: 'public' | 'private';
+  memberIds?: string[];
 }
 
 export type UpdateProjectPayload = Partial<CreateProjectPayload>;

@@ -5,8 +5,10 @@ import { CreateProjectDto, UpdateProjectDto, ListProjectsDto } from '../dto';
 import { Project } from '../entities/project.entity';
 import { AppError } from '../../../shared/errors/app-error';
 import { ErrorCodes } from '../../../shared/errors/error-codes';
-import { EventType, Role } from '../../../shared/enums';
+import { EventType } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces';
+import { ProjectAccessService } from './project-access.service';
+import { Role, ProjectMemberRole } from '../../../shared/rbac';
 
 @Injectable()
 export class ProjectsService {
@@ -14,6 +16,7 @@ export class ProjectsService {
 
   constructor(
     private readonly projectsRepository: ProjectsRepository,
+    private readonly projectAccessService: ProjectAccessService,
     private readonly eventEmitter: EventEmitter2,
   ) {}
 
@@ -22,19 +25,45 @@ export class ProjectsService {
     userId: string,
     dto: CreateProjectDto,
   ): Promise<Project> {
+    const { memberIds, ...projectData } = dto;
+
     const project = await this.projectsRepository.create({
-      ...dto,
+      ...projectData,
+      visibility: dto.visibility ?? 'public',
       organizationId,
       createdBy: userId,
     });
 
-    this.logger.log(`Project created: ${project.id} in org ${organizationId}`);
+    if (project.visibility === 'private') {
+      try {
+        await this.projectAccessService.addProjectMember(
+          project.id, userId, ProjectMemberRole.MANAGER, userId,
+        );
+        if (memberIds?.length) {
+          for (const memberId of memberIds) {
+            if (memberId !== userId) {
+              await this.projectAccessService.addProjectMember(
+                project.id, memberId, ProjectMemberRole.MEMBER, userId,
+              );
+            }
+          }
+        }
+      } catch (err) {
+        this.logger.error(`Failed to add project members: ${err instanceof Error ? err.message : err}`);
+      }
+    }
+
+    this.logger.log(`Project created: ${project.id} (${project.visibility}) in org ${organizationId}`);
 
     this.eventEmitter.emit(EventType.PROJECT_CREATED, {
       type: EventType.PROJECT_CREATED,
       payload: {
         entityId: project.id,
-        snapshot: { name: project.name, description: project.description },
+        snapshot: {
+          name: project.name,
+          description: project.description,
+          visibility: project.visibility,
+        },
       },
       occurredAt: new Date(),
       organizationId,

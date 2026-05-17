@@ -25,7 +25,6 @@ import {
   UpcomingWorkCard,
   UpcomingDeadlinesCard,
 } from '@/features/dashboard/components';
-import { getDashboardMaturity } from '@/features/dashboard/hooks/useDashboardMaturity';
 import { shouldUseTrendLowDataPlaceholder } from '@/features/dashboard/lib/chart-data';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
@@ -79,13 +78,10 @@ export default function DashboardPage() {
   const completionRate = totalTasks > 0 ? Math.round((doneCount / totalTasks) * 100) : 0;
   const activeTaskCount = todoCount + inProgressCount;
 
-  const maturity = getDashboardMaturity(totalProjects, totalTasks);
   const trendLowData = totalTasks > 0 && shouldUseTrendLowDataPlaceholder(allTasks);
 
   const activityItems = activityData?.data ?? [];
   const firstName = user?.firstName || 'there';
-
-  /* ── Loading / Error / Pre-org gates ── */
 
   if (orgsLoading) {
     return <PageSkeleton variant="dashboard" />;
@@ -136,7 +132,7 @@ export default function DashboardPage() {
 
   /* ── Empty / onboarding state ── */
 
-  if (maturity !== 'active') {
+  if (totalProjects === 0) {
     return (
       <div className="space-y-6">
         <DashboardEmptyState
@@ -145,6 +141,9 @@ export default function DashboardPage() {
           totalTasks={totalTasks}
           totalMembers={totalMembers}
           role={currentRole}
+          activities={activityItems}
+          members={members}
+          currentUserId={user?.id}
           onCreateProject={openProjectModal}
           onCreateTask={openTaskModal}
           onInvite={openInviteModal}

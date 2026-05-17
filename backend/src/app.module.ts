@@ -25,6 +25,7 @@ import { CustomThrottlerGuard } from './common/guards/custom-throttler.guard';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { OrgMembershipGuard } from './common/guards/org-membership.guard';
 import { RolesGuard } from './common/guards/roles.guard';
+import { PermissionGuard } from './common/guards/permission.guard';
 
 // Business modules
 import { AuthModule } from './modules/auth/auth.module';
@@ -109,6 +110,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: OrgMembershipGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: PermissionGuard },
     // Tenant transaction interceptor — wraps org-scoped requests in
     // a transaction with SET LOCAL for RLS enforcement
     { provide: APP_INTERCEPTOR, useClass: TenantTransactionInterceptor },
