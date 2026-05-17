@@ -117,3 +117,52 @@ export function getAssignableRoles(actorRole: Role): Role[] {
 }
 
 export const INVITABLE_ROLES = [Role.ADMIN, Role.MANAGER, Role.MEMBER, Role.VIEWER] as const;
+
+/**
+ * Project-level roles — scoped to a single project, separate from org roles.
+ */
+export enum ProjectMemberRole {
+  MANAGER = 'manager',
+  MEMBER = 'member',
+  VIEWER = 'viewer',
+}
+
+export const PROJECT_ROLE_LABELS: Record<ProjectMemberRole, string> = {
+  [ProjectMemberRole.MANAGER]: 'Project Manager',
+  [ProjectMemberRole.MEMBER]: 'Member',
+  [ProjectMemberRole.VIEWER]: 'Viewer',
+};
+
+export const PROJECT_ROLE_HIERARCHY: Record<ProjectMemberRole, number> = {
+  [ProjectMemberRole.MANAGER]: 30,
+  [ProjectMemberRole.MEMBER]: 20,
+  [ProjectMemberRole.VIEWER]: 10,
+};
+
+const PROJECT_VIEWER_PERMS: Permission[] = [
+  Permission.PROJECT_VIEW,
+  Permission.TASK_VIEW,
+];
+
+const PROJECT_MEMBER_PERMS: Permission[] = [
+  ...PROJECT_VIEWER_PERMS,
+  Permission.TASK_CREATE,
+  Permission.TASK_UPDATE,
+];
+
+const PROJECT_MANAGER_PERMS: Permission[] = [
+  ...PROJECT_MEMBER_PERMS,
+  Permission.PROJECT_UPDATE,
+  Permission.TASK_DELETE,
+  Permission.TASK_ASSIGN,
+];
+
+export const PROJECT_ROLE_PERMISSIONS: Record<ProjectMemberRole, Permission[]> = {
+  [ProjectMemberRole.MANAGER]: PROJECT_MANAGER_PERMS,
+  [ProjectMemberRole.MEMBER]: PROJECT_MEMBER_PERMS,
+  [ProjectMemberRole.VIEWER]: PROJECT_VIEWER_PERMS,
+};
+
+export function hasProjectPermission(role: ProjectMemberRole, permission: Permission): boolean {
+  return PROJECT_ROLE_PERMISSIONS[role]?.includes(permission) ?? false;
+}

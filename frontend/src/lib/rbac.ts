@@ -115,6 +115,18 @@ export function getPermissionLabel(p: Permission): string {
 
 export const INVITABLE_ROLES = [Role.ADMIN, Role.MANAGER, Role.MEMBER, Role.VIEWER] as const;
 
+export enum ProjectMemberRole {
+  MANAGER = 'manager',
+  MEMBER = 'member',
+  VIEWER = 'viewer',
+}
+
+export const PROJECT_ROLE_LABELS: Record<ProjectMemberRole, string> = {
+  [ProjectMemberRole.MANAGER]: 'Project Manager',
+  [ProjectMemberRole.MEMBER]: 'Member',
+  [ProjectMemberRole.VIEWER]: 'Viewer',
+};
+
 export interface PermissionGroupDef {
   label: string;
   permissions: { key: Permission; label: string; dangerous?: boolean }[];

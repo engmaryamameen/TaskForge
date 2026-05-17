@@ -5,6 +5,7 @@ import { useCreateProject } from '@/features/projects/hooks/useProjects';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
+import { IconUsers, IconGlobe } from '@/components/icons';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [visibility, setVisibility] = useState<'public' | 'private'>('public');
   const createProject = useCreateProject();
 
   function handleSubmit(e: React.FormEvent) {
@@ -22,11 +24,16 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
     if (!trimmedName) return;
 
     createProject.mutate(
-      { name: trimmedName, description: description.trim() || undefined },
+      {
+        name: trimmedName,
+        description: description.trim() || undefined,
+        visibility,
+      },
       {
         onSuccess: () => {
           setName('');
           setDescription('');
+          setVisibility('public');
           onClose();
         },
       },
@@ -72,6 +79,42 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
           placeholder="What is this project about?"
           rows={3}
         />
+
+        <div>
+          <p className="mb-2 text-sm font-medium text-neutral-700">Who can access this project?</p>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setVisibility('public')}
+              className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-3 text-left text-sm transition-all ${
+                visibility === 'public'
+                  ? 'border-primary-300 bg-primary-50 text-primary-700 ring-1 ring-primary-200'
+                  : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
+              }`}
+            >
+              <IconGlobe className="h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-medium">All members</p>
+                <p className="text-xs text-neutral-500">Visible to everyone in the organization</p>
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibility('private')}
+              className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-3 text-left text-sm transition-all ${
+                visibility === 'private'
+                  ? 'border-primary-300 bg-primary-50 text-primary-700 ring-1 ring-primary-200'
+                  : 'border-neutral-200 text-neutral-600 hover:border-neutral-300'
+              }`}
+            >
+              <IconUsers className="h-4 w-4 shrink-0" />
+              <div>
+                <p className="font-medium">Specific members</p>
+                <p className="text-xs text-neutral-500">Only invited project members</p>
+              </div>
+            </button>
+          </div>
+        </div>
       </form>
     </Modal>
   );

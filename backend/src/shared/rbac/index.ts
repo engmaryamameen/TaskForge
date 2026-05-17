@@ -9,4 +9,9 @@ export {
   hasPermission,
   canAssignRole,
   getAssignableRoles,
+  ProjectMemberRole,
+  PROJECT_ROLE_LABELS,
+  PROJECT_ROLE_HIERARCHY,
+  PROJECT_ROLE_PERMISSIONS,
+  hasProjectPermission,
 } from './permissions';
