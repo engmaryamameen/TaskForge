@@ -48,8 +48,10 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
       }
     >
       {createProject.error && (
-        <div className="mb-4 rounded-lg bg-red-50 border border-red-100 p-3 text-sm text-red-700">
-          Failed to create project. Please try again.
+        <div className="mb-4 rounded-lg bg-danger-50 border border-danger-100 p-3 text-sm text-danger-700">
+          {(createProject.error as any)?.code === 'INSUFFICIENT_ROLE'
+            ? 'You don\u2019t have permission to create projects. Contact your organization admin.'
+            : 'Failed to create project. Please try again.'}
         </div>
       )}
 

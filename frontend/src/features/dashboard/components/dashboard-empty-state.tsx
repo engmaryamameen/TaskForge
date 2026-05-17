@@ -162,15 +162,17 @@ export function DashboardEmptyState({
     },
     {
       id: 'task',
-      title: 'Add your first task',
-      description: 'Create and track work with status and priority.',
+      title: totalProjects > 0 ? 'Add your first task' : (isAdmin ? 'Add your first task' : 'Waiting for projects'),
+      description: totalProjects > 0
+        ? 'Create and track work with status and priority.'
+        : (isAdmin ? 'Create a project first, then add tasks to it.' : 'Once your team creates a project, you can start adding tasks.'),
       icon: <IconCheckSquare className="h-4 w-4" />,
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-500',
       completed: totalTasks > 0,
-      actionLabel: 'Add task',
-      actionIcon: <IconPlus className="h-3.5 w-3.5" />,
-      onAction: onCreateTask,
+      actionLabel: totalProjects > 0 ? 'Add task' : (isAdmin ? 'Create project first' : ''),
+      actionIcon: totalProjects > 0 ? <IconPlus className="h-3.5 w-3.5" /> : undefined,
+      onAction: totalProjects > 0 ? onCreateTask : (isAdmin ? onCreateProject : undefined),
     },
     {
       id: 'invite',
