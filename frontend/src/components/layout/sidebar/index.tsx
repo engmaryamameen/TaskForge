@@ -1,10 +1,24 @@
 'use client';
 
+import { useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrganization, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { useLogout } from '@/features/auth/hooks/useAuth';
+import { useClickOutside } from '@/hooks/useClickOutside';
 import { Avatar } from '@/components/ui/avatar';
+import {
+  IconChevronDown,
+  IconUserCircle,
+  IconSettings,
+  IconBell,
+  IconPalette,
+  IconBuilding,
+  IconLifebuoy,
+  IconLogOut,
+} from '@/components/icons';
 import { NavItem } from './nav-item';
 import {
   DashboardCardsIcon,
@@ -57,6 +71,13 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const { data: currentOrg } = useCurrentOrganization();
   const role = useCurrentOrgRole();
+  const logout = useLogout();
+
+  // Profile dropdown
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const closeProfile = useCallback(() => setProfileOpen(false), []);
+  useClickOutside(profileRef, closeProfile);
 
   const isAdmin = role === 'admin';
 
@@ -101,7 +122,7 @@ export function Sidebar() {
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* ── Org header ── */}
+        {/* ── Org header (static — rail handles switching) ── */}
         <div className="shrink-0 px-4 pt-4 pb-3">
           {currentOrg ? (
             <div className="flex items-center gap-2.5">
@@ -134,7 +155,6 @@ export function Sidebar() {
             {mainNav.map(renderItem)}
           </div>
 
-          {/* Admin section */}
           {isAdmin && (
             <>
               <div className="mx-1 my-3 h-px bg-neutral-100" />
@@ -148,18 +168,89 @@ export function Sidebar() {
           )}
         </nav>
 
-        {/* ── User profile ── */}
+        {/* ── User profile with dropdown ── */}
         {user && (
-          <div className="shrink-0 border-t border-neutral-100 px-4 py-3">
-            <div className="flex items-center gap-2.5">
+          <div ref={profileRef} className="relative shrink-0 border-t border-neutral-100 px-3 py-2.5">
+            <button
+              onClick={() => setProfileOpen((p) => !p)}
+              className="flex w-full items-center gap-2.5 rounded-lg px-1.5 py-1.5 transition-colors hover:bg-neutral-100 cursor-pointer"
+            >
               <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" />
-              <div className="min-w-0">
+              <div className="min-w-0 text-left flex-1">
                 <p className="text-[13px] font-semibold text-neutral-800 truncate leading-tight">
                   {user.firstName} {user.lastName}
                 </p>
                 <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
               </div>
-            </div>
+              <IconChevronDown className={`h-3.5 w-3.5 shrink-0 text-neutral-400 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {profileOpen && (
+              <div className="absolute bottom-full left-3 right-3 z-50 mb-2 rounded-xl border border-neutral-200 bg-white shadow-overlay animate-dropdown-in">
+                {/* User header */}
+                <div className="px-4 py-3.5">
+                  <div className="flex items-center gap-3">
+                    <Avatar firstName={user.firstName} lastName={user.lastName} size="lg" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-neutral-900 truncate">
+                        {user.firstName} {user.lastName}
+                      </p>
+                      <p className="text-xs text-neutral-500 truncate">{user.email}</p>
+                      <span className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-medium text-success-600">
+                        <span className="h-1.5 w-1.5 rounded-full bg-success-500" />
+                        Active
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="h-px bg-neutral-100" />
+
+                <div className="py-1.5">
+                  <Link href="/settings" onClick={closeProfile} className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconUserCircle className="h-4 w-4 text-neutral-400" />
+                    My profile
+                  </Link>
+                  <Link href="/settings" onClick={closeProfile} className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconSettings className="h-4 w-4 text-neutral-400" />
+                    Account settings
+                  </Link>
+                  <Link href="/settings" onClick={closeProfile} className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconBell className="h-4 w-4 text-neutral-400" />
+                    Notification settings
+                  </Link>
+                  <Link href="/settings" onClick={closeProfile} className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconPalette className="h-4 w-4 text-neutral-400" />
+                    Appearance
+                  </Link>
+                </div>
+
+                <div className="h-px bg-neutral-100" />
+
+                <div className="py-1.5">
+                  <Link href="/organizations" onClick={closeProfile} className="flex items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconBuilding className="h-4 w-4 text-neutral-400" />
+                    My organizations
+                  </Link>
+                  <button onClick={closeProfile} className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                    <IconLifebuoy className="h-4 w-4 text-neutral-400" />
+                    Help &amp; support
+                  </button>
+                </div>
+
+                <div className="h-px bg-neutral-100" />
+
+                <div className="py-1.5">
+                  <button
+                    onClick={() => { logout.mutate(); closeProfile(); }}
+                    className="flex w-full items-center gap-2.5 px-4 py-2 text-[13px] text-danger-600 hover:bg-danger-50 transition-colors"
+                  >
+                    <IconLogOut className="h-4 w-4" />
+                    Sign out
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </aside>
