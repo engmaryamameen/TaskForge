@@ -18,16 +18,15 @@ function AppShellSkeleton() {
         </div>
       </div>
       {/* Nav sidebar skeleton */}
-      <div className="hidden md:flex md:w-60 md:flex-col md:border-r md:border-neutral-200">
-        <div className="px-5 py-4">
-          <div className="h-5 w-28 animate-shimmer rounded-md" />
-          <div className="mt-2 h-3 w-16 animate-shimmer rounded-md" />
-        </div>
-        <div className="flex-1 space-y-1 px-3 pt-2">
+      <div className="hidden md:flex md:w-20 md:flex-col md:items-center md:border-r md:border-neutral-200 md:py-3">
+        <div className="h-9 w-9 animate-shimmer rounded-xl" />
+        <div className="mt-1 h-3 w-12 animate-shimmer rounded" />
+        <div className="mx-3 my-2 h-px w-10 bg-neutral-100" />
+        <div className="flex-1 space-y-2 px-2 w-full">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 px-3 py-2">
+            <div key={i} className="flex flex-col items-center gap-1 py-2">
               <div className="h-5 w-5 animate-shimmer rounded" />
-              <div className="h-4 animate-shimmer rounded-md" style={{ width: `${60 + (i % 3) * 20}px` }} />
+              <div className="h-2.5 w-10 animate-shimmer rounded" />
             </div>
           ))}
         </div>

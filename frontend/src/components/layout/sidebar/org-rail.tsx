@@ -97,15 +97,14 @@ export function OrgRail() {
         {/* ── Bottom: User avatar ── */}
         {user && (
           <div className="mt-2 flex flex-col items-center">
-            <div className="mb-2 h-px w-7 bg-neutral-200" />
             <Tooltip label={`${user.firstName} ${user.lastName}`} side="right">
-              <div>
+              <div className="relative">
                 <Avatar
                   firstName={user.firstName}
-                  lastName={user.lastName}
-                  size="sm"
-                  className="ring-2 ring-neutral-200 cursor-default"
+                  size="md"
+                  className="ring-2 ring-white shadow-md transition-shadow hover:shadow-lg hover:ring-primary-100"
                 />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-success-500" />
               </div>
             </Tooltip>
           </div>
