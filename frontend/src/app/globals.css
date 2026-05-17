@@ -176,6 +176,13 @@
   background: linear-gradient(90deg, transparent 0%, var(--color-neutral-300) 40%, rgba(45, 58, 80, 0.6) 50%, var(--color-neutral-300) 60%, transparent 100%);
 }
 
+/* Cards and elevated surfaces need border in dark mode since shadows are invisible */
+[data-theme="dark"] .shadow-xs,
+[data-theme="dark"] .shadow-soft,
+[data-theme="dark"] .shadow-medium {
+  box-shadow: 0 0 0 1px var(--color-neutral-200), var(--shadow-xs);
+}
+
 /* Scrollbar in dark mode */
 [data-theme="dark"] ::-webkit-scrollbar-thumb {
   background-color: var(--color-neutral-300);

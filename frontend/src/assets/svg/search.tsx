@@ -3,8 +3,7 @@ import { IconFrame, type IconProps } from './icon-base';
 export function SearchIcon(props: IconProps) {
   return (
     <IconFrame {...props}>
-      <circle cx="10.8" cy="10.8" r="5.8" />
-      <path d="m15.2 15.2 4 4" />
+      <path d="M18.425 18.425L23.5 23.5m-12.5-2C5.201 21.5.5 16.799.5 11S5.201.5 11 .5S21.5 5.201 21.5 11S16.799 21.5 11 21.5Z" />
     </IconFrame>
   );
 }

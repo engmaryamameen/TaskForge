@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { IconChevronDown } from '@/components/icons';
+import { FIELD_DEFAULT, FIELD_ERROR } from './input';
 
 export type SelectOption = {
   value: string;
@@ -221,10 +222,8 @@ export function Select({
       document.body,
     );
 
-  const triggerMd = `relative flex w-full items-center gap-2 rounded-lg border bg-white py-2.5 pl-3 pr-10 text-left text-sm font-medium text-neutral-900 shadow-xs transition-all duration-150 ${
-    error
-      ? 'border-danger-300 focus-visible:border-danger-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-300'
-      : 'border-neutral-200 hover:border-neutral-300 focus-visible:border-primary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-100'
+  const triggerMd = `relative flex w-full items-center gap-2 rounded-lg border bg-white py-2.5 pl-3 pr-10 text-left text-sm font-medium text-neutral-900 shadow-xs transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 ${
+    error ? FIELD_ERROR : FIELD_DEFAULT
   }`;
 
   const triggerSm = `relative inline-flex max-w-full items-center gap-1 rounded-md px-2 py-1 pr-7 text-left text-[11px] font-bold uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 ${triggerClassName}`;

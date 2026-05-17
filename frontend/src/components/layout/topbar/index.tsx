@@ -49,7 +49,7 @@ export function Topbar() {
   const pageTitle = getPageTitle(pathname);
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-4 bg-white px-4 shadow-lg border-b border-gray-200 md:px-5">
+    <header className="flex h-16 shrink-0 items-center gap-4 bg-white px-4 shadow-soft border-b border-neutral-200 md:px-5">
       <div className="flex items-center gap-2 min-w-0 shrink-0">
         <button
           onClick={toggleSidebar}

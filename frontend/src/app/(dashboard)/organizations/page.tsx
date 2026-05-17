@@ -21,6 +21,7 @@ import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { Button } from '@/components/ui/button';
+import { PageHero } from '@/components/ui/page-hero';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Avatar } from '@/components/ui/avatar';
@@ -61,20 +62,16 @@ export default function OrganizationsPage() {
     pendingCount === 0;
 
   return (
-    <div className="mx-auto">
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-            Organizations
-          </h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            Manage organizations, invite teammates, and keep your work organized.
-          </p>
-        </div>
-        <Button onClick={() => setShowCreateModal(true)} leftIcon={<IconPlus className="h-4 w-4" />}>
-          New organization
-        </Button>
-      </div>
+    <div className="mx-auto flex flex-col gap-6">
+      <PageHero
+        title="Organizations"
+        subtitle="Manage organizations, invite teammates, and keep your work organized."
+        actions={
+          <Button onClick={() => setShowCreateModal(true)} leftIcon={<IconPlus className="h-4 w-4" />}>
+            New organization
+          </Button>
+        }
+      />
 
       {isLoading && <PageSkeleton variant="org" />}
 

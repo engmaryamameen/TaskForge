@@ -15,6 +15,7 @@ import { ActivityEmptyState } from '@/features/activity/components/activity-empt
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ErrorState } from '@/components/ui/error-state';
 import { Card } from '@/components/ui/card';
+import { PageHero } from '@/components/ui/page-hero';
 import { formatRelative } from '@/lib/utils';
 import type { ActivityTabFilter } from '@/types';
 
@@ -93,13 +94,10 @@ export default function ActivityPage() {
   if (!activities || activities.length === 0) {
     return (
       <div className="mx-auto max-w-3xl">
-        <header className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Activity</h1>
-          <p className="mt-1 text-sm text-neutral-500">
-            A living timeline of what happens in your workspace.
-          </p>
-        </header>
-        <ActivityFilters active={tab} onChange={setTab} />
+        <PageHero title="Activity" subtitle="A living timeline of what happens in your organization." />
+        <div className="mt-6">
+          <ActivityFilters active={tab} onChange={setTab} />
+        </div>
         <div className="mt-8">
           <ActivityEmptyState />
         </div>
@@ -109,14 +107,11 @@ export default function ActivityPage() {
 
   return (
     <div className="mx-auto">
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Activity</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Follow workspace updates and your team&apos;s work in one place.
-        </p>
-      </header>
+      <PageHero title="Activity" subtitle="Follow organization updates and your team's work in one place." />
 
-      <ActivityFilters active={tab} onChange={setTab} />
+      <div className="mt-6">
+        <ActivityFilters active={tab} onChange={setTab} />
+      </div>
 
       {filtered.length === 0 ? (
         <p className="mt-8 text-center text-sm text-neutral-500">
