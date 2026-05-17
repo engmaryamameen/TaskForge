@@ -79,15 +79,18 @@ function PreviewKpiCard({
   icon,
   iconBg,
   iconColor,
+  accent,
 }: {
   label: string;
   icon: React.ReactNode;
   iconBg: string;
   iconColor: string;
+  accent: string;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
-      <div className="flex items-start justify-between gap-4">
+    <div className="flex overflow-hidden bg-white shadow-soft">
+      <div className={`w-1 shrink-0 ${accent}`} />
+      <div className="flex flex-1 items-start justify-between gap-4 p-5">
         <div>
           <p className="text-sm font-medium text-neutral-500">{label}</p>
           <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
@@ -132,24 +135,28 @@ export function DashboardEmptyState({
           icon={<IconFolder className="h-5 w-5" />}
           iconBg="bg-primary-50"
           iconColor="text-primary-600"
+          accent="bg-primary-500"
         />
         <PreviewKpiCard
           label="Total tasks"
           icon={<IconCheckSquare className="h-5 w-5" />}
-          iconBg="bg-info-50"
-          iconColor="text-info-600"
+          iconBg="bg-purple-50"
+          iconColor="text-purple-600"
+          accent="bg-purple-500"
         />
         <PreviewKpiCard
           label="In progress"
           icon={<IconTrendingUp className="h-5 w-5" />}
-          iconBg="bg-warning-50"
-          iconColor="text-warning-600"
+          iconBg="bg-orange-50"
+          iconColor="text-orange-600"
+          accent="bg-orange-500"
         />
         <PreviewKpiCard
           label="Completion"
           icon={<IconTarget className="h-5 w-5" />}
           iconBg="bg-success-50"
           iconColor="text-success-600"
+          accent="bg-success-500"
         />
       </section>
 

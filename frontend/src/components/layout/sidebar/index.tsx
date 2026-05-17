@@ -128,7 +128,7 @@ export function Sidebar() {
 
         {/* ── Main navigation ── */}
         <nav className="flex-1 overflow-y-auto w-full px-2.5 py-3">
-          <div className="flex flex-col gap-0.5">
+          <div className="flex flex-col gap-1">
             {mainNav.map((item) => (
               <NavItem
                 key={item.href}
@@ -148,7 +148,7 @@ export function Sidebar() {
               <p className="mb-1 text-center text-[9px] font-semibold uppercase tracking-widest text-neutral-400">
                 Admin
               </p>
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col gap-1">
                 {adminNav.map((item) => (
                   <NavItem
                     key={item.href}

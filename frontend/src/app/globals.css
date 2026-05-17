@@ -5,17 +5,17 @@
   /* Inter (via next/font on <html> --font-inter) drives all `font-sans` usage */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  /* Primary — Deep teal / blue-teal */
-  --color-primary-50:  #F0FDFA;
-  --color-primary-100: #CCFBF1;
-  --color-primary-200: #99F6E4;
-  --color-primary-300: #5EEAD4;
-  --color-primary-400: #2DD4BF;
-  --color-primary-500: #0D9488;
-  --color-primary-600: #0F766E;
-  --color-primary-700: #115E59;
-  --color-primary-800: #134E4A;
-  --color-primary-900: #042F2E;
+  /* Primary — Rich blue */
+  --color-primary-50:  #EFF6FF;
+  --color-primary-100: #DBEAFE;
+  --color-primary-200: #BFDBFE;
+  --color-primary-300: #93C5FD;
+  --color-primary-400: #60A5FA;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
+  --color-primary-700: #1D4ED8;
+  --color-primary-800: #1E40AF;
+  --color-primary-900: #1E3A5F;
 
   /* Neutral — soft blue-gray tint for a clean, modern feel */
   --color-neutral-50:  #F8FAFC;
@@ -89,7 +89,7 @@
   --shadow-medium: 0 4px 8px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
   --shadow-large: 0 12px 20px -4px rgba(0,0,0,0.10), 0 4px 8px -4px rgba(0,0,0,0.04);
   --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.12), 0 8px 16px -4px rgba(0,0,0,0.06);
-  --shadow-glow-primary: 0 0 0 3px rgba(13,148,136,0.18);
+  --shadow-glow-primary: 0 0 0 3px rgba(37,99,235,0.18);
 }
 
 /*
@@ -118,9 +118,9 @@
   --color-neutral-800: #D4DCE8;
   --color-neutral-900: #EEF1F6;
 
-  /* Primary teal — dark-adjusted */
-  --color-primary-50:  #0A201D;
-  --color-primary-100: #0F2D28;
+  /* Primary blue — dark-adjusted */
+  --color-primary-50:  #0C1929;
+  --color-primary-100: #102340;
 
   --color-success-50:  #0A1F1A;
   --color-success-100: #0F2D24;
@@ -155,7 +155,7 @@
   --shadow-medium:  0 4px 8px -1px rgba(0,0,0,0.45), 0 2px 4px -2px rgba(0,0,0,0.35);
   --shadow-large:   0 12px 20px -4px rgba(0,0,0,0.5), 0 4px 8px -4px rgba(0,0,0,0.4);
   --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.6), 0 8px 16px -4px rgba(0,0,0,0.45);
-  --shadow-glow-primary: 0 0 0 3px rgba(13,148,136,0.35);
+  --shadow-glow-primary: 0 0 0 3px rgba(37,99,235,0.35);
 }
 
 /* bg-white uses literal CSS white — override it for dark surfaces */

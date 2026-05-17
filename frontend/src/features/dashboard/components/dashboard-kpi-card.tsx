@@ -7,6 +7,7 @@ interface DashboardKpiCardProps {
   icon: React.ReactNode;
   iconBg: string;
   iconColor: string;
+  accent: string;
   trend?: { label: string; positive?: boolean };
   loading?: boolean;
   onClick?: () => void;
@@ -40,20 +41,24 @@ export function DashboardKpiCard({
   icon,
   iconBg,
   iconColor,
+  accent,
   trend,
   loading,
   onClick,
 }: DashboardKpiCardProps) {
   if (loading) {
     return (
-      <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
-        <div className="flex items-start justify-between">
-          <div className="space-y-3 flex-1">
-            <div className="h-3 w-20 animate-shimmer rounded" />
-            <div className="h-8 w-16 animate-shimmer rounded" />
-            <div className="h-3 w-28 animate-shimmer rounded" />
+      <div className="flex overflow-hidden bg-white shadow-soft">
+        <div className="w-1 shrink-0 bg-neutral-200" />
+        <div className="flex-1 p-5">
+          <div className="flex items-start justify-between">
+            <div className="space-y-3 flex-1">
+              <div className="h-3 w-20 animate-shimmer rounded" />
+              <div className="h-8 w-16 animate-shimmer rounded" />
+              <div className="h-3 w-28 animate-shimmer rounded" />
+            </div>
+            <div className="h-11 w-11 animate-shimmer rounded-xl" />
           </div>
-          <div className="h-11 w-11 animate-shimmer rounded-xl" />
         </div>
       </div>
     );
@@ -64,11 +69,12 @@ export function DashboardKpiCard({
   return (
     <Wrapper
       onClick={onClick}
-      className={`group rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs transition-all hover:shadow-medium ${
+      className={`group flex overflow-hidden bg-white shadow-soft transition-all hover:shadow-medium ${
         onClick ? 'text-left w-full' : ''
       }`}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className={`w-1 shrink-0 ${accent}`} />
+      <div className="flex flex-1 items-start justify-between gap-4 p-5">
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-neutral-500">{label}</p>
           <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-900">

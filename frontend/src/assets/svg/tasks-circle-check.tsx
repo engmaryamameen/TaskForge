@@ -3,8 +3,7 @@ import { IconFrame, type IconProps } from './icon-base';
 export function TasksCircleCheckIcon(props: IconProps) {
   return (
     <IconFrame {...props}>
-      <circle cx="12" cy="12" r="8" />
-      <path d="m8.5 12.2 2.2 2.2 4.8-5" />
+      <path d="M12 20h12m-12-8h12M12 4h12M1 19l3 3 5-5m-8-6l3 3 5-5m0-8L4 6 1 3" />
     </IconFrame>
   );
 }
