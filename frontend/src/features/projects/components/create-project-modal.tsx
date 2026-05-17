@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { useCreateProject } from '@/features/projects/hooks/useProjects';
+import { useOrgMembers } from '@/features/organizations/hooks/useOrganizations';
+import { useAuthStore } from '@/store/auth.store';
 import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
-import { IconUsers, IconGlobe } from '@/components/icons';
+import { Avatar } from '@/components/ui/avatar';
+import { IconUsers, IconGlobe, IconCheck } from '@/components/icons';
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -16,7 +19,16 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const createProject = useCreateProject();
+  const { data: orgMembers } = useOrgMembers();
+  const currentUserId = useAuthStore((s) => s.user?.id);
+
+  function toggleMember(userId: string) {
+    setSelectedMembers((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId],
+    );
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,17 +40,21 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
         name: trimmedName,
         description: description.trim() || undefined,
         visibility,
+        memberIds: visibility === 'private' ? selectedMembers : undefined,
       },
       {
         onSuccess: () => {
           setName('');
           setDescription('');
           setVisibility('public');
+          setSelectedMembers([]);
           onClose();
         },
       },
     );
   }
+
+  const otherMembers = orgMembers?.filter((m) => m.userId !== currentUserId) ?? [];
 
   return (
     <Modal
@@ -85,7 +101,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setVisibility('public')}
+              onClick={() => { setVisibility('public'); setSelectedMembers([]); }}
               className={`flex items-center gap-2.5 rounded-lg border px-3.5 py-3 text-left text-sm transition-all ${
                 visibility === 'public'
                   ? 'border-primary-300 bg-primary-50 text-primary-700 ring-1 ring-primary-200'
@@ -95,7 +111,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
               <IconGlobe className="h-4 w-4 shrink-0" />
               <div>
                 <p className="font-medium">All members</p>
-                <p className="text-xs text-neutral-500">Visible to everyone in the organization</p>
+                <p className="text-xs text-neutral-500">Everyone in the org</p>
               </div>
             </button>
             <button
@@ -110,11 +126,64 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
               <IconUsers className="h-4 w-4 shrink-0" />
               <div>
                 <p className="font-medium">Specific members</p>
-                <p className="text-xs text-neutral-500">Only invited project members</p>
+                <p className="text-xs text-neutral-500">Only invited members</p>
               </div>
             </button>
           </div>
         </div>
+
+        {visibility === 'private' && (
+          <div>
+            <p className="mb-2 text-sm font-medium text-neutral-700">
+              Select members
+              {selectedMembers.length > 0 && (
+                <span className="ml-1.5 text-xs font-normal text-neutral-400">
+                  {selectedMembers.length} selected
+                </span>
+              )}
+            </p>
+            <p className="mb-3 text-xs text-neutral-500">You will be added automatically as project manager.</p>
+
+            {otherMembers.length === 0 ? (
+              <p className="text-sm text-neutral-400 py-3 text-center">No other members in this organization yet.</p>
+            ) : (
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-neutral-200">
+                {otherMembers.map((member) => {
+                  const selected = selectedMembers.includes(member.userId);
+                  return (
+                    <button
+                      key={member.userId}
+                      type="button"
+                      onClick={() => toggleMember(member.userId)}
+                      className={`flex w-full items-center gap-3 px-3 py-2.5 text-left transition-colors ${
+                        selected ? 'bg-primary-50' : 'hover:bg-neutral-50'
+                      } ${member.userId !== otherMembers[otherMembers.length - 1]?.userId ? 'border-b border-neutral-100' : ''}`}
+                    >
+                      <Avatar
+                        firstName={member.user?.firstName}
+                        lastName={member.user?.lastName}
+                        size="sm"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-neutral-900 truncate">
+                          {member.user?.firstName} {member.user?.lastName}
+                        </p>
+                        <p className="text-xs text-neutral-500 truncate">{member.user?.email}</p>
+                      </div>
+                      <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
+                        selected
+                          ? 'border-primary-500 bg-primary-500 text-white'
+                          : 'border-neutral-300'
+                      }`}>
+                        {selected && <IconCheck className="h-3 w-3" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </form>
     </Modal>
   );
