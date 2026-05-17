@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/store/auth.store';
 import { useAcceptInvite } from '@/features/organizations/hooks/useOrganizations';
 import { organizationsApi } from '@/lib/api/organizations.api';
+import { authApi } from '@/lib/api/auth.api';
 import { ApiError } from '@/types';
 
 function getInviteErrorMessage(error: Error): string {
@@ -40,7 +41,7 @@ export default function AcceptInvitePage({
   const acceptInvite = useAcceptInvite();
 
   const [hydrated, setHydrated] = useState(false);
-  const accessToken = useAuthStore((s) => s.accessToken);
+  const { accessToken, refreshToken, setAuth } = useAuthStore();
 
   const [inviteInfo, setInviteInfo] = useState<InviteInfo | null>(null);
   const [validateError, setValidateError] = useState<string | null>(null);
@@ -74,7 +75,15 @@ export default function AcceptInvitePage({
   async function handleAccept() {
     try {
       await acceptInvite.mutateAsync(token);
-      router.push('/organizations');
+
+      // Refresh user so currentOrganizationId is up-to-date in the store
+      if (accessToken && refreshToken) {
+        const { data } = await authApi.me();
+        const user = data.data!.user;
+        setAuth(user, accessToken, refreshToken);
+      }
+
+      router.push('/');
     } catch {
       // Error shown via mutation state
     }
@@ -178,10 +187,10 @@ export default function AcceptInvitePage({
             <div>
               <p className="mb-4 text-sm text-green-700">Invitation accepted successfully!</p>
               <Link
-                href="/organizations"
+                href="/"
                 className="text-sm font-medium text-primary-600 hover:underline"
               >
-                Go to organizations
+                Go to dashboard
               </Link>
             </div>
           ) : (
