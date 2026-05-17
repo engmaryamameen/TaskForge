@@ -1,4 +1,1 @@
-export enum Role {
-  ADMIN = 'admin',
-  MEMBER = 'member',
-}
+export { Role } from '../rbac/permissions';

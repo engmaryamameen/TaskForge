@@ -56,7 +56,7 @@ export function Sidebar() {
   const closeProfile = useCallback(() => setProfileOpen(false), []);
   useClickOutside(profileRef, closeProfile);
 
-  const isAdmin = role === 'admin';
+  const isAdmin = role === 'admin' || role === 'owner';
 
   function closeMobile() {
     setSidebarOpen(false);

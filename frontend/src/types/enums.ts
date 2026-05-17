@@ -12,8 +12,11 @@ export enum TaskPriority {
 }
 
 export enum Role {
+  OWNER = 'owner',
   ADMIN = 'admin',
+  MANAGER = 'manager',
   MEMBER = 'member',
+  VIEWER = 'viewer',
 }
 
 export enum EventType {
