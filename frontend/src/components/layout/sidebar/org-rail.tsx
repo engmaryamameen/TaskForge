@@ -58,7 +58,7 @@ export function OrgRail() {
     <>
       <CreateOrgModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
 
-      <aside className="hidden md:flex w-[68px] shrink-0 flex-col items-center bg-[#1e2330] py-4">
+      <aside className="hidden md:flex w-[68px] shrink-0 flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
         {/* ── Top: TaskForge brand icon ── */}
         <Tooltip label="TaskForge" side="right">
           <Link href="/" className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl overflow-hidden">
@@ -70,7 +70,7 @@ export function OrgRail() {
           </Link>
         </Tooltip>
 
-        <div className="mx-auto mb-3 h-px w-8 bg-white/8" />
+        <div className="mx-auto mb-3 h-px w-8 bg-neutral-200" />
 
         {/* ── Middle: Organization icons ── */}
         <nav className="flex flex-1 flex-col items-center gap-2.5 overflow-y-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -81,7 +81,7 @@ export function OrgRail() {
                 <div className="relative flex items-center">
                   {/* Left pill indicator for active org */}
                   <span
-                    className={`absolute -left-[13px] h-5 w-1 rounded-r-full bg-white transition-all duration-200 ${
+                    className={`absolute -left-[13px] h-5 w-1 rounded-r-full bg-primary-600 transition-all duration-200 ${
                       active ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'
                     }`}
                   />
@@ -90,7 +90,7 @@ export function OrgRail() {
                     className={`flex h-10 w-10 items-center justify-center text-[13px] font-bold transition-all duration-200 ${
                       active
                         ? `${orgColor(org.name)} rounded-xl text-white shadow-md`
-                        : 'rounded-2xl bg-[#2a3040] text-[#8b95a9] hover:rounded-xl hover:bg-[#353d50] hover:text-white'
+                        : 'rounded-2xl bg-neutral-200 text-neutral-500 hover:rounded-xl hover:bg-neutral-300 hover:text-neutral-700'
                     }`}
                   >
                     {orgInitials(org.name)}
@@ -104,7 +104,7 @@ export function OrgRail() {
           <Tooltip label="Create organization" side="right">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed border-[#3d4556] text-[#5c6677] transition-all duration-200 hover:rounded-xl hover:border-[#5c6677] hover:bg-[#2a3040] hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed border-neutral-300 text-neutral-400 transition-all duration-200 hover:rounded-xl hover:border-neutral-400 hover:bg-neutral-200 hover:text-neutral-600"
             >
               <IconPlus className="h-4.5 w-4.5" />
             </button>
@@ -113,12 +113,12 @@ export function OrgRail() {
 
         {/* ── Bottom: Sign out + User avatar ── */}
         <div className="mt-3 flex flex-col items-center gap-2.5">
-          <div className="mx-auto h-px w-8 bg-white/8" />
+          <div className="mx-auto h-px w-8 bg-neutral-200" />
 
           <Tooltip label="Sign out" side="right">
             <button
               onClick={() => logout.mutate()}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-[#5c6677] transition-colors hover:bg-[#2a3040] hover:text-white"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700"
             >
               <IconLogOut className="h-4 w-4" />
             </button>
@@ -131,7 +131,7 @@ export function OrgRail() {
                   firstName={user.firstName}
                   lastName={user.lastName}
                   size="sm"
-                  className="ring-2 ring-[#2a3040] cursor-default"
+                  className="ring-2 ring-neutral-200 cursor-default"
                 />
               </div>
             </Tooltip>

@@ -8,12 +8,12 @@ function AppShellSkeleton() {
   return (
     <div className="flex h-screen bg-white">
       {/* Org rail skeleton */}
-      <div className="hidden md:flex md:w-17 md:shrink-0 md:flex-col md:items-center md:bg-[#1e2330] md:py-4">
-        <div className="h-10 w-10 rounded-2xl bg-[#2a3040]" />
-        <div className="mx-auto my-3 h-px w-8 bg-white/8" />
+      <div className="hidden md:flex md:w-17 md:shrink-0 md:flex-col md:items-center md:border-r md:border-neutral-200 md:bg-neutral-50 md:py-4">
+        <div className="h-10 w-10 animate-shimmer rounded-2xl" />
+        <div className="mx-auto my-3 h-px w-8 bg-neutral-200" />
         <div className="space-y-2.5">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-10 w-10 rounded-2xl bg-[#2a3040]" />
+            <div key={i} className="h-10 w-10 animate-shimmer rounded-2xl" />
           ))}
         </div>
       </div>
