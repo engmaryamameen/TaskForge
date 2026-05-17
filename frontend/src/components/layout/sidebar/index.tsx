@@ -2,7 +2,9 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
+import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrganization, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { Avatar } from '@/components/ui/avatar';
 import { NavItem } from './nav-item';
 import {
   DashboardCardsIcon,
@@ -52,6 +54,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
+  const user = useAuthStore((s) => s.user);
   const { data: currentOrg } = useCurrentOrganization();
   const role = useCurrentOrgRole();
 
@@ -144,6 +147,21 @@ export function Sidebar() {
             </>
           )}
         </nav>
+
+        {/* ── User profile ── */}
+        {user && (
+          <div className="shrink-0 border-t border-neutral-100 px-4 py-3">
+            <div className="flex items-center gap-2.5">
+              <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" />
+              <div className="min-w-0">
+                <p className="text-[13px] font-semibold text-neutral-800 truncate leading-tight">
+                  {user.firstName} {user.lastName}
+                </p>
+                <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
+              </div>
+            </div>
+          </div>
+        )}
       </aside>
     </>
   );

@@ -10,7 +10,6 @@ import {
 import { useLogout } from '@/features/auth/hooks/useAuth';
 import { Tooltip } from '@/components/ui/tooltip';
 import { IconPlus, IconLogOut } from '@/components/icons';
-import { Avatar } from '@/components/ui/avatar';
 import { CreateOrgModal } from '@/features/organizations/components/create-org-modal';
 import type { OrganizationWithRole } from '@/types';
 
@@ -42,7 +41,6 @@ function orgInitials(name: string): string {
 /* ── Component ── */
 
 export function OrgRail() {
-  const user = useAuthStore((s) => s.user);
   const currentOrgId = useAuthStore((s) => s.currentOrganizationId);
   const { data: orgs } = useOrganizations();
   const switchOrg = useSwitchOrganization();
@@ -111,7 +109,7 @@ export function OrgRail() {
           </Tooltip>
         </nav>
 
-        {/* ── Bottom: Sign out + User avatar ── */}
+        {/* ── Bottom: Sign out ── */}
         <div className="mt-2 flex flex-col items-center gap-3">
           <div className="mx-auto h-px w-9 bg-neutral-200/80" />
 
@@ -123,19 +121,6 @@ export function OrgRail() {
               <IconLogOut className="h-4 w-4" />
             </button>
           </Tooltip>
-
-          {user && (
-            <Tooltip label={`${user.firstName} ${user.lastName}`} side="right">
-              <div>
-                <Avatar
-                  firstName={user.firstName}
-                  lastName={user.lastName}
-                  size="md"
-                  className="ring-2 ring-neutral-200 cursor-default"
-                />
-              </div>
-            </Tooltip>
-          )}
         </div>
       </aside>
     </>
