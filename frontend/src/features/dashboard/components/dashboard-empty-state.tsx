@@ -55,7 +55,7 @@ function SetupStep({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold ${done ? 'text-neutral-400 line-through' : 'text-neutral-800'}`}>
+        <p className={`text-sm font-semibold ${done ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
           {label}
         </p>
         <p className={`mt-0.5 text-xs ${done ? 'text-neutral-400' : 'text-neutral-500'}`}>{hint}</p>
@@ -77,26 +77,23 @@ function SetupStep({
 function PreviewKpiCard({
   label,
   icon,
-  accentColor,
   iconBg,
   iconColor,
 }: {
   label: string;
   icon: React.ReactNode;
-  accentColor: string;
   iconBg: string;
   iconColor: string;
 }) {
   return (
-    <div className="relative flex overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs">
-      <div className={`w-1 shrink-0 ${accentColor}`} />
-      <div className="flex flex-1 items-start justify-between gap-3 p-4 pl-4">
+    <div className="rounded-2xl border border-neutral-200 bg-white p-5 shadow-xs">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-medium text-neutral-400">{label}</p>
-          <p className="mt-1.5 text-2xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
-          <p className="mt-1 text-xs text-neutral-300">Awaiting data</p>
+          <p className="text-sm font-medium text-neutral-500">{label}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
+          <p className="mt-2 text-xs text-neutral-400">Awaiting data</p>
         </div>
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${iconBg} opacity-60`}>
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconBg} opacity-50`}>
           <span className={iconColor}>{icon}</span>
         </div>
       </div>
@@ -133,30 +130,26 @@ export function DashboardEmptyState({
         <PreviewKpiCard
           label="Projects"
           icon={<IconFolder className="h-5 w-5" />}
-          accentColor="bg-primary-500"
           iconBg="bg-primary-50"
           iconColor="text-primary-600"
         />
         <PreviewKpiCard
           label="Total tasks"
           icon={<IconCheckSquare className="h-5 w-5" />}
-          accentColor="bg-info-500"
           iconBg="bg-info-50"
           iconColor="text-info-600"
         />
         <PreviewKpiCard
           label="In progress"
           icon={<IconTrendingUp className="h-5 w-5" />}
-          accentColor="bg-warning-500"
-          iconBg="bg-amber-50"
-          iconColor="text-amber-700"
+          iconBg="bg-warning-50"
+          iconColor="text-warning-600"
         />
         <PreviewKpiCard
           label="Completion"
           icon={<IconTarget className="h-5 w-5" />}
-          accentColor="bg-success-500"
-          iconBg="bg-emerald-50"
-          iconColor="text-emerald-600"
+          iconBg="bg-success-50"
+          iconColor="text-success-600"
         />
       </section>
 
@@ -222,7 +215,7 @@ export function DashboardEmptyState({
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-400">
                 <IconActivity className="h-5 w-5" />
               </div>
-              <p className="mt-3 text-sm font-medium text-neutral-600">No activity yet</p>
+              <p className="mt-3 text-sm font-semibold text-neutral-900">No activity yet</p>
               <p className="mt-1 max-w-[220px] text-xs text-neutral-400">
                 Actions like creating projects, adding tasks, and inviting members will appear here.
               </p>
