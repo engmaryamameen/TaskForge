@@ -8,7 +8,7 @@ import { ErrorCodes } from '../../../shared/errors/error-codes';
 import { EventType } from '../../../shared/enums';
 import { DomainEvent } from '../../../shared/interfaces';
 import { ProjectAccessService } from './project-access.service';
-import { ProjectMemberRole } from '../../../shared/rbac';
+import { Role, ProjectMemberRole } from '../../../shared/rbac';
 
 @Injectable()
 export class ProjectsService {

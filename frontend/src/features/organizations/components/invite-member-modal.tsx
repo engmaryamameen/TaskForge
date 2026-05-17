@@ -6,6 +6,7 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { RoleSelect } from '@/components/ui/role-select';
+import { Permission } from '@/lib/rbac';
 import { Role, ApiError } from '@/types';
 
 interface InviteMemberModalProps {
@@ -34,7 +35,7 @@ function getInviteErrorMessage(error: Error): string {
 export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<string>(Role.MEMBER);
-  const [customPermissions, setCustomPermissions] = useState<string[]>([]);
+  const [customPermissions, setCustomPermissions] = useState<Permission[]>([]);
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState<boolean | null>(null);
   const createInvite = useCreateInvite();
@@ -107,8 +108,8 @@ export function InviteMemberModal({ isOpen, onClose }: InviteMemberModalProps) {
           <RoleSelect
             value={role}
             onChange={setRole}
-            customPermissions={customPermissions as any}
-            onCustomPermissionsChange={setCustomPermissions as any}
+            customPermissions={customPermissions}
+            onCustomPermissionsChange={setCustomPermissions}
             actorRole={currentRole ?? 'member'}
           />
 
