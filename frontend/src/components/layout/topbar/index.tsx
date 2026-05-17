@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
 import { useSocketStatus } from '@/hooks/useSocketStatus';
 import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
-import { SearchInput, MobileSearchButton } from './search-input';
 import { NotificationDropdown } from './notification-dropdown';
 import { IconMenu } from '@/components/icons';
+
 
 const PAGE_TITLES: Record<string, string> = {
   '/': 'Dashboard',
@@ -31,7 +31,7 @@ export function Topbar() {
   const pageTitle = getPageTitle(pathname);
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-neutral-200 bg-white px-4 md:px-5">
+    <header className="flex h-16 shrink-0 items-center gap-4 bg-white px-4 shadow-lg border-b border-gray-200 md:px-5">
       <div className="flex items-center gap-2 min-w-0 shrink-0">
         <button
           onClick={toggleSidebar}
@@ -44,7 +44,7 @@ export function Topbar() {
         <nav className="flex items-center gap-1.5 min-w-0 text-sm">
           {currentOrg && (
             <>
-              <span className="text-neutral-500 truncate max-w-32 hidden sm:inline">{currentOrg.name}</span>
+              <span className="text-neutral-500 truncate max-w-48 hidden sm:inline">{currentOrg.name}</span>
               <span className="text-neutral-300 hidden sm:inline">/</span>
             </>
           )}
@@ -58,12 +58,7 @@ export function Topbar() {
         )}
       </div>
 
-      <div className="hidden md:block flex-1 max-w-sm mx-auto">
-        <SearchInput />
-      </div>
-
       <div className="flex items-center gap-1 ml-auto shrink-0">
-        <MobileSearchButton />
         <NotificationDropdown />
       </div>
     </header>

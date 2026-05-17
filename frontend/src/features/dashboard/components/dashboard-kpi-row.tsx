@@ -3,6 +3,16 @@
 import { IconFolder, IconCheckSquare, IconTrendingUp, IconTarget } from '@/components/icons';
 import { DashboardKpiCard } from './dashboard-kpi-card';
 
+interface KpiConfig {
+  label: string;
+  value: string | number;
+  subtitle: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  trend?: { label: string; positive?: boolean };
+}
+
 interface DashboardKpiRowProps {
   totalProjects: number;
   totalTasks: number;
@@ -18,44 +28,59 @@ export function DashboardKpiRow({
   completionRate,
   doneCount,
 }: DashboardKpiRowProps) {
+  const hasData = totalTasks > 0;
+
+  const cards: KpiConfig[] = [
+    {
+      label: 'Projects',
+      value: totalProjects,
+      subtitle: hasData ? 'In organization' : 'Awaiting data',
+      icon: <IconFolder className="h-5 w-5" />,
+      iconBg: 'bg-primary-50',
+      iconColor: 'text-primary-600',
+      trend: totalProjects > 0 ? { label: `${totalProjects} active`, positive: true } : undefined,
+    },
+    {
+      label: 'Total tasks',
+      value: totalTasks,
+      subtitle: hasData ? `${inProgressCount} in progress` : 'Awaiting data',
+      icon: <IconCheckSquare className="h-5 w-5" />,
+      iconBg: 'bg-info-50',
+      iconColor: 'text-info-600',
+    },
+    {
+      label: 'In progress',
+      value: inProgressCount,
+      subtitle: hasData ? 'Active tasks' : 'Awaiting data',
+      icon: <IconTrendingUp className="h-5 w-5" />,
+      iconBg: 'bg-warning-50',
+      iconColor: 'text-warning-600',
+    },
+    {
+      label: 'Completion',
+      value: `${completionRate}%`,
+      subtitle: hasData ? `${doneCount} of ${totalTasks} done` : 'Awaiting data',
+      icon: <IconTarget className="h-5 w-5" />,
+      iconBg: 'bg-success-50',
+      iconColor: 'text-success-600',
+      trend: hasData ? { label: `${completionRate}%`, positive: completionRate > 0 } : undefined,
+    },
+  ];
+
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <DashboardKpiCard
-        label="Projects"
-        value={totalProjects}
-        hint="In organization"
-        icon={<IconFolder className="h-5 w-5" />}
-        accentColor="bg-primary-500"
-        iconBgClass="bg-primary-50"
-        iconColorClass="text-primary-600"
-      />
-      <DashboardKpiCard
-        label="Total tasks"
-        value={totalTasks}
-        hint={`${inProgressCount} in progress`}
-        icon={<IconCheckSquare className="h-5 w-5" />}
-        accentColor="bg-info-500"
-        iconBgClass="bg-info-50"
-        iconColorClass="text-info-600"
-      />
-      <DashboardKpiCard
-        label="In progress"
-        value={inProgressCount}
-        hint="Active tasks"
-        icon={<IconTrendingUp className="h-5 w-5" />}
-        accentColor="bg-warning-500"
-        iconBgClass="bg-amber-50"
-        iconColorClass="text-amber-700"
-      />
-      <DashboardKpiCard
-        label="Completion"
-        value={`${completionRate}%`}
-        hint={`${doneCount} of ${totalTasks} done`}
-        icon={<IconTarget className="h-5 w-5" />}
-        accentColor="bg-success-500"
-        iconBgClass="bg-emerald-50"
-        iconColorClass="text-emerald-600"
-      />
+      {cards.map((card) => (
+        <DashboardKpiCard
+          key={card.label}
+          label={card.label}
+          value={card.value}
+          subtitle={card.subtitle}
+          icon={card.icon}
+          iconBg={card.iconBg}
+          iconColor={card.iconColor}
+          trend={card.trend}
+        />
+      ))}
     </section>
   );
 }

@@ -191,6 +191,14 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  *,
+  *::before,
+  *::after {
+    transition-property: color, background-color, border-color, box-shadow;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+  }
+
   body {
     font-family: var(--font-sans);
     color: var(--color-neutral-800);
@@ -198,10 +206,6 @@
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  ::selection {
-    background-color: var(--color-primary-100);
-    color: var(--color-primary-900);
-  }
 
   button,
   [role="button"],
