@@ -45,7 +45,7 @@ const VARIANT_CONFIG = {
   },
   error: {
     Glyph: ToastGlyphErrorMini,
-    badgeBg: 'bg-[#fee2e2]',
+    badgeBg: 'bg-danger-100',
     progressFill: 'bg-red-500/55',
   },
   warning: {
@@ -112,7 +112,7 @@ function ToastCard({
       aria-live={toast.variant === 'error' || toast.variant === 'warning' ? 'assertive' : 'polite'}
       aria-labelledby={titleId}
       aria-describedby={describedBy}
-      className={`pointer-events-auto relative w-[calc(100vw-32px)] min-w-0 max-w-[420px] overflow-hidden rounded-2xl border border-[#e5e7eb] bg-[#ffffff] shadow-[0_10px_30px_rgba(15,23,42,0.10)] sm:w-full sm:min-w-[360px] sm:max-w-[420px] ${exiting ? 'animate-toast-exit' : 'animate-toast-enter'}`}
+      className={`pointer-events-auto relative w-[calc(100vw-32px)] min-w-0 max-w-[420px] overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-overlay sm:w-full sm:min-w-[360px] sm:max-w-[420px] ${exiting ? 'animate-toast-exit' : 'animate-toast-enter'}`}
       onAnimationEnd={handleShellAnimationEnd}
     >
       <div className="flex items-center gap-3 px-4 py-[14px]">
@@ -125,7 +125,7 @@ function ToastCard({
         <div className="min-w-0 flex-1 space-y-0.5">
           <p
             id={titleId}
-            className="text-[15px] font-semibold leading-[1.4] text-[#0f172a]"
+            className="text-[15px] font-semibold leading-[1.4] text-neutral-900"
           >
             {toast.title}
           </p>
