@@ -63,7 +63,7 @@ export function NavItem({
           <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-500'}`} />
           <span className="flex-1 text-left">{label}</span>
           <IconChevronRight
-            className={`h-3 w-3 shrink-0 text-neutral-300 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
+            className={`h-3 w-3 shrink-0 text-neutral-500 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
           />
         </button>
 
