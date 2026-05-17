@@ -36,12 +36,13 @@ interface FormErrors {
 function RegisterPageContent() {
   const searchParams = useSearchParams();
   const prefillEmail = searchParams.get('email') ?? '';
+  const postSignupRedirect = searchParams.get('redirect') ?? '';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
-  const register = useRegister();
+  const register = useRegister({ postVerifyRedirect: postSignupRedirect || undefined });
   const toast = useToast();
 
   const apiErr = register.error instanceof ApiError ? register.error : undefined;

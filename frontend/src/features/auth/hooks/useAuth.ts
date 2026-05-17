@@ -27,12 +27,32 @@ export function useLogin(redirectTo?: string) {
         socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
       }
 
-      router.push(redirectTo || '/');
+      const dest = redirectTo
+        || (user.currentOrganizationId ? '/' : '/onboarding/create-organization');
+      router.push(dest);
     },
   });
 }
 
-export function useRegister() {
+const POST_VERIFY_REDIRECT_KEY = 'tf_post_verify_redirect';
+
+export function savePostVerifyRedirect(url: string) {
+  if (typeof window !== 'undefined') sessionStorage.setItem(POST_VERIFY_REDIRECT_KEY, url);
+}
+
+export function consumePostVerifyRedirect(): string | null {
+  if (typeof window === 'undefined') return null;
+  const url = sessionStorage.getItem(POST_VERIFY_REDIRECT_KEY);
+  if (url) sessionStorage.removeItem(POST_VERIFY_REDIRECT_KEY);
+  return url;
+}
+
+type RegisterOptions = {
+  /** URL to redirect to after email verification (e.g. invite acceptance page). Saved to sessionStorage to survive the email verification flow. */
+  postVerifyRedirect?: string;
+};
+
+export function useRegister(options?: RegisterOptions) {
   const router = useRouter();
 
   return useMutation({
@@ -40,6 +60,9 @@ export function useRegister() {
     onSuccess: ({ data }) => {
       const inner = data.data;
       if (inner?.nextStep === 'VERIFY_EMAIL' && inner.email) {
+        if (options?.postVerifyRedirect) {
+          savePostVerifyRedirect(options.postVerifyRedirect);
+        }
         router.push(
           `/auth/check-email?email=${encodeURIComponent(inner.email)}`,
         );
