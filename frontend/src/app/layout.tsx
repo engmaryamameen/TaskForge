@@ -12,6 +12,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'TaskForge',
   description: 'Multi-tenant project management platform',
+  icons: {
+    icon: [
+      { url: '/brand/taskforge-icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/brand/taskforge-icon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/brand/taskforge-app-icon-transparent.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: '/brand/taskforge-icon-180.png',
+  },
 };
 
 export default function RootLayout({

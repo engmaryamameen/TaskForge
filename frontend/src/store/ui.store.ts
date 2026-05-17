@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 interface UIState {
+  /** Mobile: whether overlay sidebar is showing */
   sidebarOpen: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;

@@ -70,15 +70,15 @@ export function OrganizationOverviewCard({
             </p>
             {showStats && (
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200/80 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
+                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
                   <IconUsers className="h-3.5 w-3.5" />
                   {memberCount} {memberCount === 1 ? 'member' : 'members'}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200/80 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
+                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
                   <IconFolder className="h-3.5 w-3.5" />
                   {projectCount} {projectCount === 1 ? 'project' : 'projects'}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200/80 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
+                <span className="inline-flex items-center gap-1 rounded-lg border border-neutral-200 bg-white px-2.5 py-1 text-[12px] text-neutral-600">
                   <IconCheckSquare className="h-3.5 w-3.5" />
                   {taskCount} {taskCount === 1 ? 'task' : 'tasks'}
                 </span>

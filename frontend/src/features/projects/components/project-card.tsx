@@ -78,7 +78,7 @@ export function ProjectCard({ project, variant = 'default' }: ProjectCardProps) 
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-large"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-primary-200 hover:shadow-large"
     >
       <div
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-primary-400/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"

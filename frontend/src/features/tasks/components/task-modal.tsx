@@ -141,83 +141,97 @@ export function TaskModal({ isOpen, onClose, projectId, task, defaultStatus }: T
         </div>
       )}
 
-      <form id="task-form" onSubmit={handleSubmit} className="space-y-4">
-        {!isEdit && !projectId && (
-          <Select
-            id="task-project"
-            label="Project"
-            value={selectedProjectId}
-            onChange={handleProjectChange}
-            placeholder={projectSelectOptions.length === 0 ? 'No projects yet' : 'Select a project'}
-            options={projectSelectOptions}
+      <form id="task-form" onSubmit={handleSubmit} className="space-y-5">
+        {/* ── Details ── */}
+        <fieldset className="space-y-4">
+          <legend className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
+            Details
+          </legend>
+          {!isEdit && !projectId && (
+            <Select
+              id="task-project"
+              label="Project"
+              value={selectedProjectId}
+              onChange={handleProjectChange}
+              placeholder={projectSelectOptions.length === 0 ? 'No projects yet' : 'Select a project'}
+              options={projectSelectOptions}
+            />
+          )}
+          <Input
+            id="task-title"
+            label="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Task title"
+            autoFocus
           />
-        )}
-
-        <Input
-          id="task-title"
-          label="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Task title"
-          autoFocus
-        />
-
-        <Textarea
-          id="task-desc"
-          label="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-        />
-
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            id="task-status"
-            label="Status"
-            value={status}
-            onChange={(v) => setStatus(v as TaskStatus)}
-            options={Object.values(TaskStatus).map((s) => ({
-              value: s,
-              label: formatTaskStatus(s),
-            }))}
+          <Textarea
+            id="task-desc"
+            label="Description (optional)"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
           />
+        </fieldset>
 
-          <Select
-            id="task-priority"
-            label="Priority"
-            value={priority}
-            onChange={(v) => setPriority(v as TaskPriority)}
-            options={Object.values(TaskPriority).map((p) => ({
-              value: p,
-              label: formatTaskPriority(p),
-            }))}
-          />
-        </div>
+        {/* ── Workflow ── */}
+        <fieldset className="space-y-4 border-t border-neutral-100 pt-5">
+          <legend className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
+            Workflow
+          </legend>
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              id="task-status"
+              label="Status"
+              value={status}
+              onChange={(v) => setStatus(v as TaskStatus)}
+              options={Object.values(TaskStatus).map((s) => ({
+                value: s,
+                label: formatTaskStatus(s),
+              }))}
+            />
+            <Select
+              id="task-priority"
+              label="Priority"
+              value={priority}
+              onChange={(v) => setPriority(v as TaskPriority)}
+              options={Object.values(TaskPriority).map((p) => ({
+                value: p,
+                label: formatTaskPriority(p),
+              }))}
+            />
+          </div>
+        </fieldset>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Select
-            id="task-assignee"
-            label="Assignee"
-            value={assignedTo}
-            onChange={setAssignedTo}
-            placeholder="Unassigned"
-            options={[
-              { value: '', label: 'Unassigned' },
-              ...(members?.map((m) => ({
-                value: m.userId,
-                label: m.user ? `${m.user.firstName} ${m.user.lastName}` : m.userId,
-              })) ?? []),
-            ]}
-          />
-
-          <DatePicker
-            id="task-due"
-            label="Due Date"
-            value={dueDate}
-            onChange={setDueDate}
-            placeholder="mm/dd/yyyy"
-          />
-        </div>
+        {/* ── Assignment ── */}
+        <fieldset className="space-y-4 border-t border-neutral-100 pt-5">
+          <legend className="text-[11px] font-semibold uppercase tracking-widest text-neutral-400">
+            Assignment
+          </legend>
+          <div className="grid grid-cols-2 gap-4">
+            <Select
+              id="task-assignee"
+              label="Assignee"
+              value={assignedTo}
+              onChange={setAssignedTo}
+              placeholder="Unassigned"
+              options={[
+                { value: '', label: 'Unassigned' },
+                ...(members?.map((m) => ({
+                  value: m.userId,
+                  label: m.user ? `${m.user.firstName} ${m.user.lastName}` : m.userId,
+                })) ?? []),
+              ]}
+            />
+            <DatePicker
+              id="task-due"
+              label="Due Date"
+              value={dueDate}
+              onChange={setDueDate}
+              placeholder="mm/dd/yyyy"
+            />
+          </div>
+        </fieldset>
       </form>
     </Modal>
   );

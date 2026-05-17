@@ -18,7 +18,8 @@ import {
   IconUserCircle,
 } from '@/components/icons';
 
-const DRAWER_MS = 320;
+const DRAWER_MS = 300;
+const DRAWER_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
 
 interface TaskDetailsDrawerProps {
   task: Task | null;
@@ -144,13 +145,13 @@ export function TaskDetailsDrawer({
     <div className="fixed inset-0 z-60 flex justify-end">
       <button
         type="button"
-        className={`absolute inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ease-out ${backdropClass}`}
-        style={{ transitionDuration: `${DRAWER_MS}ms` }}
+        className={`absolute inset-0 bg-black/40 backdrop-blur-[2px] transition-opacity ${backdropClass}`}
+        style={{ transitionDuration: `${DRAWER_MS}ms`, transitionTimingFunction: DRAWER_EASING }}
         aria-label="Close panel"
         onClick={onClose}
       />
       <aside
-        className={`relative flex h-full w-full max-w-lg flex-col overflow-hidden border-l border-neutral-200/90 bg-white shadow-[-12px_0_48px_-8px_rgba(15,23,42,0.15)] transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] ${panelClass}`}
+        className={`relative flex h-full w-full max-w-lg flex-col overflow-hidden border-l border-neutral-200 bg-white shadow-[-12px_0_48px_-8px_rgba(15,23,42,0.15)] transition-transform ease-[cubic-bezier(0.16,1,0.3,1)] ${panelClass}`}
         style={{ transitionDuration: `${DRAWER_MS}ms` }}
         role="dialog"
         aria-modal="true"
@@ -276,7 +277,7 @@ export function TaskDetailsDrawer({
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-neutral-200/90 bg-linear-to-t from-neutral-50/95 to-white px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.08)]">
+        <footer className="border-t border-neutral-200 bg-linear-to-t from-neutral-50/95 to-white px-6 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.08)]">
           <Button
             className="w-full shadow-md shadow-primary-600/15"
             size="lg"

@@ -106,11 +106,14 @@ export function useSessionGuard(mode: 'protected' | 'guest'): AuthStatus {
     if (mode === 'protected' && status === 'unauthenticated') {
       router.push('/login');
     }
+    if (mode === 'protected' && status === 'authenticated' && !currentOrganizationId) {
+      router.push('/onboarding/create-organization');
+    }
     if (mode === 'guest' && status === 'authenticated') {
       if (pathname === '/auth/verify-email') return;
-      router.push('/');
+      router.push(currentOrganizationId ? '/' : '/onboarding/create-organization');
     }
-  }, [_hasHydrated, status, mode, router, pathname]);
+  }, [_hasHydrated, status, mode, router, pathname, currentOrganizationId]);
 
   // Connect socket when authenticated (skipped in frontend-only demo mode)
   useEffect(() => {

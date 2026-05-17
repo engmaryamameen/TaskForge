@@ -77,7 +77,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
     <>
       <div className="overflow-x-auto rounded-lg border border-neutral-200 bg-white shadow-soft">
         <table className="w-full text-sm">
-          <thead>
+          <thead className="sticky top-0 z-10">
             <tr className="border-b border-neutral-200 bg-neutral-50 text-left">
               <th className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-neutral-500">
                 Title
@@ -137,7 +137,7 @@ export function TaskList({ tasks, projectId }: TaskListProps) {
                     options={assigneeOptions}
                     size="sm"
                     placeholder="Unassigned"
-                    triggerClassName="cursor-pointer border-neutral-200/90 bg-white text-left text-[11px] font-semibold normal-case tracking-normal text-neutral-800 shadow-xs"
+                    triggerClassName="cursor-pointer border-neutral-200 bg-white text-left text-[11px] font-semibold normal-case tracking-normal text-neutral-800 shadow-xs"
                   />
                 </td>
                 <td className="px-4 py-2.5">

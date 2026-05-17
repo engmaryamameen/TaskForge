@@ -8,7 +8,7 @@ interface SettingsSectionProps {
 
 export function SettingsSection({ title, description, children }: SettingsSectionProps) {
   return (
-    <section className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-xs">
+    <section className="rounded-2xl border border-neutral-200 bg-white p-6 shadow-xs">
       <div className="mb-5">
         <h2 className="text-lg font-semibold text-neutral-900">{title}</h2>
         {description && (

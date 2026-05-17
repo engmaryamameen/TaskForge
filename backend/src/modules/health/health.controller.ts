@@ -6,6 +6,7 @@ import {
 } from '@nestjs/terminus';
 import { Public } from '../../common/decorators/public.decorator';
 import { RedisHealthIndicator } from './indicators/redis.health-indicator';
+import { QueueHealthIndicator } from './indicators/queue.health-indicator';
 
 @Controller('health')
 export class HealthController {
@@ -13,6 +14,7 @@ export class HealthController {
     private readonly health: HealthCheckService,
     private readonly db: TypeOrmHealthIndicator,
     private readonly redis: RedisHealthIndicator,
+    private readonly queues: QueueHealthIndicator,
   ) {}
 
   @Get()
@@ -22,6 +24,7 @@ export class HealthController {
     return this.health.check([
       () => this.db.pingCheck('database'),
       () => this.redis.isHealthy('redis'),
+      () => this.queues.isHealthy('queues'),
     ]);
   }
 }

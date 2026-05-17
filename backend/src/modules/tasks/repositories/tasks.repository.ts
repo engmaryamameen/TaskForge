@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
+import { TenantAwareRepository } from '../../../infrastructure/tenant';
 
 interface TaskFilterParams {
   search?: string;
@@ -13,11 +14,13 @@ interface TaskFilterParams {
 }
 
 @Injectable()
-export class TasksRepository {
+export class TasksRepository extends TenantAwareRepository<Task> {
   constructor(
     @InjectRepository(Task)
-    private readonly repo: Repository<Task>,
-  ) {}
+    defaultRepo: Repository<Task>,
+  ) {
+    super(defaultRepo, Task);
+  }
 
   async create(data: Partial<Task>): Promise<Task> {
     const task = this.repo.create(data);

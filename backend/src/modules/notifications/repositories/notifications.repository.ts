@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Notification } from '../entities/notification.entity';
+import { TenantAwareRepository } from '../../../infrastructure/tenant';
 
 @Injectable()
-export class NotificationsRepository {
+export class NotificationsRepository extends TenantAwareRepository<Notification> {
   constructor(
     @InjectRepository(Notification)
-    private readonly repo: Repository<Notification>,
-  ) {}
+    defaultRepo: Repository<Notification>,
+  ) {
+    super(defaultRepo, Notification);
+  }
 
   async create(data: Partial<Notification>): Promise<Notification> {
     const notification = this.repo.create(data);

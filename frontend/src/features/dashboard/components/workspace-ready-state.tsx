@@ -28,7 +28,7 @@ export function WorkspaceReadyState({
   onOpenTaskModal,
 }: WorkspaceReadyStateProps) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-white shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="border-b border-neutral-100 bg-gradient-to-r from-neutral-50/90 via-white to-primary-50/30 px-6 py-10 sm:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Your workspace</p>
@@ -83,8 +83,8 @@ export function WorkspaceReadyState({
             value: taskCount,
             hint: 'Tracked across the workspace',
             icon: IconCheckSquare,
-            bg: 'bg-[#EFF6FF]',
-            fg: 'text-[#2563EB]',
+            bg: 'bg-info-50',
+            fg: 'text-info-600',
           },
           {
             label: 'Team',

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { OrgRail } from './sidebar/org-rail';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { CommandPalette } from '@/features/command/command-palette';
@@ -13,7 +14,7 @@ import { DashboardModalsContext } from '@/components/layout/dashboard-modals-con
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { isOpen: paletteOpen, close: closePalette } = useCommandPalette();
+  const { isOpen: paletteOpen, initialQuery, close: closePalette } = useCommandPalette();
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -40,12 +41,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal, openInviteModal }}>
       <>
-        <div className="flex h-screen bg-surface">
+        <div className="flex h-screen bg-white">
+          <OrgRail />
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <Topbar />
-            <main className="flex-1 overflow-auto">
-              <div className="mx-auto px-4 py-6 md:px-6 lg:px-8">
+            <main className="flex-1 overflow-auto bg-white">
+              <div className="mx-auto px-4 py-5 md:px-5 lg:px-6">
                 {children}
               </div>
             </main>
@@ -54,6 +56,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
         <CommandPalette
           isOpen={paletteOpen}
+          initialQuery={initialQuery}
           onClose={closePalette}
           onOpenTaskModal={openTaskModal}
           onOpenProjectModal={openProjectModal}

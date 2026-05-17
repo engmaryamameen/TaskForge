@@ -71,8 +71,8 @@ jobs:
       JWT_SECRET: ci-test-secret-key-minimum-thirty-two-characters
       ACCESS_TOKEN_TTL: 15m
       REFRESH_TOKEN_TTL: 7d
-      STRIPE_SECRET_KEY: ""
-      STRIPE_WEBHOOK_SECRET: ""
+      STRIPE_SECRET_KEY: sk_test_fake_ci_key_000000000000000000000000000
+      STRIPE_WEBHOOK_SECRET: whsec_test_secret
 
     steps:
       - uses: actions/checkout@v4
@@ -85,7 +85,14 @@ jobs:
 
       - run: npm ci
 
-      - run: npm test
+      - name: Type-check (including tests)
+        run: npm run test:typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: E2E tests
+        run: npm run test:e2e
 
   build:
     name: Build

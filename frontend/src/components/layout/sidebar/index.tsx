@@ -1,177 +1,230 @@
 'use client';
 
+import { useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import blankProfilePic from '@/assets/images/blank-profile-pic.png';
+import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
-import { NavItem } from './nav-item';
-import { OrgSwitcher } from './org-switcher';
+import { useAuthStore } from '@/store/auth.store';
+import { useCurrentOrganization, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { useLogout } from '@/features/auth/hooks/useAuth';
+import { useClickOutside } from '@/hooks/useClickOutside';
+import { Avatar } from '@/components/ui/avatar';
+import { IconPalette } from '@/components/icons';
+import { NavItem, SidebarActionButton } from './nav-item';
+import { CreateMenu } from './create-menu';
 import {
-  IconHome,
-  IconFolder,
-  IconCheckSquare,
-  IconUsers,
-  IconActivity,
-  IconSettings,
-  IconBolt,
-  IconSearch,
-} from '@/components/icons';
-import { useCommandPalette } from '@/features/command/use-command-palette';
-import { matchTasksSubNav } from '@/features/tasks/lib/task-subnav-match';
+  DashboardCardsIcon,
+  ProjectsLayersIcon,
+  TasksCircleCheckIcon,
+  ActivityTimelineIcon,
+  SettingsSlidersIcon,
+  OrganizationsTeamIcon,
+} from '@/assets/svg';
 
-const navigation = [
-  {
-    section: 'Main',
-    items: [
-      { href: '/', label: 'Dashboard', icon: IconHome, exact: true },
-      {
-        href: '/projects',
-        label: 'Projects',
-        icon: IconFolder,
-        exact: false,
-        subLinks: [
-          { href: '/projects', label: 'All Projects' },
-        ],
-      },
-      {
-        href: '/tasks',
-        label: 'Tasks',
-        icon: IconCheckSquare,
-        exact: false,
-        subLinks: [
-          { href: '/tasks', label: 'Board view' },
-          { href: '/tasks?status=todo', label: 'To Do' },
-          { href: '/tasks?status=in-progress', label: 'In progress' },
-          { href: '/tasks?status=done', label: 'Done' },
-          { href: '/tasks?assignee=me', label: 'My tasks' },
-          { href: '/tasks?due=soon', label: 'Due soon' },
-        ],
-      },
-    ],
-  },
-  {
-    section: 'Workspace',
-    items: [
-      {
-        href: '/organizations',
-        label: 'Organizations',
-        icon: IconUsers,
-        exact: false,
-        subLinks: [
-          { href: '/organizations', label: 'My Organizations' },
-        ],
-      },
-      { href: '/activity', label: 'Activity', icon: IconActivity, exact: false },
-      {
-        href: '/settings',
-        label: 'Settings',
-        icon: IconSettings,
-        exact: false,
-        subLinks: [
-          { href: '/settings', label: 'General' },
-        ],
-      },
-    ],
-  },
+/* ── Navigation definitions ── */
+
+interface NavEntry {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  exact: boolean;
+}
+
+const mainNav: NavEntry[] = [
+  { href: '/', label: 'Dashboard', icon: DashboardCardsIcon, exact: true },
+  { href: '/projects', label: 'Projects', icon: ProjectsLayersIcon, exact: false },
+  { href: '/tasks', label: 'Tasks', icon: TasksCircleCheckIcon, exact: false },
+  { href: '/activity', label: 'Activity', icon: ActivityTimelineIcon, exact: false },
 ];
+
+const adminNav: NavEntry[] = [
+  { href: '/organizations', label: 'Org', icon: OrganizationsTeamIcon, exact: false },
+  { href: '/settings', label: 'Settings', icon: SettingsSlidersIcon, exact: false },
+];
+
+/* ── Component ── */
 
 export function Sidebar() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const { sidebarOpen, setSidebarOpen } = useUIStore();
-  const { open: openPalette } = useCommandPalette();
+  const user = useAuthStore((s) => s.user);
+  const { data: currentOrg } = useCurrentOrganization();
+  const role = useCurrentOrgRole();
+  const logout = useLogout();
 
-  function closeMobileSidebar() {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+  const closeProfile = useCallback(() => setProfileOpen(false), []);
+  useClickOutside(profileRef, closeProfile);
+
+  const isAdmin = role === 'admin';
+
+  function closeMobile() {
     setSidebarOpen(false);
+  }
+
+  function isActive(item: NavEntry) {
+    return item.exact ? pathname === item.href : pathname.startsWith(item.href);
   }
 
   return (
     <>
       {/* Mobile backdrop */}
       <div
-        className={`fixed inset-0 z-30 bg-neutral-900/50 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
+        className={`fixed inset-0 z-30 bg-black/30 backdrop-blur-sm transition-opacity duration-300 md:hidden ${
           sidebarOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
-        onClick={closeMobileSidebar}
+        onClick={closeMobile}
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[264px] flex-col bg-white border-r border-neutral-200/80 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-21 flex-col items-center border-r border-neutral-200 bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        {/* Logo */}
-        <div className="flex h-16 shrink-0 items-center gap-2.5 px-5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 shadow-soft">
-            <IconBolt className="h-5 w-5 text-white" />
-          </div>
-          <Link href="/" className="text-[17px] font-bold tracking-tight text-neutral-900">
-            TaskForge
-          </Link>
-        </div>
-
-        {/* Search */}
-        <div className="px-4 pb-3">
-          <button
-            onClick={() => { openPalette(); closeMobileSidebar(); }}
-            className="flex w-full items-center gap-2.5 rounded-lg border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-[13px] text-neutral-400 transition-all hover:border-neutral-300 hover:bg-white hover:shadow-xs cursor-pointer"
-          >
-            <IconSearch className="h-4 w-4" />
-            <span className="flex-1 text-left">Search...</span>
-            <kbd className="hidden rounded border border-neutral-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-neutral-400 sm:inline-block">
-              &#8984;K
-            </kbd>
-          </button>
-        </div>
-
-        {/* Org switcher */}
-        <div className="px-4 pb-2">
-          <OrgSwitcher />
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-3 pt-1">
-          {navigation.map((group) => (
-            <div key={group.section} className="mb-2">
-              <p className="px-3 pb-1.5 pt-3 text-[10px] font-semibold uppercase tracking-widest text-neutral-400">
-                {group.section}
-              </p>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const isActive = item.exact
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href);
-                  return (
-                    <NavItem
-                      key={item.href}
-                      href={item.href}
-                      label={item.label}
-                      icon={item.icon}
-                      isActive={isActive}
-                      onClick={closeMobileSidebar}
-                      subLinks={item.subLinks}
-                      subLinkIsActive={
-                        item.href === '/tasks'
-                          ? (subHref) => matchTasksSubNav(pathname, searchParams, subHref)
-                          : undefined
-                      }
-                    />
-                  );
-                })}
+        {/* ── Org header ── */}
+        <div className="shrink-0 w-full px-3 pt-4 pb-3">
+          {currentOrg ? (
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-sm font-bold text-white shadow-sm">
+                {currentOrg.name.charAt(0).toUpperCase()}
               </div>
+              <p className="text-[9px] font-semibold uppercase tracking-wider text-neutral-400">
+                {role ?? 'Member'}
+              </p>
             </div>
-          ))}
+          ) : (
+            <div className="flex flex-col items-center gap-1.5">
+              <div className="h-10 w-10 animate-shimmer rounded-xl" />
+              <div className="h-2.5 w-10 animate-shimmer rounded" />
+            </div>
+          )}
+        </div>
+
+        <div className="h-px w-10 bg-neutral-100" />
+
+        {/* ── Main navigation ── */}
+        <nav className="flex-1 overflow-y-auto w-full px-2.5 py-3">
+          <div className="flex flex-col gap-0.5">
+            {mainNav.map((item) => (
+              <NavItem
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                isActive={isActive(item)}
+                onClick={closeMobile}
+              />
+            ))}
+          </div>
+
+          {/* Admin section */}
+          {isAdmin && (
+            <>
+              <div className="mx-1.5 my-2.5 h-px bg-neutral-100" />
+              <p className="mb-1 text-center text-[9px] font-semibold uppercase tracking-widest text-neutral-400">
+                Admin
+              </p>
+              <div className="flex flex-col gap-0.5">
+                {adminNav.map((item) => (
+                  <NavItem
+                    key={item.href}
+                    href={item.href}
+                    label={item.label}
+                    icon={item.icon}
+                    isActive={isActive(item)}
+                    onClick={closeMobile}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </nav>
 
-        {/* Footer */}
-        <div className="shrink-0 border-t border-neutral-100 p-4">
-          <div className="rounded-xl bg-gradient-to-br from-primary-50 to-primary-100/50 p-3.5 border border-primary-200/50">
-            <p className="text-xs font-semibold text-primary-800">TaskForge Pro</p>
-            <p className="mt-0.5 text-[11px] leading-relaxed text-primary-600/80">
-              Unlock advanced analytics, automations, and more.
-            </p>
-            <button className="mt-2.5 w-full rounded-lg bg-primary-600 px-3 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-primary-700 cursor-pointer">
-              Upgrade Now
-            </button>
+        {/* ── Bottom actions ── */}
+        <div className="shrink-0 w-full px-3 pb-4">
+          <div className="h-px w-full bg-neutral-100 mb-3" />
+
+          <div className="flex flex-col items-center gap-2">
+            <CreateMenu />
+            <SidebarActionButton
+              icon={IconPalette}
+              className="text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
+            />
+
+            {/* User profile */}
+            {user && (
+              <div ref={profileRef} className="relative mt-1">
+                <button
+                  onClick={() => setProfileOpen((p) => !p)}
+                  className="relative rounded-full transition-shadow hover:shadow-md"
+                >
+                  <Image
+                    src={blankProfilePic}
+                    alt={user.firstName}
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 rounded-full object-cover"
+                  />
+                  <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-success-500" />
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute bottom-0 left-full z-9999 ml-3 w-64 rounded-xl border border-neutral-200 bg-white shadow-overlay animate-dropdown-in">
+                    {/* User header */}
+                    <div className="px-4 py-3.5">
+                      <div className="flex items-center gap-3">
+                        <Avatar firstName={user.firstName} lastName={user.lastName} size="xl" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-neutral-900 truncate">
+                            {user.firstName} {user.lastName}
+                          </p>
+                          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success-600">
+                            <span className="h-2 w-2 rounded-full bg-success-500" />
+                            Active
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-neutral-100" />
+
+                    <div className="py-1.5">
+                      <button onClick={closeProfile} className="flex w-full items-center px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        Set yourself as <span className="ml-1 font-semibold">away</span>
+                      </button>
+                      <Link href="/settings" onClick={closeProfile} className="flex w-full items-center px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        Notifications
+                      </Link>
+                    </div>
+
+                    <div className="h-px bg-neutral-100" />
+
+                    <div className="py-1.5">
+                      <Link href="/settings" onClick={closeProfile} className="flex w-full items-center px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        Profile
+                      </Link>
+                      <Link href="/settings" onClick={closeProfile} className="flex w-full items-center px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors">
+                        Preferences
+                      </Link>
+                    </div>
+
+                    <div className="h-px bg-neutral-100" />
+
+                    <div className="py-1.5">
+                      <button
+                        onClick={() => { logout.mutate(); closeProfile(); }}
+                        className="flex w-full items-center px-4 py-2 text-[13px] text-neutral-700 hover:bg-neutral-50 transition-colors"
+                      >
+                        Sign out of {currentOrg?.name ?? 'TaskForge'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </aside>

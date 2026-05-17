@@ -1,3 +1,4 @@
+import './telemetry';
 import { NestFactory } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
 import { WorkerModule } from './worker.module';

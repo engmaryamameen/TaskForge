@@ -83,7 +83,7 @@ export default function TasksPage() {
         </div>
       )}
 
-      {isLoading && <PageSkeleton variant="cards" />}
+      {isLoading && <PageSkeleton variant="kanban" />}
 
       {!isLoading && isError && <ErrorState onRetry={refetch} />}
 

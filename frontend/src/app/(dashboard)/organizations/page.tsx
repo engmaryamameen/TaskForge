@@ -61,14 +61,14 @@ export default function OrganizationsPage() {
     pendingCount === 0;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
             Organizations
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Switch workspaces, invite teammates, and keep delivery organized.
+            Manage organizations, invite teammates, and keep your work organized.
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} leftIcon={<IconPlus className="h-4 w-4" />}>
@@ -76,7 +76,7 @@ export default function OrganizationsPage() {
         </Button>
       </div>
 
-      {isLoading && <PageSkeleton variant="cards" />}
+      {isLoading && <PageSkeleton variant="org" />}
 
       {!isLoading && isError && <ErrorState onRetry={refetch} />}
 
@@ -161,7 +161,7 @@ export default function OrganizationsPage() {
           {memberCount === 0 && pendingCount === 0 ? (
             <p className="text-sm text-neutral-500">No members or pending invites yet.</p>
           ) : (
-            <Card padding="none" className="overflow-hidden rounded-2xl border-neutral-200/80 shadow-xs">
+            <Card padding="none" className="overflow-hidden rounded-2xl border-neutral-200 shadow-xs">
               {pendingCount > 0 && (
                 <div className="border-b border-neutral-100 bg-neutral-50/50 px-5 py-3">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-neutral-400">

@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useResendVerification } from '@/features/auth/hooks/useAuth';
 import { AuthShell, FormErrorAlert } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
@@ -105,11 +106,7 @@ function CheckEmailContent() {
 export default function CheckEmailPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <CheckEmailContent />
     </Suspense>

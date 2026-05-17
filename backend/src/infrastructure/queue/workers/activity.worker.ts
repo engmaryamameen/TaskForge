@@ -6,8 +6,10 @@ import {
   OnModuleDestroy,
 } from '@nestjs/common';
 import { Worker, Job } from 'bullmq';
+import { DataSource } from 'typeorm';
 import Redis from 'ioredis';
 import { REDIS_CLIENT } from '../../redis';
+import { withTenantContext } from '../../tenant';
 import { ActivityService } from '../../../modules/activity/services/activity.service';
 import { DomainEvent } from '../../../shared/interfaces';
 
@@ -19,6 +21,7 @@ export class ActivityWorker implements OnModuleInit, OnModuleDestroy {
   constructor(
     @Inject(REDIS_CLIENT) private readonly redis: Redis,
     private readonly activityService: ActivityService,
+    private readonly dataSource: DataSource,
   ) {}
 
   onModuleInit() {
@@ -26,7 +29,12 @@ export class ActivityWorker implements OnModuleInit, OnModuleDestroy {
       'activity',
       async (job: Job<DomainEvent>) => {
         const start = Date.now();
-        await this.activityService.log(job.data);
+        // Execute within tenant context so RLS policies are satisfied
+        await withTenantContext(
+          this.dataSource,
+          job.data.organizationId,
+          () => this.activityService.log(job.data),
+        );
         const duration = Date.now() - start;
         this.logger.debug(
           `Job ${job.id} processed: ${job.data.type} (${duration}ms)`,
@@ -39,9 +47,17 @@ export class ActivityWorker implements OnModuleInit, OnModuleDestroy {
     );
 
     this.worker.on('failed', (job, error) => {
-      this.logger.error(
-        `Job ${job?.id} failed (attempt ${job?.attemptsMade}): ${error.message}`,
-      );
+      const isFinal = job && job.attemptsMade >= (job.opts?.attempts ?? 3);
+      if (isFinal) {
+        this.logger.error(
+          `Job ${job?.id} permanently failed after ${job?.attemptsMade} attempts: ${error.message}. ` +
+          `Event: ${job?.data?.type}, org: ${job?.data?.organizationId}. Moved to DLQ.`,
+        );
+      } else {
+        this.logger.warn(
+          `Job ${job?.id} failed (attempt ${job?.attemptsMade}): ${error.message}`,
+        );
+      }
     });
 
     this.logger.log('Activity worker started (concurrency: 5)');

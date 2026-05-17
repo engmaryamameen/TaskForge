@@ -41,7 +41,7 @@ export function NoOrganizationState() {
     <>
       <CreateOrgModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
 
-      <div className="overflow-hidden rounded-2xl border border-neutral-200/90 bg-gradient-to-br from-white via-primary-50/[0.35] to-neutral-50/80 shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-gradient-to-br from-white via-primary-50/[0.35] to-neutral-50/80 shadow-sm">
         <div className="relative px-6 py-10 sm:px-10 sm:py-12">
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.07]"
@@ -83,7 +83,7 @@ export function NoOrganizationState() {
           </div>
         </div>
 
-        <div className="grid gap-4 border-t border-neutral-200/80 bg-white/60 px-6 py-8 backdrop-blur-sm sm:grid-cols-3 sm:px-8">
+        <div className="grid gap-4 border-t border-neutral-200 bg-white/60 px-6 py-8 backdrop-blur-sm sm:grid-cols-3 sm:px-8">
           {steps.map((item) => {
             const Icon = item.icon;
             return (

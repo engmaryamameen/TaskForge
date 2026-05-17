@@ -46,9 +46,9 @@ export default function ProjectsPage() {
   const singleProject = projectCount === 1;
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto">
       {/* Page header */}
-      <header className="relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
+      <header className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
         <div
           className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary-100/40 blur-3xl"
           aria-hidden
@@ -122,7 +122,7 @@ export default function ProjectsPage() {
 
           {totalPages > 1 && (
             <nav
-              className="mt-12 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-3 shadow-xs backdrop-blur-sm"
+              className="mt-12 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white/80 px-3 py-3 shadow-xs backdrop-blur-sm"
               aria-label="Pagination"
             >
               <Button
