@@ -7,17 +7,24 @@ import { DashboardShell } from '@/components/layout/dashboard-shell';
 function AppShellSkeleton() {
   return (
     <div className="flex h-screen bg-white">
-      {/* Sidebar skeleton */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:border-r md:border-neutral-200">
-        <div className="flex h-16 items-center gap-2.5 px-5">
-          <div className="h-9 w-9 animate-shimmer rounded-xl" />
-          <div className="h-5 w-24 animate-shimmer rounded-md" />
+      {/* Org rail skeleton */}
+      <div className="hidden md:flex md:w-17 md:shrink-0 md:flex-col md:items-center md:bg-neutral-900 md:py-4">
+        <div className="h-10 w-10 animate-shimmer rounded-2xl bg-neutral-700!" />
+        <div className="mx-auto my-3 h-px w-8 bg-white/10" />
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-10 w-10 animate-shimmer rounded-2xl bg-neutral-700!" />
+          ))}
         </div>
-        <div className="px-4 pb-3">
-          <div className="h-9 w-full animate-shimmer rounded-lg" />
+      </div>
+      {/* Nav sidebar skeleton */}
+      <div className="hidden md:flex md:w-60 md:flex-col md:border-r md:border-neutral-200">
+        <div className="px-5 py-4">
+          <div className="h-5 w-28 animate-shimmer rounded-md" />
+          <div className="mt-2 h-3 w-16 animate-shimmer rounded-md" />
         </div>
-        <div className="flex-1 space-y-1 px-3 pt-4">
-          {Array.from({ length: 6 }).map((_, i) => (
+        <div className="flex-1 space-y-1 px-3 pt-2">
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3 px-3 py-2">
               <div className="h-5 w-5 animate-shimmer rounded" />
               <div className="h-4 animate-shimmer rounded-md" style={{ width: `${60 + (i % 3) * 20}px` }} />

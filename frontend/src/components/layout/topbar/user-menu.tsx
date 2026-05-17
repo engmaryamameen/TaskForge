@@ -6,7 +6,7 @@ import { useAuthStore } from '@/store/auth.store';
 import { useLogout } from '@/features/auth/hooks/useAuth';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { Avatar } from '@/components/ui/avatar';
-import { IconSettings, IconLogOut, IconUsers } from '@/components/icons';
+import { IconSettings, IconLogOut } from '@/components/icons';
 
 export function UserMenu() {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,14 +44,6 @@ export function UserMenu() {
           </div>
 
           <div className="py-1.5">
-            <Link
-              href="/organizations"
-              onClick={close}
-              className="flex items-center gap-3 px-4 py-2.5 text-sm text-neutral-700 hover:bg-neutral-50 transition-colors"
-            >
-              <IconUsers className="h-4 w-4 text-neutral-400" />
-              Organizations
-            </Link>
             <Link
               href="/settings"
               onClick={close}

@@ -1,24 +1,31 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
-import { useAuthStore } from '@/store/auth.store';
-import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
+import { useCurrentOrganization, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { NavItem } from './nav-item';
-import { OrgSwitcher } from './org-switcher';
-import { Avatar } from '@/components/ui/avatar';
 import {
   DashboardCardsIcon,
   ProjectsLayersIcon,
   TasksCircleCheckIcon,
-  OrganizationsTeamIcon,
   ActivityTimelineIcon,
   SettingsSlidersIcon,
+  OrganizationsTeamIcon,
 } from '@/assets/svg';
 import { matchTasksSubNav } from '@/features/tasks/lib/task-subnav-match';
 
-const navigation = [
+/* ── Navigation definitions ── */
+
+interface NavEntry {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  exact: boolean;
+  adminOnly?: boolean;
+  subLinks?: { href: string; label: string }[];
+}
+
+const navigation: NavEntry[] = [
   { href: '/', label: 'Dashboard', icon: DashboardCardsIcon, exact: true },
   { href: '/projects', label: 'Projects', icon: ProjectsLayersIcon, exact: false },
   {
@@ -31,18 +38,23 @@ const navigation = [
       { href: '/tasks?assignee=me', label: 'My tasks' },
     ],
   },
-  { href: '/organizations', label: 'Organizations', icon: OrganizationsTeamIcon, exact: false },
   { href: '/activity', label: 'Activity', icon: ActivityTimelineIcon, exact: false },
-  { href: '/settings', label: 'Settings', icon: SettingsSlidersIcon, exact: false },
+  { href: '/organizations', label: 'Members', icon: OrganizationsTeamIcon, exact: false, adminOnly: true },
+  { href: '/settings', label: 'Settings', icon: SettingsSlidersIcon, exact: false, adminOnly: true },
 ];
+
+/* ── Component ── */
 
 export function Sidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { sidebarOpen, setSidebarOpen, sidebarCollapsed } = useUIStore();
-  const user = useAuthStore((s) => s.user);
+  const { sidebarOpen, setSidebarOpen } = useUIStore();
+  const { data: currentOrg } = useCurrentOrganization();
   const role = useCurrentOrgRole();
-  const collapsed = sidebarCollapsed;
+
+  const isAdmin = role === 'admin';
+
+  const visibleNav = navigation.filter((item) => !item.adminOnly || isAdmin);
 
   function closeMobileSidebar() {
     setSidebarOpen(false);
@@ -59,45 +71,28 @@ export function Sidebar() {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex flex-col bg-white border-r border-neutral-200 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-neutral-200 bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] md:relative md:z-auto md:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } ${collapsed ? 'md:w-16' : 'md:w-60'} w-60`}
+        }`}
       >
-        {/* Logo */}
-        <div className={`shrink-0 border-b border-neutral-100 ${collapsed ? 'flex justify-center px-2 py-5' : 'px-5 py-5'}`}>
-          <Link href="/">
-            {collapsed ? (
-              <img src="/brand/taskforge-app-icon-transparent.png" alt="TaskForge" className="h-8 w-auto" />
-            ) : (
-              <img src="/brand/taskforge-primary-horizontal-transparent.png" alt="TaskForge" className="h-8 w-auto" />
-            )}
-          </Link>
+        {/* ── Org header ── */}
+        <div className="shrink-0 border-b border-neutral-100 px-5 py-4">
+          {currentOrg ? (
+            <div>
+              <p className="text-sm font-bold text-neutral-900 truncate">{currentOrg.name}</p>
+              <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-neutral-400">
+                {role ?? 'Member'}
+              </p>
+            </div>
+          ) : (
+            <div className="h-9 animate-shimmer rounded-lg" />
+          )}
         </div>
 
-        {/* User profile section */}
-        {!collapsed && user && (
-          <div className="flex items-center gap-3 border-b border-neutral-100 px-5 py-3.5">
-            <Avatar firstName={user.firstName} lastName={user.lastName} size="md" className="bg-primary-600!" />
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-neutral-900 truncate">
-                {user.firstName} {user.lastName}
-              </p>
-              <p className="text-xs text-neutral-400 capitalize">{role ?? 'Member'}</p>
-            </div>
-          </div>
-        )}
-
-        {/* Org switcher */}
-        {!collapsed && (
-          <div className="px-4 py-3 border-b border-neutral-100">
-            <OrgSwitcher />
-          </div>
-        )}
-
-        {/* Navigation */}
-        <nav className={`flex-1 overflow-y-auto py-3 ${collapsed ? 'px-2' : 'px-3'}`}>
+        {/* ── Navigation ── */}
+        <nav className="flex-1 overflow-y-auto px-3 py-3">
           <div className="space-y-1">
-            {navigation.map((item) => {
+            {visibleNav.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
@@ -108,7 +103,6 @@ export function Sidebar() {
                   label={item.label}
                   icon={item.icon}
                   isActive={isActive}
-                  collapsed={collapsed}
                   onClick={closeMobileSidebar}
                   subLinks={item.subLinks}
                   subLinkIsActive={

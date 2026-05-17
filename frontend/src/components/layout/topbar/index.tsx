@@ -7,7 +7,7 @@ import { useSocketStatus } from '@/hooks/useSocketStatus';
 import { useCommandPalette } from '@/features/command/use-command-palette';
 import { UserMenu } from './user-menu';
 import { NotificationDropdown } from './notification-dropdown';
-import { IconMenu, IconChevronLeft } from '@/components/icons';
+import { IconMenu } from '@/components/icons';
 import { SearchIcon } from '@/assets/svg';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -27,8 +27,6 @@ function getPageTitle(pathname: string): string {
 
 export function Topbar() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);
-  const sidebarCollapsed = useUIStore((s) => s.sidebarCollapsed);
-  const toggleSidebarCollapsed = useUIStore((s) => s.toggleSidebarCollapsed);
   const { connected } = useSocketStatus();
   const { open: openPalette } = useCommandPalette();
   const pathname = usePathname();
@@ -74,14 +72,6 @@ export function Topbar() {
           aria-label="Toggle sidebar"
         >
           <IconMenu className="h-5 w-5" />
-        </button>
-        {/* Desktop collapse toggle */}
-        <button
-          onClick={toggleSidebarCollapsed}
-          className="hidden md:flex items-center justify-center rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors cursor-pointer"
-          aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <IconChevronLeft className={`h-4 w-4 transition-transform duration-200 ${sidebarCollapsed ? 'rotate-180' : ''}`} />
         </button>
         <h1 className="text-sm font-semibold text-neutral-800">{title}</h1>
 

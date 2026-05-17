@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
+import { OrgRail } from './sidebar/org-rail';
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
 import { CommandPalette } from '@/features/command/command-palette';
@@ -41,6 +42,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal, openInviteModal }}>
       <>
         <div className="flex h-screen bg-white">
+          <OrgRail />
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <Topbar />

@@ -15,7 +15,6 @@ interface NavItemProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   isActive: boolean;
-  collapsed?: boolean;
   onClick?: () => void;
   badge?: number;
   subLinks?: SubLink[];
@@ -27,7 +26,6 @@ export function NavItem({
   label,
   icon: Icon,
   isActive,
-  collapsed,
   onClick,
   badge,
   subLinks,
@@ -47,24 +45,6 @@ export function NavItem({
   }, [expanded, subLinks]);
 
   const hasSubLinks = subLinks && subLinks.length > 0;
-
-  /* ── Collapsed: icon-only ── */
-  if (collapsed) {
-    return (
-      <Link
-        href={href}
-        onClick={onClick}
-        title={label}
-        className={`flex h-9 w-full items-center justify-center rounded-lg transition-colors duration-150 ${
-          isActive
-            ? 'bg-primary-50 text-primary-600'
-            : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-700'
-        }`}
-      >
-        <Icon className="h-5 w-5 shrink-0" />
-      </Link>
-    );
-  }
 
   /* ── With sub-links ── */
   if (hasSubLinks) {
