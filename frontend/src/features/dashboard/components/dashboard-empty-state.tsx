@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   IconFolder,
@@ -33,6 +34,7 @@ interface DashboardEmptyStateProps {
   totalProjects: number;
   totalTasks: number;
   totalMembers: number;
+  role?: string | null;
   onCreateProject: () => void;
   onCreateTask: () => void;
   onInvite: () => void;
@@ -137,22 +139,26 @@ export function DashboardEmptyState({
   totalProjects,
   totalTasks,
   totalMembers,
+  role,
   onCreateProject,
   onCreateTask,
   onInvite,
 }: DashboardEmptyStateProps) {
-  const steps: OnboardingStep[] = [
+  const router = useRouter();
+  const isAdmin = role === 'admin';
+
+  const allSteps: (OnboardingStep & { adminOnly?: boolean })[] = [
     {
       id: 'project',
-      title: 'Create your first project',
-      description: 'Group related tasks and organize your work.',
+      title: isAdmin ? 'Create your first project' : 'Explore projects',
+      description: isAdmin ? 'Group related tasks and organize your work.' : 'Check if your team has created any projects yet.',
       icon: <IconFolder className="h-4 w-4" />,
       iconBg: 'bg-primary-100',
       iconColor: 'text-primary-500',
       completed: totalProjects > 0,
-      actionLabel: 'Create project',
-      actionIcon: <IconPlus className="h-3.5 w-3.5" />,
-      onAction: onCreateProject,
+      actionLabel: isAdmin ? 'Create project' : 'View projects',
+      actionIcon: isAdmin ? <IconPlus className="h-3.5 w-3.5" /> : undefined,
+      onAction: isAdmin ? onCreateProject : () => router.push('/projects'),
     },
     {
       id: 'task',
@@ -171,6 +177,7 @@ export function DashboardEmptyState({
       title: 'Invite a teammate',
       description: 'Collaborate with your team in this organization.',
       icon: <IconUsers className="h-4 w-4" />,
+      adminOnly: true,
       iconBg: 'bg-info-100',
       iconColor: 'text-info-500',
       completed: totalMembers > 1,
@@ -180,8 +187,13 @@ export function DashboardEmptyState({
     },
   ];
 
+  const steps = allSteps.filter((s) => !s.adminOnly || isAdmin);
   const completedCount = steps.filter((s) => s.completed).length;
   const allDone = completedCount === steps.length;
+
+  const subtitle = isAdmin
+    ? 'Complete a few steps to set up your organization. Your dashboard will populate as you add projects and tasks.'
+    : 'Your dashboard will populate as your team adds projects and tasks. Explore what\u2019s available.';
 
   return (
     <div className="space-y-6">
@@ -189,9 +201,7 @@ export function DashboardEmptyState({
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
           Welcome, {firstName}
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Complete a few steps to set up your organization. Your dashboard will populate as you add projects and tasks.
-        </p>
+        <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

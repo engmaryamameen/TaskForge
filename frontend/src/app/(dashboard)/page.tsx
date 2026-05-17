@@ -7,7 +7,7 @@ import { useOrganizations } from '@/features/organizations/hooks/useOrganization
 import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useOrgMembers, usePendingInvites } from '@/features/organizations/hooks/useOrganizations';
+import { useOrgMembers, usePendingInvites, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { useActivity } from '@/features/activity/hooks/useActivity';
 import { TasksTrendChart } from '@/features/dashboard/components/tasks-trend-chart';
 import {
@@ -62,6 +62,7 @@ export default function DashboardPage() {
   const { data: activityData } = useActivity({ limit: 10 });
   const { data: members, isLoading: membersLoading } = useOrgMembers();
   const { data: pendingInvites, isLoading: invitesLoading } = usePendingInvites();
+  const currentRole = useCurrentOrgRole();
 
   const totalProjects = projectsData?.meta?.total ?? 0;
   const totalTasks = tasksData?.meta?.total ?? 0;
@@ -143,6 +144,7 @@ export default function DashboardPage() {
           totalProjects={totalProjects}
           totalTasks={totalTasks}
           totalMembers={totalMembers}
+          role={currentRole}
           onCreateProject={openProjectModal}
           onCreateTask={openTaskModal}
           onInvite={openInviteModal}
