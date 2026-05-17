@@ -90,6 +90,98 @@
   --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.15);
 }
 
+/*
+ * ─── Dark mode token overrides ───
+ *
+ * Every Tailwind v4 utility (bg-neutral-100, text-neutral-900, etc.)
+ * resolves to var(--color-*). Overriding these custom properties in
+ * [data-theme="dark"] flips the entire UI with zero component changes.
+ *
+ * The neutral scale is inverted: light-50 becomes darkest, 900 becomes
+ * lightest. Semantic colors (primary, success, etc.) are adjusted for
+ * contrast on dark backgrounds.
+ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Navy blue-tinted neutral scale — premium SaaS dark theme */
+  --color-neutral-50:  #0B1120;
+  --color-neutral-100: #111827;
+  --color-neutral-200: #1E293B;
+  --color-neutral-300: #2D3A50;
+  --color-neutral-400: #4B5B76;
+  --color-neutral-500: #7B8BA5;
+  --color-neutral-600: #9CADC4;
+  --color-neutral-700: #B8C5D6;
+  --color-neutral-800: #D4DCE8;
+  --color-neutral-900: #EEF1F6;
+
+  /* Semantic tints — blue-shifted for dark backgrounds */
+  --color-primary-50:  #0C1A36;
+  --color-primary-100: #122550;
+
+  --color-success-50:  #0A1F1A;
+  --color-success-100: #0F2D24;
+  --color-success-200: #154033;
+
+  --color-danger-50:   #200E12;
+  --color-danger-100:  #2D1219;
+  --color-danger-200:  #3D1A22;
+
+  --color-warning-50:  #201A0A;
+  --color-warning-100: #2D2410;
+
+  --color-info-50:  #0C1529;
+  --color-info-100: #10203F;
+
+  --color-purple-50:  #170E2A;
+  --color-purple-100: #20143D;
+
+  --color-orange-50:  #201508;
+  --color-orange-100: #2D1E0E;
+
+  --color-teal-50: #0A201D;
+
+  /* Surface hierarchy — navy base with subtle layering */
+  --color-surface:         #0B1120;
+  --color-surface-raised:  #111827;
+  --color-surface-overlay: #1E293B;
+
+  /* Shadows — deeper for navy backgrounds */
+  --shadow-xs:      0 1px 2px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05);
+  --shadow-soft:    0 1px 3px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.35);
+  --shadow-medium:  0 4px 8px -1px rgba(0,0,0,0.45), 0 2px 4px -2px rgba(0,0,0,0.35);
+  --shadow-large:   0 12px 20px -4px rgba(0,0,0,0.5), 0 4px 8px -4px rgba(0,0,0,0.4);
+  --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.6), 0 8px 16px -4px rgba(0,0,0,0.45);
+  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.3);
+}
+
+/* bg-white uses literal CSS white — override it for dark surfaces */
+[data-theme="dark"] .bg-white {
+  background-color: var(--color-surface-raised) !important;
+}
+
+/* Glass utility — navy-tinted translucency */
+[data-theme="dark"] .glass {
+  background: rgba(11, 17, 32, 0.85);
+}
+
+/* Shimmer skeleton — navy tones */
+[data-theme="dark"] .animate-shimmer {
+  background: var(--color-neutral-200);
+}
+[data-theme="dark"] .animate-shimmer::after {
+  background: linear-gradient(90deg, transparent 0%, var(--color-neutral-300) 40%, rgba(45, 58, 80, 0.6) 50%, var(--color-neutral-300) 60%, transparent 100%);
+}
+
+/* Scrollbar in dark mode */
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background-color: var(--color-neutral-300);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-neutral-400);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -296,12 +388,20 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, var(--color-neutral-100) 25%, var(--color-neutral-50) 38%, var(--color-neutral-200) 50%, var(--color-neutral-50) 62%, var(--color-neutral-100) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-neutral-100);
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--color-neutral-50) 40%, rgba(255,255,255,0.7) 50%, var(--color-neutral-50) 60%, transparent 100%);
+  animation: shimmer 1.8s ease-in-out infinite;
 }
