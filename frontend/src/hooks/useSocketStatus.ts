@@ -2,11 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { getSocket } from '@/lib/socket';
+import { isDemoMode } from '@/lib/demo/is-demo-mode';
 
 export function useSocketStatus() {
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(() => isDemoMode());
 
   useEffect(() => {
+    if (isDemoMode()) {
+      setConnected(true);
+      return;
+    }
+
     const socket = getSocket();
     if (!socket) return;
 

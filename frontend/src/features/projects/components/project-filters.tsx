@@ -24,7 +24,7 @@ export function ProjectFilters({ search, onSearchChange, className = '' }: Proje
   }, [search]);
 
   return (
-    <div className={`w-full md:max-w-md lg:max-w-lg ${className}`}>
+    <div className={`w-full min-w-0 ${className}`}>
       <Input
         type="text"
         value={localSearch}

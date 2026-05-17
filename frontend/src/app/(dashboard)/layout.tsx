@@ -3,6 +3,7 @@
 import { useSessionGuard } from '@/features/auth/hooks/useSessionGuard';
 import { useSocketEvents } from '@/hooks/useSocketEvents';
 import { DashboardShell } from '@/components/layout/dashboard-shell';
+import { DemoNotificationBootstrap } from '@/lib/demo/demo-notification-bootstrap';
 
 function AppShellSkeleton() {
   return (

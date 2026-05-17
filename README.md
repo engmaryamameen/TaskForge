@@ -160,6 +160,19 @@ NEXT_PUBLIC_API_URL=http://localhost:3000
 NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
 ```
 
+#### Portfolio demo mode (Vercel / no backend)
+
+The public TaskForge demo runs **frontend-only**: set `NEXT_PUBLIC_DEMO_MODE=true` at build time. The UI loads realistic seeded data for **Acme Product Team**, projects (**Website Redesign**, **Mobile App Launch**), Kanban tasks, activity, and notifications—implemented under `frontend/src/lib/demo/` as a mock API adapter (your real API hooks and `apiClient` stay the same; only the transport layer is swapped).
+
+- Sign in with **any non-empty email and password** to explore the dashboard.
+- Create/update flows update **local demo state** only and reset when you sign out or reload (portfolio preview, not durable data).
+
+Turn demo mode **off** (`NEXT_PUBLIC_DEMO_MODE` unset or `false`) for normal operation against the NestJS API.
+
+#### Full backend locally
+
+The complete backend stack is available via Docker Compose with PostgreSQL, Redis, API, and worker—run it locally and point `NEXT_PUBLIC_API_URL` at your API. Deploying the backend to production infrastructure is a separate step from the static/demo frontend.
+
 ---
 
 ## Getting Started
@@ -366,4 +379,6 @@ Client -> Next.js -> NestJS API
 
 ## License
 
-MIT
+This project is publicly available for portfolio review and evaluation only.
+Reuse, redistribution, modification, or commercial use is not permitted without written permission.
+See [LICENSE](LICENSE) for details.
