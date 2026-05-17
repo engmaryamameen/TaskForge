@@ -7,9 +7,8 @@ import {
   useOrganizations,
   useSwitchOrganization,
 } from '@/features/organizations/hooks/useOrganizations';
-import { useLogout } from '@/features/auth/hooks/useAuth';
 import { Tooltip } from '@/components/ui/tooltip';
-import { IconPlus, IconLogOut } from '@/components/icons';
+import { IconPlus } from '@/components/icons';
 import { CreateOrgModal } from '@/features/organizations/components/create-org-modal';
 import type { OrganizationWithRole } from '@/types';
 
@@ -44,7 +43,6 @@ export function OrgRail() {
   const currentOrgId = useAuthStore((s) => s.currentOrganizationId);
   const { data: orgs } = useOrganizations();
   const switchOrg = useSwitchOrganization();
-  const logout = useLogout();
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   function handleSwitch(org: OrganizationWithRole) {
@@ -109,19 +107,6 @@ export function OrgRail() {
           </Tooltip>
         </nav>
 
-        {/* ── Bottom: Sign out ── */}
-        <div className="mt-2 flex flex-col items-center gap-3">
-          <div className="mx-auto h-px w-9 bg-neutral-200/80" />
-
-          <Tooltip label="Sign out" side="right">
-            <button
-              onClick={() => logout.mutate()}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600"
-            >
-              <IconLogOut className="h-4 w-4" />
-            </button>
-          </Tooltip>
-        </div>
       </aside>
     </>
   );
