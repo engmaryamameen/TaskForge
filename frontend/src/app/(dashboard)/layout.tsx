@@ -8,7 +8,7 @@ function AppShellSkeleton() {
   return (
     <div className="flex h-screen bg-white">
       {/* Org rail skeleton */}
-      <div className="hidden md:flex md:w-17 md:shrink-0 md:flex-col md:items-center md:border-r md:border-neutral-200 md:bg-neutral-50 md:py-4">
+      <div className="hidden md:flex md:w-18 md:shrink-0 md:flex-col md:items-center md:border-r md:border-neutral-200 md:bg-neutral-50/80 md:py-3">
         <div className="h-10 w-10 animate-shimmer rounded-2xl" />
         <div className="mx-auto my-3 h-px w-8 bg-neutral-200" />
         <div className="space-y-2.5">

@@ -58,39 +58,39 @@ export function OrgRail() {
     <>
       <CreateOrgModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} />
 
-      <aside className="hidden md:flex w-[68px] shrink-0 flex-col items-center border-r border-neutral-200 bg-neutral-50 py-4">
+      <aside className="hidden md:flex w-18 shrink-0 flex-col items-center border-r border-neutral-200 bg-neutral-50/80 py-3">
         {/* ── Top: TaskForge brand icon ── */}
         <Tooltip label="TaskForge" side="right">
-          <Link href="/" className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl overflow-hidden">
+          <Link href="/" className="mb-2 flex h-11 w-11 items-center justify-center rounded-2xl overflow-hidden">
             <img
               src="/brand/taskforge-app-icon-transparent.png"
               alt="TaskForge"
-              className="h-10 w-10 object-contain"
+              className="h-11 w-11 object-contain"
             />
           </Link>
         </Tooltip>
 
-        <div className="mx-auto mb-3 h-px w-8 bg-neutral-200" />
+        <div className="mx-auto mb-2 h-px w-9 bg-neutral-200/80" />
 
         {/* ── Middle: Organization icons ── */}
-        <nav className="flex flex-1 flex-col items-center gap-2.5 overflow-y-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <nav className="flex flex-1 flex-col items-center gap-3 overflow-y-auto py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {orgs?.map((org) => {
             const active = org.id === currentOrgId;
             return (
               <Tooltip key={org.id} label={org.name} side="right">
                 <div className="relative flex items-center">
-                  {/* Left pill indicator for active org */}
+                  {/* Left pill indicator */}
                   <span
-                    className={`absolute -left-[13px] h-5 w-1 rounded-r-full bg-primary-600 transition-all duration-200 ${
-                      active ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0'
+                    className={`absolute -left-3.75 w-1 rounded-r-full bg-primary-600 transition-all duration-200 ${
+                      active ? 'h-5 opacity-100' : 'h-2 opacity-0 group-hover:opacity-60'
                     }`}
                   />
                   <button
                     onClick={() => handleSwitch(org)}
-                    className={`flex h-10 w-10 items-center justify-center text-[13px] font-bold transition-all duration-200 ${
+                    className={`group flex h-11 w-11 items-center justify-center text-[13px] font-bold tracking-tight transition-all duration-200 ${
                       active
                         ? `${orgColor(org.name)} rounded-xl text-white shadow-md`
-                        : 'rounded-2xl bg-neutral-200 text-neutral-500 hover:rounded-xl hover:bg-neutral-300 hover:text-neutral-700'
+                        : 'rounded-2xl bg-neutral-200/70 text-neutral-500 hover:rounded-xl hover:bg-neutral-300/80 hover:text-neutral-700 hover:shadow-xs'
                     }`}
                   >
                     {orgInitials(org.name)}
@@ -100,25 +100,25 @@ export function OrgRail() {
             );
           })}
 
-          {/* Add organization — same shape as org icons */}
+          {/* Add organization */}
           <Tooltip label="Create organization" side="right">
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-2xl border border-dashed border-neutral-300 text-neutral-400 transition-all duration-200 hover:rounded-xl hover:border-neutral-400 hover:bg-neutral-200 hover:text-neutral-600"
+              className="flex h-11 w-11 items-center justify-center rounded-2xl border border-dashed border-neutral-300 text-neutral-400 transition-all duration-200 hover:rounded-xl hover:border-neutral-400 hover:bg-neutral-200/60 hover:text-neutral-600"
             >
-              <IconPlus className="h-4.5 w-4.5" />
+              <IconPlus className="h-5 w-5" />
             </button>
           </Tooltip>
         </nav>
 
         {/* ── Bottom: Sign out + User avatar ── */}
-        <div className="mt-3 flex flex-col items-center gap-2.5">
-          <div className="mx-auto h-px w-8 bg-neutral-200" />
+        <div className="mt-2 flex flex-col items-center gap-3">
+          <div className="mx-auto h-px w-9 bg-neutral-200/80" />
 
           <Tooltip label="Sign out" side="right">
             <button
               onClick={() => logout.mutate()}
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-neutral-200 hover:text-neutral-700"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-neutral-400 transition-colors hover:bg-neutral-200/70 hover:text-neutral-600"
             >
               <IconLogOut className="h-4 w-4" />
             </button>
@@ -130,7 +130,7 @@ export function OrgRail() {
                 <Avatar
                   firstName={user.firstName}
                   lastName={user.lastName}
-                  size="sm"
+                  size="md"
                   className="ring-2 ring-neutral-200 cursor-default"
                 />
               </div>
