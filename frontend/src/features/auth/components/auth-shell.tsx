@@ -33,7 +33,7 @@ export function AuthShell({
   const visualW = compactVisual ? 'lg:w-[42%]' : 'lg:w-[46%]';
 
   return (
-    <div className="min-h-dvh w-full bg-white lg:min-h-screen lg:bg-[#f8fafc]">
+    <div className="min-h-dvh w-full bg-white lg:min-h-screen lg:bg-neutral-50">
       <div className="flex min-h-dvh w-full flex-col lg:box-border lg:min-h-screen lg:justify-center lg:px-6 lg:py-10">
         <div
           className={`mx-auto flex min-h-dvh w-full max-w-[1180px] flex-col overflow-hidden bg-white lg:min-h-0 ${desktopMinH} lg:h-auto lg:w-full lg:max-w-[1180px] lg:flex-row lg:rounded-3xl lg:border lg:border-neutral-200 lg:shadow-[0_25px_50px_-12px_rgba(15,23,42,0.12),0_0_0_1px_rgba(15,23,42,0.04)]`}

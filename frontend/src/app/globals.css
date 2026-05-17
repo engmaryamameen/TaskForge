@@ -90,6 +90,84 @@
   --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.15);
 }
 
+/*
+ * ─── Dark mode token overrides ───
+ *
+ * Every Tailwind v4 utility (bg-neutral-100, text-neutral-900, etc.)
+ * resolves to var(--color-*). Overriding these custom properties in
+ * [data-theme="dark"] flips the entire UI with zero component changes.
+ *
+ * The neutral scale is inverted: light-50 becomes darkest, 900 becomes
+ * lightest. Semantic colors (primary, success, etc.) are adjusted for
+ * contrast on dark backgrounds.
+ */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-neutral-50:  #0c0e14;
+  --color-neutral-100: #13151f;
+  --color-neutral-200: #1e2130;
+  --color-neutral-300: #2b2f42;
+  --color-neutral-400: #5c6277;
+  --color-neutral-500: #8990a5;
+  --color-neutral-600: #a8afc0;
+  --color-neutral-700: #c5cbd8;
+  --color-neutral-800: #dfe3eb;
+  --color-neutral-900: #f0f2f6;
+
+  --color-primary-50:  #0d1a33;
+  --color-primary-100: #102447;
+
+  --color-success-50:  #071f16;
+  --color-success-100: #0b2d20;
+
+  --color-danger-50:   #1f0a0a;
+  --color-danger-100:  #2d1010;
+  --color-danger-200:  #3d1717;
+
+  --color-warning-50:  #1f1805;
+  --color-warning-100: #2d2208;
+
+  --color-info-50:  #0a1529;
+  --color-info-100: #0f1f3d;
+
+  --color-purple-50:  #150d26;
+  --color-purple-100: #1e1338;
+
+  --color-orange-50:  #1f1308;
+  --color-orange-100: #2d1b0b;
+
+  --color-teal-50: #071f1c;
+
+  --color-surface:         #0c0e14;
+  --color-surface-raised:  #13151f;
+  --color-surface-overlay: #1a1d2b;
+
+  --shadow-xs:      0 1px 2px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04);
+  --shadow-soft:    0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-medium:  0 4px 8px -1px rgba(0,0,0,0.4), 0 2px 4px -2px rgba(0,0,0,0.3);
+  --shadow-large:   0 12px 20px -4px rgba(0,0,0,0.5), 0 4px 8px -4px rgba(0,0,0,0.35);
+  --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.6), 0 8px 16px -4px rgba(0,0,0,0.4);
+}
+
+/* bg-white uses literal CSS white — override it for dark surfaces */
+[data-theme="dark"] .bg-white {
+  background-color: var(--color-surface-raised) !important;
+}
+
+/* Glass utility adapts to dark */
+[data-theme="dark"] .glass {
+  background: rgba(19, 21, 31, 0.85);
+}
+
+/* Shimmer adapts */
+[data-theme="dark"] .animate-shimmer {
+  background: var(--color-neutral-200);
+}
+[data-theme="dark"] .animate-shimmer::after {
+  background: linear-gradient(90deg, transparent 0%, var(--color-neutral-300) 40%, var(--color-neutral-200) 50%, var(--color-neutral-300) 60%, transparent 100%);
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -296,12 +374,20 @@
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, var(--color-neutral-100) 25%, var(--color-neutral-50) 38%, var(--color-neutral-200) 50%, var(--color-neutral-50) 62%, var(--color-neutral-100) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  background: var(--color-neutral-100);
+}
+
+.animate-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--color-neutral-50) 40%, rgba(255,255,255,0.7) 50%, var(--color-neutral-50) 60%, transparent 100%);
+  animation: shimmer 1.8s ease-in-out infinite;
 }
