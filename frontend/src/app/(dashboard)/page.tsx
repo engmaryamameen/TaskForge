@@ -7,7 +7,7 @@ import { useOrganizations } from '@/features/organizations/hooks/useOrganization
 import { useOrgWorkspaceContext } from '@/features/organizations/hooks/useOrgWorkspaceContext';
 import { useProjects } from '@/features/projects/hooks/useProjects';
 import { useTasks } from '@/features/tasks/hooks/useTasks';
-import { useOrgMembers, usePendingInvites } from '@/features/organizations/hooks/useOrganizations';
+import { useOrgMembers, usePendingInvites, useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { useActivity } from '@/features/activity/hooks/useActivity';
 import { TasksTrendChart } from '@/features/dashboard/components/tasks-trend-chart';
 import {
@@ -62,6 +62,7 @@ export default function DashboardPage() {
   const { data: activityData } = useActivity({ limit: 10 });
   const { data: members, isLoading: membersLoading } = useOrgMembers();
   const { data: pendingInvites, isLoading: invitesLoading } = usePendingInvites();
+  const currentRole = useCurrentOrgRole();
 
   const totalProjects = projectsData?.meta?.total ?? 0;
   const totalTasks = tasksData?.meta?.total ?? 0;
@@ -143,6 +144,7 @@ export default function DashboardPage() {
           totalProjects={totalProjects}
           totalTasks={totalTasks}
           totalMembers={totalMembers}
+          role={currentRole}
           onCreateProject={openProjectModal}
           onCreateTask={openTaskModal}
           onInvite={openInviteModal}
@@ -198,7 +200,7 @@ export default function DashboardPage() {
 
       <section className="grid gap-4 xl:grid-cols-12">
         <div className="xl:col-span-8">
-          <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
+          <div className="overflow-hidden rounded-2xl bg-white shadow-soft">
             <div className="flex flex-col gap-1 border-b border-neutral-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-base font-semibold text-neutral-900">Task flow</h2>
@@ -221,7 +223,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="min-w-0 xl:col-span-4">
-          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xs">
+          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl bg-white shadow-soft">
             <div className="border-b border-neutral-100 px-5 py-4">
               <h2 className="text-base font-semibold text-neutral-900">Status mix</h2>
               <p className="text-sm text-neutral-500">Share of tasks by column</p>

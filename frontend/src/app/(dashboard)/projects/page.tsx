@@ -10,6 +10,8 @@ import { ProjectFilters } from '@/features/projects/components/project-filters';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
+import { PageHero } from '@/components/ui/page-hero';
+import { useCurrentOrgRole } from '@/features/organizations/hooks/useOrganizations';
 import { IconPlus, IconFolder } from '@/components/icons';
 
 export default function ProjectsPage() {
@@ -20,6 +22,8 @@ export default function ProjectsPage() {
   const search = searchParams.get('search') || '';
 
   const { data, isLoading, isError, refetch } = useProjects({ page, search: search || undefined });
+  const role = useCurrentOrgRole();
+  const isAdmin = role === 'admin';
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleSearchChange = useCallback((value: string) => {
@@ -47,43 +51,24 @@ export default function ProjectsPage() {
 
   return (
     <div className="mx-auto">
-      {/* Page header */}
-      <header className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
-        <div
-          className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary-100/40 blur-3xl"
-          aria-hidden
-        />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-xl space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center rounded-full bg-primary-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary-700 ring-1 ring-primary-100">
-                Workspace
-              </span>
-              {!isLoading && !isError && total > 0 && (
-                <span className="text-[13px] font-medium tabular-nums text-neutral-500">
-                  {total} project{total !== 1 ? 's' : ''}
-                </span>
-              )}
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-neutral-900 sm:text-[2rem]">Projects</h1>
-              <p className="mt-2 text-[15px] leading-relaxed text-neutral-500">
-                {total > 0
-                  ? 'Plan, track, and ship work together — open a project to see tasks and activity.'
-                  : 'Create a project to organize tasks, members, and delivery in one place.'}
-              </p>
-            </div>
-          </div>
+      <PageHero
+        badge="Organization"
+        title="Projects"
+        subtitle={total > 0
+          ? 'Plan, track, and ship work together — open a project to see tasks and activity.'
+          : 'Create a project to organize tasks, members, and delivery in one place.'}
+        count={!isLoading && !isError ? total : undefined}
+        countLabel={total === 1 ? 'project' : 'projects'}
+        actions={isAdmin ? (
           <Button
             onClick={() => setShowCreateModal(true)}
             leftIcon={<IconPlus className="h-4 w-4" />}
-            className="shrink-0 shadow-md shadow-primary-600/15"
             size="lg"
           >
             New Project
           </Button>
-        </div>
-      </header>
+        ) : undefined}
+      />
 
       {/* Toolbar */}
       <div className="mt-6 flex flex-col gap-3 border-b border-neutral-200/70 pb-6 sm:flex-row sm:items-center sm:justify-between">
@@ -169,9 +154,9 @@ export default function ProjectsPage() {
         <div className="mt-10">
           <EmptyState
             title="No projects yet"
-            description="Create your first project to start organizing your team's work."
+            description={isAdmin ? "Create your first project to start organizing your team's work." : "Your team hasn't created any projects yet. Check back soon."}
             icon={<IconFolder className="h-6 w-6" />}
-            action={{ label: 'Create your first project', onClick: () => setShowCreateModal(true) }}
+            action={isAdmin ? { label: 'Create your first project', onClick: () => setShowCreateModal(true) } : undefined}
           />
         </div>
       )}

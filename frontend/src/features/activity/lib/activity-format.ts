@@ -82,11 +82,17 @@ export function formatActivityLine(
     case EventType.MEMBER_JOINED: {
       const joiner = displayName(actorId, currentUserId, nameByUserId);
       return joiner === 'You'
-        ? 'You joined the workspace'
-        : `${joiner} joined the workspace`;
+        ? 'You joined the organization'
+        : `${joiner} joined the organization`;
     }
     case EventType.INVITE_CREATED:
       return `${subject} sent an invitation`;
+    case EventType.ORGANIZATION_CREATED: {
+      const orgName = (p.orgName as string) || (p.snapshot as Record<string, unknown>)?.name as string || 'the organization';
+      return `${subject} created ${typeof orgName === 'string' ? orgName : 'the organization'}`;
+    }
+    case EventType.USER_REGISTERED:
+      return `${subject} joined TaskForge`;
     default:
       return `${subject} ${activity.eventType.replace(/\./g, ' ')}`;
   }

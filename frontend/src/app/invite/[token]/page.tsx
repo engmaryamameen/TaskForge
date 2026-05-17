@@ -8,6 +8,7 @@ import { useAcceptInvite } from '@/features/organizations/hooks/useOrganizations
 import { organizationsApi } from '@/lib/api/organizations.api';
 import { authApi } from '@/lib/api/auth.api';
 import { ApiError } from '@/types';
+import { Button } from '@/components/ui/button';
 
 function getInviteErrorMessage(error: Error): string {
   if (error instanceof ApiError) {
@@ -47,7 +48,6 @@ export default function AcceptInvitePage({
   const [validateError, setValidateError] = useState<string | null>(null);
   const [validating, setValidating] = useState(true);
 
-  // Wait for store hydration
   useEffect(() => {
     const unsub = useAuthStore.subscribe(() => {
       setHydrated(true);
@@ -60,7 +60,6 @@ export default function AcceptInvitePage({
     return unsub;
   }, []);
 
-  // Validate invite token (public, no auth needed)
   useEffect(() => {
     organizationsApi.validateInvite(token)
       .then(({ data }) => {
@@ -75,21 +74,17 @@ export default function AcceptInvitePage({
   async function handleAccept() {
     try {
       await acceptInvite.mutateAsync(token);
-
-      // Refresh user so currentOrganizationId is up-to-date in the store
       if (accessToken && refreshToken) {
         const { data } = await authApi.me();
         const user = data.data!.user;
         setAuth(user, accessToken, refreshToken);
       }
-
       router.push('/');
     } catch {
       // Error shown via mutation state
     }
   }
 
-  // Loading
   if (validating || !hydrated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-white">
@@ -108,16 +103,15 @@ export default function AcceptInvitePage({
     );
   }
 
-  // Invalid/expired invite
   if (validateError) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="w-full max-w-md px-4">
-          <div className="rounded-lg bg-white p-8 shadow text-center">
+          <div className="rounded-2xl bg-white p-8 shadow-soft text-center">
             <h1 className="mb-4 text-2xl font-bold text-neutral-900">Invalid Invite</h1>
-            <p className="text-sm text-red-600">{validateError}</p>
-            <Link href="/login" className="mt-4 inline-block text-sm text-primary-600 hover:underline">
-              Go to sign in
+            <p className="text-sm text-danger-600">{validateError}</p>
+            <Link href="/login">
+              <Button variant="link" className="mt-4">Go to sign in</Button>
             </Link>
           </div>
         </div>
@@ -125,7 +119,6 @@ export default function AcceptInvitePage({
     );
   }
 
-  // Not authenticated — show sign in / register with pre-filled email
   if (!accessToken) {
     const redirectUrl = `/invite/${token}`;
     const registerParams = new URLSearchParams({ redirect: redirectUrl });
@@ -136,7 +129,7 @@ export default function AcceptInvitePage({
     return (
       <div className="flex min-h-screen items-center justify-center bg-neutral-50">
         <div className="w-full max-w-md px-4">
-          <div className="rounded-lg bg-white p-8 shadow text-center">
+          <div className="rounded-2xl bg-white p-8 shadow-soft text-center">
             <h1 className="mb-2 text-2xl font-bold text-neutral-900">You&apos;ve been invited</h1>
             <p className="mb-1 text-sm text-neutral-600">
               Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
@@ -148,17 +141,11 @@ export default function AcceptInvitePage({
             )}
 
             <div className="space-y-3">
-              <Link
-                href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}
-                className="block w-full rounded bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700"
-              >
-                Sign in to accept
+              <Link href={`/login?redirect=${encodeURIComponent(redirectUrl)}`}>
+                <Button fullWidth size="lg">Sign in to accept</Button>
               </Link>
-              <Link
-                href={`/register?${registerParams.toString()}`}
-                className="block w-full rounded border border-neutral-300 px-6 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50"
-              >
-                Create an account
+              <Link href={`/register?${registerParams.toString()}`}>
+                <Button variant="secondary" fullWidth size="lg">Create an account</Button>
               </Link>
             </div>
           </div>
@@ -167,40 +154,32 @@ export default function AcceptInvitePage({
     );
   }
 
-  // Authenticated — show accept button
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50">
       <div className="w-full max-w-md px-4">
-        <div className="rounded-lg bg-white p-8 shadow text-center">
+        <div className="rounded-2xl bg-white p-8 shadow-soft text-center">
           <h1 className="mb-2 text-2xl font-bold text-neutral-900">Accept Invitation</h1>
           <p className="mb-6 text-sm text-neutral-600">
             Join <strong>{inviteInfo?.organizationName}</strong> as {inviteInfo?.role}
           </p>
 
           {acceptInvite.error && (
-            <div className="mb-4 rounded bg-red-50 p-3 text-sm text-red-700">
+            <div className="mb-4 rounded-lg bg-danger-50 border border-danger-100 p-3 text-sm text-danger-700">
               {getInviteErrorMessage(acceptInvite.error)}
             </div>
           )}
 
           {acceptInvite.isSuccess ? (
             <div>
-              <p className="mb-4 text-sm text-green-700">Invitation accepted successfully!</p>
-              <Link
-                href="/"
-                className="text-sm font-medium text-primary-600 hover:underline"
-              >
-                Go to dashboard
+              <p className="mb-4 text-sm text-success-700">Invitation accepted successfully!</p>
+              <Link href="/">
+                <Button variant="link">Go to dashboard</Button>
               </Link>
             </div>
           ) : (
-            <button
-              onClick={handleAccept}
-              disabled={acceptInvite.isPending}
-              className="rounded bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
-            >
-              {acceptInvite.isPending ? 'Accepting...' : 'Accept Invite'}
-            </button>
+            <Button onClick={handleAccept} loading={acceptInvite.isPending} size="lg">
+              Accept Invite
+            </Button>
           )}
         </div>
       </div>

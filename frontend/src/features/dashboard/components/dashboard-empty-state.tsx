@@ -1,102 +1,130 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   IconFolder,
   IconCheckSquare,
   IconUsers,
   IconActivity,
-  IconPlus,
   IconCheck,
+  IconPlus,
+  IconUserPlus,
   IconTrendingUp,
   IconTarget,
 } from '@/components/icons';
+
+/* ── Types ── */
+
+interface OnboardingStep {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  iconBg: string;
+  iconColor: string;
+  completed: boolean;
+  actionLabel: string;
+  actionIcon?: React.ReactNode;
+  onAction?: () => void;
+}
 
 interface DashboardEmptyStateProps {
   firstName: string;
   totalProjects: number;
   totalTasks: number;
   totalMembers: number;
+  role?: string | null;
   onCreateProject: () => void;
   onCreateTask: () => void;
   onInvite: () => void;
 }
 
-/* ── Setup checklist step ── */
-function SetupStep({
-  done,
-  label,
-  hint,
-  action,
-  actionLabel,
-}: {
-  done: boolean;
-  label: string;
-  hint: string;
-  action?: () => void;
-  actionLabel?: string;
-}) {
+/* ── Checklist step ── */
+
+function ChecklistItem({ step }: { step: OnboardingStep }) {
   return (
     <div
-      className={`flex items-start gap-3.5 rounded-xl border px-4 py-3.5 transition-colors ${
-        done
+      className={`group flex items-center gap-4 rounded-xl border px-5 py-4 transition-all ${
+        step.completed
           ? 'border-neutral-100 bg-neutral-50'
-          : 'border-neutral-200 bg-white shadow-xs hover:border-neutral-300'
+          : 'border-neutral-200 bg-white shadow-xs hover:border-primary-200 hover:shadow-soft'
       }`}
     >
       <div
-        className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${
-          done
+        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
+          step.completed
             ? 'bg-success-100 text-success-600'
-            : 'border-2 border-neutral-300 text-transparent'
+            : `${step.iconBg} ${step.iconColor}`
         }`}
       >
-        {done && <IconCheck className="h-3.5 w-3.5" />}
+        {step.completed ? <IconCheck className="h-4 w-4" /> : step.icon}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold ${done ? 'text-neutral-400 line-through' : 'text-neutral-800'}`}>
-          {label}
+        <p className={`text-sm font-semibold ${step.completed ? 'text-neutral-400 line-through' : 'text-neutral-900'}`}>
+          {step.title}
         </p>
-        <p className={`mt-0.5 text-xs ${done ? 'text-neutral-400' : 'text-neutral-500'}`}>{hint}</p>
+        <p className={`mt-0.5 text-xs ${step.completed ? 'text-neutral-400' : 'text-neutral-500'}`}>
+          {step.description}
+        </p>
       </div>
 
-      {!done && action && actionLabel && (
-        <Button type="button" size="xs" className="shrink-0" onClick={action}>
-          {actionLabel}
+      {step.completed ? (
+        <span className="shrink-0 rounded-full bg-success-100 px-2.5 py-1 text-[11px] font-semibold text-success-700">
+          Completed
+        </span>
+      ) : step.onAction ? (
+        <Button size="md" onClick={step.onAction} className="shrink-0" leftIcon={step.actionIcon}>
+          {step.actionLabel}
         </Button>
-      )}
-      {done && (
-        <span className="shrink-0 text-xs font-medium text-success-600">Done</span>
-      )}
+      ) : null}
     </div>
   );
 }
 
-/* ── Preview KPI card — matches the real KPI card layout with accent bar ── */
+/* ── Progress ring (reuses the completion circle SVG style) ── */
+
+function ProgressRing({ completed, total }: { completed: number; total: number }) {
+  const pct = total > 0 ? completed / total : 0;
+  const r = 18;
+  const circumference = 2 * Math.PI * r;
+  const offset = circumference * (1 - pct);
+
+  return (
+    <div className="relative flex h-12 w-12 items-center justify-center">
+      <svg className="h-12 w-12 -rotate-90" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r={r} fill="none" stroke="currentColor" strokeWidth="3" className="text-neutral-100" />
+        <circle
+          cx="22" cy="22" r={r} fill="none" stroke="currentColor" strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="text-primary-500 transition-all duration-700"
+        />
+      </svg>
+      <span className="absolute text-xs font-bold text-neutral-900">{completed}/{total}</span>
+    </div>
+  );
+}
+
+/* ── Preview KPI card ── */
+
 function PreviewKpiCard({
-  label,
-  icon,
-  accentColor,
-  iconBg,
-  iconColor,
+  label, icon, iconBg, iconColor, accent,
 }: {
-  label: string;
-  icon: React.ReactNode;
-  accentColor: string;
-  iconBg: string;
-  iconColor: string;
+  label: string; icon: React.ReactNode; iconBg: string; iconColor: string; accent: string;
 }) {
   return (
-    <div className="relative flex overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xs">
-      <div className={`w-1 shrink-0 ${accentColor}`} />
-      <div className="flex flex-1 items-start justify-between gap-3 p-4 pl-4">
+    <div className="flex overflow-hidden bg-white shadow-soft">
+      <div className={`w-1 shrink-0 ${accent}`} />
+      <div className="flex flex-1 items-start justify-between gap-4 p-5">
         <div>
-          <p className="text-xs font-medium text-neutral-400">{label}</p>
-          <p className="mt-1.5 text-2xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
-          <p className="mt-1 text-xs text-neutral-300">Awaiting data</p>
+          <p className="text-sm font-medium text-neutral-500">{label}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums tracking-tight text-neutral-200">0</p>
+          <p className="mt-2 text-xs text-neutral-400">Awaiting data</p>
         </div>
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${iconBg} opacity-60`}>
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${iconBg} opacity-50`}>
           <span className={iconColor}>{icon}</span>
         </div>
       </div>
@@ -104,125 +132,125 @@ function PreviewKpiCard({
   );
 }
 
+/* ── Main component ── */
+
 export function DashboardEmptyState({
   firstName,
   totalProjects,
   totalTasks,
   totalMembers,
+  role,
   onCreateProject,
   onCreateTask,
   onInvite,
 }: DashboardEmptyStateProps) {
-  const stepsCompleted = [totalProjects > 0, totalTasks > 0, totalMembers > 1].filter(Boolean).length;
-  const allDone = stepsCompleted === 3;
+  const router = useRouter();
+  const isAdmin = role === 'admin';
+
+  const allSteps: (OnboardingStep & { adminOnly?: boolean })[] = [
+    {
+      id: 'project',
+      title: isAdmin ? 'Create your first project' : 'Explore projects',
+      description: isAdmin ? 'Group related tasks and organize your work.' : 'Check if your team has created any projects yet.',
+      icon: <IconFolder className="h-4 w-4" />,
+      iconBg: 'bg-primary-100',
+      iconColor: 'text-primary-500',
+      completed: totalProjects > 0,
+      actionLabel: isAdmin ? 'Create project' : 'View projects',
+      actionIcon: isAdmin ? <IconPlus className="h-3.5 w-3.5" /> : undefined,
+      onAction: isAdmin ? onCreateProject : () => router.push('/projects'),
+    },
+    {
+      id: 'task',
+      title: 'Add your first task',
+      description: 'Create and track work with status and priority.',
+      icon: <IconCheckSquare className="h-4 w-4" />,
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-500',
+      completed: totalTasks > 0,
+      actionLabel: 'Add task',
+      actionIcon: <IconPlus className="h-3.5 w-3.5" />,
+      onAction: onCreateTask,
+    },
+    {
+      id: 'invite',
+      title: 'Invite a teammate',
+      description: 'Collaborate with your team in this organization.',
+      icon: <IconUsers className="h-4 w-4" />,
+      adminOnly: true,
+      iconBg: 'bg-info-100',
+      iconColor: 'text-info-500',
+      completed: totalMembers > 1,
+      actionLabel: 'Invite',
+      actionIcon: <IconUserPlus className="h-3.5 w-3.5" />,
+      onAction: onInvite,
+    },
+  ];
+
+  const steps = allSteps.filter((s) => !s.adminOnly || isAdmin);
+  const completedCount = steps.filter((s) => s.completed).length;
+  const allDone = completedCount === steps.length;
+
+  const subtitle = isAdmin
+    ? 'Complete a few steps to set up your organization. Your dashboard will populate as you add projects and tasks.'
+    : 'Your dashboard will populate as your team adds projects and tasks. Explore what\u2019s available.';
 
   return (
     <div className="space-y-6">
-      {/* ── Welcome header ── */}
       <header>
         <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
           Welcome, {firstName}
         </h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Complete a few steps to set up your workspace. Your dashboard will populate as you add projects and tasks.
-        </p>
+        <p className="mt-1 text-sm text-neutral-500">{subtitle}</p>
       </header>
 
-      {/* ── Preview KPI row ── */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <PreviewKpiCard
-          label="Projects"
-          icon={<IconFolder className="h-5 w-5" />}
-          accentColor="bg-primary-500"
-          iconBg="bg-primary-50"
-          iconColor="text-primary-600"
-        />
-        <PreviewKpiCard
-          label="Total tasks"
-          icon={<IconCheckSquare className="h-5 w-5" />}
-          accentColor="bg-info-500"
-          iconBg="bg-info-50"
-          iconColor="text-info-600"
-        />
-        <PreviewKpiCard
-          label="In progress"
-          icon={<IconTrendingUp className="h-5 w-5" />}
-          accentColor="bg-warning-500"
-          iconBg="bg-amber-50"
-          iconColor="text-amber-700"
-        />
-        <PreviewKpiCard
-          label="Completion"
-          icon={<IconTarget className="h-5 w-5" />}
-          accentColor="bg-success-500"
-          iconBg="bg-emerald-50"
-          iconColor="text-emerald-600"
-        />
+        <PreviewKpiCard label="Projects" icon={<IconFolder className="h-5 w-5" />} iconBg="bg-primary-100" iconColor="text-primary-500" accent="bg-primary-500" />
+        <PreviewKpiCard label="Total tasks" icon={<IconCheckSquare className="h-5 w-5" />} iconBg="bg-purple-100" iconColor="text-purple-500" accent="bg-purple-500" />
+        <PreviewKpiCard label="In progress" icon={<IconTrendingUp className="h-5 w-5" />} iconBg="bg-orange-100" iconColor="text-orange-500" accent="bg-orange-500" />
+        <PreviewKpiCard label="Completion" icon={<IconTarget className="h-5 w-5" />} iconBg="bg-success-100" iconColor="text-success-500" accent="bg-success-500" />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* ── Left column: setup checklist ── */}
         <div className="lg:col-span-7">
-          <div className="rounded-xl border border-neutral-200 bg-white p-5 shadow-xs">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-neutral-900">Get started</h2>
-              <span className="rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-semibold text-neutral-600">
-                {stepsCompleted}/3
-              </span>
+          <div className="rounded-2xl bg-white shadow-soft p-6">
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-neutral-900">Get started</h2>
+                <p className="mt-0.5 text-xs text-neutral-400">
+                  {allDone ? 'All steps completed' : `${completedCount} of ${steps.length} completed`}
+                </p>
+              </div>
+              <ProgressRing completed={completedCount} total={steps.length} />
             </div>
 
-            {/* Progress bar */}
-            <div className="mb-5 h-1.5 rounded-full bg-neutral-100">
-              <div
-                className="h-1.5 rounded-full bg-primary-500 transition-all duration-500"
-                style={{ width: `${(stepsCompleted / 3) * 100}%` }}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <SetupStep
-                done={totalProjects > 0}
-                label="Create your first project"
-                hint="Projects group related tasks together."
-                action={onCreateProject}
-                actionLabel="Create"
-              />
-              <SetupStep
-                done={totalTasks > 0}
-                label="Add your first task"
-                hint="Tasks track individual pieces of work with status and priority."
-                action={onCreateTask}
-                actionLabel="Add task"
-              />
-              <SetupStep
-                done={totalMembers > 1}
-                label="Invite a teammate"
-                hint="Collaborate with your team in real time."
-                action={onInvite}
-                actionLabel="Invite"
-              />
+            <div className="space-y-3">
+              {steps.map((step) => (
+                <ChecklistItem key={step.id} step={step} />
+              ))}
             </div>
 
             {allDone && (
-              <p className="mt-4 text-center text-sm font-medium text-success-600">
-                All set — your dashboard is ready to use.
-              </p>
+              <div className="mt-5 rounded-xl bg-success-50 px-4 py-3 text-center">
+                <p className="text-sm font-medium text-success-700">
+                  All set — your dashboard is ready to use.
+                </p>
+              </div>
             )}
           </div>
         </div>
 
-        {/* ── Right column: empty activity card ── */}
         <div className="lg:col-span-5">
-          <div className="flex h-full flex-col rounded-xl border border-neutral-200 bg-white shadow-xs">
+          <div className="flex h-full flex-col rounded-2xl bg-white shadow-soft">
             <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-4">
-              <IconActivity className="h-4 w-4 text-neutral-400" />
+              <IconActivity className="h-4 w-4 text-neutral-500" />
               <h2 className="text-sm font-semibold text-neutral-900">Recent activity</h2>
             </div>
             <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-neutral-400">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
                 <IconActivity className="h-5 w-5" />
               </div>
-              <p className="mt-3 text-sm font-medium text-neutral-600">No activity yet</p>
+              <p className="mt-3 text-sm font-semibold text-neutral-900">No activity yet</p>
               <p className="mt-1 max-w-[220px] text-xs text-neutral-400">
                 Actions like creating projects, adding tasks, and inviting members will appear here.
               </p>

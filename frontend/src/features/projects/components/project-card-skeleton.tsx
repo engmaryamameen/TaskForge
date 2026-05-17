@@ -1,6 +1,6 @@
 export function ProjectCardSkeleton() {
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-neutral-200 bg-white p-5 pt-6 shadow-xs">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white p-5 pt-6 shadow-soft">
       <div className="flex gap-4">
         <div className="h-12 w-12 shrink-0 animate-shimmer rounded-2xl" />
         <div className="flex-1 space-y-2 pt-0.5">

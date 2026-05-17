@@ -52,7 +52,7 @@ export function formatActivityLine(activity: Activity, actorDisplayName: string)
     case EventType.PROJECT_DELETED:
       return projectName ? `${actorDisplayName} removed "${projectName}"` : `${actorDisplayName} removed a project`;
     case EventType.MEMBER_JOINED:
-      return `${actorDisplayName} joined the workspace`;
+      return `${actorDisplayName} joined the organization`;
     case EventType.INVITE_CREATED: {
       const email = payload.email;
       return email

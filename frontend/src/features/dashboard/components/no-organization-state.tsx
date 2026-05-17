@@ -10,7 +10,7 @@ import { CreateOrgModal } from '@/features/organizations/components/create-org-m
 const steps = [
   {
     step: '01',
-    title: 'Create workspace',
+    title: 'Create organization',
     description: 'Spin up a dedicated space for your team’s projects and permissions.',
     icon: IconGlobe,
     accent: 'from-primary-600/90 to-primary-700',
@@ -60,13 +60,13 @@ export function NoOrganizationState() {
               Welcome to TaskForge
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-[15px] leading-relaxed text-neutral-600">
-              Create your first workspace to start organizing projects, tasks, and your team — everything stays in
+              Create your first organization to start organizing projects, tasks, and your team — everything stays in
               one place.
             </p>
 
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
               <Button size="lg" leftIcon={<IconPlus className="h-4 w-4" />} onClick={() => setModalOpen(true)}>
-                Create workspace
+                Create organization
               </Button>
               <Link href="/organizations">
                 <Button variant="secondary" size="lg">
@@ -77,7 +77,7 @@ export function NoOrganizationState() {
             <p className="mt-4 text-xs text-neutral-500">
               Prefer to explore first?{' '}
               <Link href="/organizations" className="font-medium text-primary-600 hover:text-primary-700">
-                View workspace settings
+                View organization settings
               </Link>
             </p>
           </div>

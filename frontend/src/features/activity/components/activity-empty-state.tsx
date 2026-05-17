@@ -8,7 +8,7 @@ export function ActivityEmptyState() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-neutral-200 bg-linear-to-b from-white to-neutral-50/50 px-6 py-16 text-center shadow-xs">
+    <div className="flex flex-col items-center rounded-2xl bg-white px-6 py-16 text-center shadow-soft">
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-500 ring-1 ring-primary-100/80">
         <IconActivity className="h-6 w-6" />
       </div>
