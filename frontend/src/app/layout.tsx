@@ -14,8 +14,9 @@ export const metadata: Metadata = {
   description: 'Multi-tenant project management platform',
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: '32x32' },
-      { url: '/brand/taskforge-icon.svg', type: 'image/svg+xml' },
+      { url: '/brand/taskforge-icon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/brand/taskforge-icon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/brand/taskforge-app-icon-transparent.png', sizes: '192x192', type: 'image/png' },
     ],
     apple: '/brand/taskforge-icon-180.png',
   },
