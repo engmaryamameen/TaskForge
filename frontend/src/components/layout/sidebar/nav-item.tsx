@@ -5,7 +5,7 @@ import Link from 'next/link';
 /** Shared sizing/spacing for all sidebar nav items */
 const ITEM = {
   /** Outer wrapper: centered column with icon + label */
-  base: 'flex flex-col items-center justify-center gap-1 rounded-xl w-full py-2.5 transition-colors duration-150',
+  base: 'flex flex-col items-center justify-center gap-1 rounded-xl w-full py-3 transition-colors duration-150',
   /** Icon sizing — 20px for all states */
   icon: 'h-5 w-5',
   /** Label typography */

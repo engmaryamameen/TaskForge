@@ -3,9 +3,9 @@ import { IconFrame, type IconProps } from './icon-base';
 export function ProjectsLayersIcon(props: IconProps) {
   return (
     <IconFrame {...props}>
-      <path d="M12 3.8 20 8l-8 4.2L4 8l8-4.2Z" />
-      <path d="M4 12.1 12 16.3l8-4.2" />
-      <path d="M4 16.1 12 20.3l8-4.2" />
+      <path d="M12 2 22 7l-10 5L2 7l10-5Z" />
+      <path d="M2 12l10 5 10-5" />
+      <path d="M2 17l10 5 10-5" />
     </IconFrame>
   );
 }

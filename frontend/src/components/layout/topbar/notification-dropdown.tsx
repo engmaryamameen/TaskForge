@@ -1,12 +1,14 @@
 'use client';
 
 import { useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useNotificationStore } from '@/store/notification.store';
 import { useClickOutside } from '@/hooks/useClickOutside';
 import { IconInbox } from '@/components/icons';
-import { BellIcon } from '@/assets/svg';
 import { formatRelative } from '@/lib/utils';
+import bellDark from '@/assets/images/bell-icon.png';
+import bellLight from '@/assets/images/bell-icon-light.png';
 
 const ROUTE_MAP: Record<string, (id: string) => string> = {
   task: () => `/tasks`,
@@ -49,7 +51,8 @@ export function NotificationDropdown() {
         className="relative rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors"
         aria-label="Notifications"
       >
-        <BellIcon className="h-5 w-5" />
+        <Image src={bellDark} alt="" width={20} height={20} className="h-5 w-5 in-data-[theme=dark]:hidden" />
+        <Image src={bellLight} alt="" width={20} height={20} className="h-5 w-5 hidden in-data-[theme=dark]:block" />
         {unreadCount > 0 && (
           <span className="absolute top-0.5 right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-500 px-1 text-[10px] font-bold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}

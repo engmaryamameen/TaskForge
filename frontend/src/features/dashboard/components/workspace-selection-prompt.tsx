@@ -17,14 +17,14 @@ export function WorkspaceSelectionPrompt() {
             <IconGlobe className="h-5 w-5" />
           </div>
           <div>
-            <p className="font-semibold text-neutral-900">Choose a workspace</p>
+            <p className="font-semibold text-neutral-900">Choose an organization</p>
             <p className="mt-1 text-sm leading-relaxed text-neutral-600">
-              Select which workspace you want to use so your dashboard can load projects and tasks.
+              Select which organization you want to use so your dashboard can load projects and tasks.
             </p>
           </div>
         </div>
         <Link href="/organizations">
-          <Button size="md">Open workspaces</Button>
+          <Button size="md">Open organizations</Button>
         </Link>
       </div>
     </Card>

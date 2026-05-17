@@ -3,6 +3,7 @@
 import { useAuthStore } from '@/store/auth.store';
 import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
 import { ErrorState } from '@/components/ui/error-state';
+import { PageHero } from '@/components/ui/page-hero';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { ProfileSettingsForm } from '@/features/settings/components/profile-settings-form';
 import { WorkspaceSettingsCard } from '@/features/settings/components/workspace-settings-card';
@@ -18,13 +19,11 @@ export default function SettingsPage() {
   if (isError) return <ErrorState onRetry={refetch} />;
 
   return (
-    <div className="mx-auto space-y-8">
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Settings</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          Manage your profile, workspace context, and security preferences.
-        </p>
-      </header>
+    <div className="mx-auto flex flex-col gap-6">
+      <PageHero
+        title="Settings"
+        subtitle="Manage your profile, organization context, and security preferences."
+      />
 
       {user && <ProfileSettingsForm />}
 

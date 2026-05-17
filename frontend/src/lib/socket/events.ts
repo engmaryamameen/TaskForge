@@ -23,6 +23,9 @@ export const SocketEvents = {
   SUBSCRIPTION_CREATED: EventType.SUBSCRIPTION_CREATED,
   SUBSCRIPTION_UPDATED: EventType.SUBSCRIPTION_UPDATED,
   SUBSCRIPTION_CANCELED: EventType.SUBSCRIPTION_CANCELED,
+
+  // Direct notification from NotificationsService
+  NOTIFICATION: 'notification',
 } as const;
 
 export type SocketEventName = (typeof SocketEvents)[keyof typeof SocketEvents];

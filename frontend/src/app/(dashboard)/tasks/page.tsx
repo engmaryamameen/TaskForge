@@ -10,6 +10,7 @@ import { TaskModal } from '@/features/tasks/components/task-modal';
 import { ErrorState } from '@/components/ui/error-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Button } from '@/components/ui/button';
+import { PageHero } from '@/components/ui/page-hero';
 import { Badge } from '@/components/ui/badge';
 import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { IconPlus, IconCheckSquare } from '@/components/icons';
@@ -43,13 +44,12 @@ export default function TasksPage() {
   const doneCount = tasks?.filter((t: Task) => t.status === 'done').length ?? 0;
 
   return (
-    <div className="mx-auto max-w-[1400px]">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-              {pageTitle}
-            </h1>
+    <div className="mx-auto flex flex-col gap-6">
+      <PageHero
+        title={pageTitle}
+        subtitle={pageSubtitle}
+        actions={
+          <div className="flex items-center gap-2">
             {hasActiveFilters && (
               <Link
                 href="/tasks"
@@ -58,18 +58,17 @@ export default function TasksPage() {
                 Clear filters
               </Link>
             )}
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              disabled={!hasProjects}
+              title={!hasProjects ? 'Create a project first' : undefined}
+              leftIcon={<IconPlus className="h-4 w-4" />}
+            >
+              New task
+            </Button>
           </div>
-          <p className="mt-1 text-sm text-neutral-500">{pageSubtitle}</p>
-        </div>
-        <Button
-          onClick={() => setShowCreateModal(true)}
-          disabled={!hasProjects}
-          title={!hasProjects ? 'Create a project first' : undefined}
-          leftIcon={<IconPlus className="h-4 w-4" />}
-        >
-          New task
-        </Button>
-      </div>
+        }
+      />
 
       {hasTasks && (
         <div className="mb-6 flex flex-wrap gap-3">
