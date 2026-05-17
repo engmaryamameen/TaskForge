@@ -1,23 +1,23 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface TooltipProps {
   label: string;
   side?: 'right' | 'top' | 'bottom';
-  children: React.ReactElement<{ onMouseEnter?: React.MouseEventHandler; onMouseLeave?: React.MouseEventHandler; onFocus?: React.FocusEventHandler; onBlur?: React.FocusEventHandler }>;
+  children: React.ReactNode;
 }
 
 export function Tooltip({ label, side = 'right', children }: TooltipProps) {
   const [visible, setVisible] = useState(false);
   const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const triggerRef = useRef<HTMLElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const delayRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const show = useCallback(() => {
     clearTimeout(delayRef.current);
-    delayRef.current = setTimeout(() => setVisible(true), 400);
+    delayRef.current = setTimeout(() => setVisible(true), 300);
   }, []);
 
   const hide = useCallback(() => {
@@ -27,15 +27,30 @@ export function Tooltip({ label, side = 'right', children }: TooltipProps) {
 
   useEffect(() => () => clearTimeout(delayRef.current), []);
 
-  useEffect(() => {
+  // Recalculate position when tooltip becomes visible
+  useLayoutEffect(() => {
     if (!visible || !triggerRef.current) return;
-    const rect = triggerRef.current.getBoundingClientRect();
+
+    const el = triggerRef.current;
+    // Find the first real child element for precise positioning
+    const target = el.firstElementChild instanceof HTMLElement ? el.firstElementChild : el;
+    const rect = target.getBoundingClientRect();
+
     if (side === 'right') {
-      setCoords({ x: rect.right + 10, y: rect.top + rect.height / 2 });
+      setCoords({
+        x: rect.right + 12,
+        y: rect.top + rect.height / 2,
+      });
     } else if (side === 'top') {
-      setCoords({ x: rect.left + rect.width / 2, y: rect.top - 8 });
+      setCoords({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 8,
+      });
     } else {
-      setCoords({ x: rect.left + rect.width / 2, y: rect.bottom + 8 });
+      setCoords({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + 8,
+      });
     }
   }, [visible, side]);
 
@@ -48,17 +63,16 @@ export function Tooltip({ label, side = 'right', children }: TooltipProps) {
 
   return (
     <>
-      {/* Clone child element and attach event handlers + ref */}
-      <span
-        ref={triggerRef as React.RefObject<HTMLSpanElement>}
+      <div
+        ref={triggerRef}
         onMouseEnter={show}
         onMouseLeave={hide}
         onFocus={show}
         onBlur={hide}
-        className="contents"
+        className="inline-flex"
       >
         {children}
-      </span>
+      </div>
 
       {visible &&
         typeof document !== 'undefined' &&
@@ -66,7 +80,7 @@ export function Tooltip({ label, side = 'right', children }: TooltipProps) {
           <span
             role="tooltip"
             style={positionStyle}
-            className="pointer-events-none fixed z-[9999] whitespace-nowrap rounded-lg bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg animate-fade-in"
+            className="pointer-events-none fixed z-[9999] whitespace-nowrap rounded-md bg-neutral-900 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg animate-fade-in"
           >
             {label}
           </span>,

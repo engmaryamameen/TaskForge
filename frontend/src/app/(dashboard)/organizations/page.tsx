@@ -68,7 +68,7 @@ export default function OrganizationsPage() {
             Organizations
           </h1>
           <p className="mt-1 text-sm text-neutral-500">
-            Switch workspaces, invite teammates, and keep delivery organized.
+            Manage organizations, invite teammates, and keep your work organized.
           </p>
         </div>
         <Button onClick={() => setShowCreateModal(true)} leftIcon={<IconPlus className="h-4 w-4" />}>

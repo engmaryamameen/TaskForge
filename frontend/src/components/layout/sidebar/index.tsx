@@ -39,7 +39,7 @@ const navigation: NavEntry[] = [
     ],
   },
   { href: '/activity', label: 'Activity', icon: ActivityTimelineIcon, exact: false },
-  { href: '/organizations', label: 'Members', icon: OrganizationsTeamIcon, exact: false, adminOnly: true },
+  { href: '/organizations', label: 'Organizations', icon: OrganizationsTeamIcon, exact: false, adminOnly: true },
   { href: '/settings', label: 'Settings', icon: SettingsSlidersIcon, exact: false, adminOnly: true },
 ];
 
