@@ -31,9 +31,9 @@ export function WorkspaceReadyState({
     <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm">
       <div className="border-b border-neutral-100 bg-gradient-to-r from-neutral-50/90 via-white to-primary-50/30 px-6 py-10 sm:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Your workspace</p>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-primary-600">Your organization</p>
           <h2 className="mt-2 text-2xl font-bold tracking-tight text-neutral-900 sm:text-[1.65rem]">
-            Your workspace is ready
+            Your organization is ready
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-[15px] leading-relaxed text-neutral-600">
             Start by creating your first project, then add tasks and invite your team — we’ll chart progress here as work
@@ -81,7 +81,7 @@ export function WorkspaceReadyState({
           {
             label: 'Tasks',
             value: taskCount,
-            hint: 'Tracked across the workspace',
+            hint: 'Tracked across the organization',
             icon: IconCheckSquare,
             bg: 'bg-info-50',
             fg: 'text-info-600',

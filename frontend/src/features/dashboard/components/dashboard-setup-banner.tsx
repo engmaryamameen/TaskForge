@@ -18,7 +18,7 @@ export function DashboardSetupBanner({ variant, onPrimary }: DashboardSetupBanne
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-primary-700">Next step</p>
-            <h2 className="mt-1 text-lg font-semibold text-neutral-900">Your workspace is ready</h2>
+            <h2 className="mt-1 text-lg font-semibold text-neutral-900">Your organization is ready</h2>
             <p className="mt-1 text-sm text-neutral-600">
               Create your first project to start planning and tracking work.
             </p>
@@ -43,7 +43,7 @@ export function DashboardSetupBanner({ variant, onPrimary }: DashboardSetupBanne
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">Momentum</p>
-          <h2 className="mt-1 text-lg font-semibold text-neutral-900">Good start — your workspace is active</h2>
+          <h2 className="mt-1 text-lg font-semibold text-neutral-900">Good start — your organization is active</h2>
           <p className="mt-1 text-sm text-neutral-600">
             Add your first task to start tracking progress, priorities, and deadlines.
           </p>

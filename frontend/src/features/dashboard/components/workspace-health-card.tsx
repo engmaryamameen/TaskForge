@@ -25,7 +25,7 @@ export function WorkspaceHealthCard({
       <DashboardWidgetCardHeader
         icon={<IconUsers className="h-4 w-4 text-neutral-600" />}
         eyebrow="Insights"
-        title="Workspace health"
+        title="Organization health"
         subtitle="People, work, and throughput"
       />
       <dl className="mt-5 flex flex-1 flex-col space-y-3">
@@ -56,7 +56,7 @@ export function WorkspaceHealthCard({
         href="/organizations"
         className="mt-5 inline-flex items-center gap-1 text-xs font-medium text-primary-600 transition-colors hover:text-primary-700"
       >
-        Manage workspace <IconArrowRight className="h-3 w-3" />
+        Manage organization <IconArrowRight className="h-3 w-3" />
       </Link>
     </Card>
   );

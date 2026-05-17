@@ -41,12 +41,12 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <DashboardModalsContext.Provider value={{ openTaskModal, openProjectModal, openInviteModal }}>
       <>
-        <div className="flex h-screen bg-white">
+        <div className="flex h-screen bg-neutral-50">
           <OrgRail />
           <Sidebar />
           <div className="flex flex-1 flex-col overflow-hidden">
             <Topbar />
-            <main className="flex-1 overflow-auto bg-white">
+            <main className="flex-1 overflow-auto bg-neutral-50">
               <div className="mx-auto px-4 py-5 md:px-5 lg:px-6">
                 {children}
               </div>

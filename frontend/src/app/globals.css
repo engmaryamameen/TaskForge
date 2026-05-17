@@ -5,29 +5,29 @@
   /* Inter (via next/font on <html> --font-inter) drives all `font-sans` usage */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
-  /* Primary — Professional blue */
-  --color-primary-50: #EEF4FF;
-  --color-primary-100: #D9E6FF;
-  --color-primary-200: #B3CCFF;
-  --color-primary-300: #6B9AFF;
-  --color-primary-400: #4080FF;
-  --color-primary-500: #1D6AE5;
-  --color-primary-600: #0C5FD9;
-  --color-primary-700: #0A4EB3;
-  --color-primary-800: #083D8C;
-  --color-primary-900: #0A2540;
+  /* Primary — Deep teal / blue-teal */
+  --color-primary-50:  #F0FDFA;
+  --color-primary-100: #CCFBF1;
+  --color-primary-200: #99F6E4;
+  --color-primary-300: #5EEAD4;
+  --color-primary-400: #2DD4BF;
+  --color-primary-500: #0D9488;
+  --color-primary-600: #0F766E;
+  --color-primary-700: #115E59;
+  --color-primary-800: #134E4A;
+  --color-primary-900: #042F2E;
 
-  /* Neutral — true neutral grays (no blue tint) */
-  --color-neutral-50: #FAFAFA;
-  --color-neutral-100: #F4F4F5;
-  --color-neutral-200: #E4E4E7;
-  --color-neutral-300: #D4D4D8;
-  --color-neutral-400: #A1A1AA;
-  --color-neutral-500: #71717A;
-  --color-neutral-600: #52525B;
-  --color-neutral-700: #3F3F46;
-  --color-neutral-800: #27272A;
-  --color-neutral-900: #18181B;
+  /* Neutral — soft blue-gray tint for a clean, modern feel */
+  --color-neutral-50:  #F8FAFC;
+  --color-neutral-100: #F1F5F9;
+  --color-neutral-200: #E2E8F0;
+  --color-neutral-300: #CBD5E1;
+  --color-neutral-400: #94A3B8;
+  --color-neutral-500: #64748B;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1E293B;
+  --color-neutral-900: #0F172A;
 
   /* Success */
   --color-success-50: #ECFDF5;
@@ -51,11 +51,12 @@
   --color-warning-600: #D97706;
   --color-warning-700: #B45309;
 
-  /* Info */
-  --color-info-50: #EFF6FF;
+  /* Info — supporting medium blue */
+  --color-info-50:  #EFF6FF;
   --color-info-100: #DBEAFE;
   --color-info-500: #3B82F6;
   --color-info-600: #2563EB;
+  --color-info-700: #1D4ED8;
 
   /* Purple accent */
   --color-purple-50: #FAF5FF;
@@ -71,8 +72,9 @@
   --color-orange-600: #EA580C;
   --color-orange-700: #C2410C;
 
-  /* Teal accent */
-  --color-teal-50: #F0FDFA;
+  /* Teal accent — extended for charts and badges */
+  --color-teal-50:  #F0FDFA;
+  --color-teal-100: #CCFBF1;
   --color-teal-500: #14B8A6;
   --color-teal-600: #0D9488;
 
@@ -87,7 +89,7 @@
   --shadow-medium: 0 4px 8px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.04);
   --shadow-large: 0 12px 20px -4px rgba(0,0,0,0.10), 0 4px 8px -4px rgba(0,0,0,0.04);
   --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.12), 0 8px 16px -4px rgba(0,0,0,0.06);
-  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.15);
+  --shadow-glow-primary: 0 0 0 3px rgba(13,148,136,0.18);
 }
 
 /*
@@ -116,9 +118,9 @@
   --color-neutral-800: #D4DCE8;
   --color-neutral-900: #EEF1F6;
 
-  /* Semantic tints — blue-shifted for dark backgrounds */
-  --color-primary-50:  #0C1A36;
-  --color-primary-100: #122550;
+  /* Primary teal — dark-adjusted */
+  --color-primary-50:  #0A201D;
+  --color-primary-100: #0F2D28;
 
   --color-success-50:  #0A1F1A;
   --color-success-100: #0F2D24;
@@ -153,7 +155,7 @@
   --shadow-medium:  0 4px 8px -1px rgba(0,0,0,0.45), 0 2px 4px -2px rgba(0,0,0,0.35);
   --shadow-large:   0 12px 20px -4px rgba(0,0,0,0.5), 0 4px 8px -4px rgba(0,0,0,0.4);
   --shadow-overlay: 0 24px 48px -8px rgba(0,0,0,0.6), 0 8px 16px -4px rgba(0,0,0,0.45);
-  --shadow-glow-primary: 0 0 0 3px rgba(13,95,217,0.3);
+  --shadow-glow-primary: 0 0 0 3px rgba(13,148,136,0.35);
 }
 
 /* bg-white uses literal CSS white — override it for dark surfaces */

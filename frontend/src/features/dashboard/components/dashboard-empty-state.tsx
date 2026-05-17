@@ -124,7 +124,7 @@ export function DashboardEmptyState({
           Welcome, {firstName}
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          Complete a few steps to set up your workspace. Your dashboard will populate as you add projects and tasks.
+          Complete a few steps to set up your organization. Your dashboard will populate as you add projects and tasks.
         </p>
       </header>
 

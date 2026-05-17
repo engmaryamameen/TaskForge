@@ -23,7 +23,7 @@ export function DashboardKpiRow({
       <DashboardKpiCard
         label="Projects"
         value={totalProjects}
-        hint="In workspace"
+        hint="In organization"
         icon={<IconFolder className="h-5 w-5" />}
         accentColor="bg-primary-500"
         iconBgClass="bg-primary-50"
