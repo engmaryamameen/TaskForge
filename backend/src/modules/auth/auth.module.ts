@@ -3,7 +3,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UsersModule } from '../users/users.module';
-import { OrganizationsModule } from '../organizations/organizations.module';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
@@ -22,7 +21,6 @@ import { PasswordResetToken } from './entities/password-reset-token.entity';
       EmailVerificationToken,
       PasswordResetToken,
     ]),
-    OrganizationsModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({

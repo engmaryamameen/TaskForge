@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useRegister } from '@/features/auth/hooks/useAuth';
 import { AuthShell, PasswordInput, PasswordRules } from '@/features/auth/components';
 import { useToast } from '@/components/toast';
@@ -35,12 +36,13 @@ interface FormErrors {
 function RegisterPageContent() {
   const searchParams = useSearchParams();
   const prefillEmail = searchParams.get('email') ?? '';
+  const postSignupRedirect = searchParams.get('redirect') ?? '';
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState(prefillEmail);
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<FormErrors>({});
-  const register = useRegister();
+  const register = useRegister({ postVerifyRedirect: postSignupRedirect || undefined });
   const toast = useToast();
 
   const apiErr = register.error instanceof ApiError ? register.error : undefined;
@@ -206,11 +208,7 @@ function RegisterPageContent() {
 export default function RegisterPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <RegisterPageContent />
     </Suspense>

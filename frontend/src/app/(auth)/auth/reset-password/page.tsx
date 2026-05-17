@@ -3,6 +3,7 @@
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useResetPassword } from '@/features/auth/hooks/useAuth';
 import { AuthShell, FormErrorAlert, PasswordInput, PasswordRules } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
@@ -195,11 +196,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <ResetPasswordForm />
     </Suspense>

@@ -42,12 +42,13 @@ export default function ProjectsPage() {
   const totalPages = Math.ceil(total / limit);
   const hasProjects = projects && projects.length > 0;
   const isSearching = !!search;
-  const singleColumnComfort = hasProjects && projects!.length === 1;
+  const projectCount = projects?.length ?? 0;
+  const singleProject = projectCount === 1;
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto">
       {/* Page header */}
-      <header className="relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
+      <header className="relative overflow-hidden rounded-2xl border border-neutral-200 bg-linear-to-br from-white via-white to-primary-50/30 px-6 py-8 shadow-xs sm:px-8">
         <div
           className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-primary-100/40 blur-3xl"
           aria-hidden
@@ -85,13 +86,13 @@ export default function ProjectsPage() {
       </header>
 
       {/* Toolbar */}
-      <div className="mt-8 flex flex-col gap-4 border-b border-neutral-200/70 pb-8 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col gap-3 border-b border-neutral-200/70 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <ProjectFilters search={search} onSearchChange={handleSearchChange} className="sm:flex-1" />
       </div>
 
       {/* Loading */}
       {isLoading && (
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <ProjectCardSkeleton key={i} />
           ))}
@@ -99,7 +100,7 @@ export default function ProjectsPage() {
       )}
 
       {!isLoading && isError && (
-        <div className="mt-10">
+        <div className="mt-8">
           <ErrorState onRetry={refetch} />
         </div>
       )}
@@ -108,16 +109,20 @@ export default function ProjectsPage() {
       {!isLoading && !isError && hasProjects && (
         <>
           <div
-            className={`mt-8 grid grid-cols-1 gap-5 ${singleColumnComfort ? 'mx-auto max-w-xl' : 'sm:grid-cols-2 xl:grid-cols-3'}`}
+            className={`mt-6 grid gap-5 ${singleProject ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2 xl:grid-cols-3'}`}
           >
             {projects!.map((project) => (
-              <ProjectCard key={project.id} project={project} />
+              <ProjectCard
+                key={project.id}
+                project={project}
+                variant={singleProject ? 'featured' : 'default'}
+              />
             ))}
           </div>
 
           {totalPages > 1 && (
             <nav
-              className="mt-12 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-neutral-200/80 bg-white/80 px-3 py-3 shadow-xs backdrop-blur-sm"
+              className="mt-12 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-neutral-200 bg-white/80 px-3 py-3 shadow-xs backdrop-blur-sm"
               aria-label="Pagination"
             >
               <Button

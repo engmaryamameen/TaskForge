@@ -4,13 +4,7 @@ import { useMemo } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import type { Task } from '@/types';
 import { buildStatusDistribution } from '@/features/dashboard/lib/chart-data';
-
-/** Aligned with Status mix: blue / amber / emerald */
-const KEY_COLORS: Record<string, string> = {
-  todo: '#2563eb',
-  in_progress: '#f59e0b',
-  done: '#059669',
-};
+import { STATUS_COLORS, CHART_COLORS } from '@/features/dashboard/lib/chart-colors';
 
 function DonutTooltip({
   active,
@@ -22,7 +16,7 @@ function DonutTooltip({
   if (!active || !payload?.[0]) return null;
   const p = payload[0];
   return (
-    <div className="rounded-lg border border-neutral-200/90 bg-white px-3 py-2 text-xs shadow-lg">
+    <div className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs shadow-lg">
       <span className="font-medium text-neutral-800">{p.name}</span>
       <span className="ml-2 tabular-nums text-neutral-600">{p.value}</span>
     </div>
@@ -62,8 +56,8 @@ export function TaskCompositionDonut({ tasks, height = 220 }: TaskCompositionDon
                 key={entry.key ?? i}
                 fill={
                   total === 0 || entry.key === 'empty'
-                    ? '#E2E8F0'
-                    : KEY_COLORS[String(entry.key)] ?? '#64748b'
+                    ? CHART_COLORS.empty
+                    : STATUS_COLORS[String(entry.key)] ?? CHART_COLORS.fallback
                 }
               />
             ))}

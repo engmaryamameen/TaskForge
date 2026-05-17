@@ -47,9 +47,17 @@ export class ActivityWorker implements OnModuleInit, OnModuleDestroy {
     );
 
     this.worker.on('failed', (job, error) => {
-      this.logger.error(
-        `Job ${job?.id} failed (attempt ${job?.attemptsMade}): ${error.message}`,
-      );
+      const isFinal = job && job.attemptsMade >= (job.opts?.attempts ?? 3);
+      if (isFinal) {
+        this.logger.error(
+          `Job ${job?.id} permanently failed after ${job?.attemptsMade} attempts: ${error.message}. ` +
+          `Event: ${job?.data?.type}, org: ${job?.data?.organizationId}. Moved to DLQ.`,
+        );
+      } else {
+        this.logger.warn(
+          `Job ${job?.id} failed (attempt ${job?.attemptsMade}): ${error.message}`,
+        );
+      }
     });
 
     this.logger.log('Activity worker started (concurrency: 5)');

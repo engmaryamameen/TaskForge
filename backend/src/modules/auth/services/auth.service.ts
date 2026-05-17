@@ -21,7 +21,6 @@ import { DomainEvent } from '../../../shared/interfaces';
 import { MailService } from '../../mail/mail.service';
 import { EmailVerificationTokenRepository } from '../repositories/email-verification-token.repository';
 import { PasswordResetTokenRepository } from '../repositories/password-reset-token.repository';
-import { OrganizationsService } from '../../organizations/services/organizations.service';
 
 const VERIFICATION_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
@@ -37,7 +36,6 @@ export class AuthService {
     private readonly mailService: MailService,
     private readonly emailVerificationTokenRepository: EmailVerificationTokenRepository,
     private readonly passwordResetTokenRepository: PasswordResetTokenRepository,
-    private readonly organizationsService: OrganizationsService,
   ) {}
 
   private hashOpaqueToken(raw: string): string {
@@ -151,15 +149,6 @@ export class AuthService {
     if (!user.emailVerifiedAt) {
       await this.usersService.setEmailVerifiedAt(user.id, new Date());
       await this.emailVerificationTokenRepository.markUsed(row.id);
-
-      const orgs = await this.organizationsService.listUserOrganizations(
-        user.id,
-      );
-      if (orgs.length === 0) {
-        await this.organizationsService.createOrganization(user.id, {
-          name: `${user.firstName}'s workspace`,
-        });
-      }
 
       user = await this.usersService.findById(user.id);
       if (!user) {

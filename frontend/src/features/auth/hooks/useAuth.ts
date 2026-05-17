@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/auth.api';
 import { useAuthStore } from '@/store/auth.store';
 import { connectSocket, disconnectSocket, joinOrgRoom } from '@/lib/socket';
+import { isDemoMode } from '@/lib/demo/is-demo-mode';
 
 export function useLogin(redirectTo?: string) {
   const router = useRouter();
@@ -22,17 +23,39 @@ export function useLogin(redirectTo?: string) {
       const { user, accessToken, refreshToken } = inner;
       setAuth(user, accessToken, refreshToken);
 
-      const socket = connectSocket(accessToken);
-      if (user.currentOrganizationId) {
-        socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
+      if (!isDemoMode()) {
+        const socket = connectSocket(accessToken);
+        if (user.currentOrganizationId) {
+          socket.on('connect', () => joinOrgRoom(user.currentOrganizationId!));
+        }
       }
 
-      router.push(redirectTo || '/');
+      const dest = redirectTo
+        || (user.currentOrganizationId ? '/' : '/onboarding/create-organization');
+      router.push(dest);
     },
   });
 }
 
-export function useRegister() {
+const POST_VERIFY_REDIRECT_KEY = 'tf_post_verify_redirect';
+
+export function savePostVerifyRedirect(url: string) {
+  if (typeof window !== 'undefined') sessionStorage.setItem(POST_VERIFY_REDIRECT_KEY, url);
+}
+
+export function consumePostVerifyRedirect(): string | null {
+  if (typeof window === 'undefined') return null;
+  const url = sessionStorage.getItem(POST_VERIFY_REDIRECT_KEY);
+  if (url) sessionStorage.removeItem(POST_VERIFY_REDIRECT_KEY);
+  return url;
+}
+
+type RegisterOptions = {
+  /** URL to redirect to after email verification (e.g. invite acceptance page). Saved to sessionStorage to survive the email verification flow. */
+  postVerifyRedirect?: string;
+};
+
+export function useRegister(options?: RegisterOptions) {
   const router = useRouter();
 
   return useMutation({
@@ -40,6 +63,9 @@ export function useRegister() {
     onSuccess: ({ data }) => {
       const inner = data.data;
       if (inner?.nextStep === 'VERIFY_EMAIL' && inner.email) {
+        if (options?.postVerifyRedirect) {
+          savePostVerifyRedirect(options.postVerifyRedirect);
+        }
         router.push(
           `/auth/check-email?email=${encodeURIComponent(inner.email)}`,
         );
@@ -65,9 +91,11 @@ export function useVerifyEmail(options?: VerifyEmailOptions) {
       const inner = data.data;
       if (!inner?.accessToken || !inner.user) return;
       setAuth(inner.user, inner.accessToken, inner.refreshToken);
-      const socket = connectSocket(inner.accessToken);
-      if (inner.user.currentOrganizationId) {
-        socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
+      if (!isDemoMode()) {
+        const socket = connectSocket(inner.accessToken);
+        if (inner.user.currentOrganizationId) {
+          socket.on('connect', () => joinOrgRoom(inner.user.currentOrganizationId!));
+        }
       }
       if (redirectTo != null) router.push(redirectTo);
     },

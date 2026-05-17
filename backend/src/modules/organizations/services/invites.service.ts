@@ -262,6 +262,12 @@ export class InvitesService {
       return saved;
     });
 
+    // If the user has no active organization yet, set this as their current org
+    const user = await this.usersService.findById(userId);
+    if (user && !user.currentOrganizationId) {
+      await this.usersService.updateCurrentOrg(userId, invite.organizationId);
+    }
+
     this.logger.log(
       `Invite accepted: user ${userId} joined org ${invite.organizationId}`,
     );

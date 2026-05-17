@@ -149,7 +149,7 @@ export function DatePicker({
         role="dialog"
         aria-label="Choose date"
         style={popoverStyle}
-        className="rounded-xl border border-neutral-200 bg-white p-3 shadow-xl ring-1 ring-black/5"
+        className="rounded-xl border border-neutral-200 bg-white p-3 shadow-overlay ring-1 ring-black/5 animate-dropdown-in"
       >
         <Calendar
           month={month}

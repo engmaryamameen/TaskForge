@@ -25,6 +25,8 @@ export class QueueService implements IQueueService {
         type: 'exponential',
         delay: 1000,
       },
+      removeOnComplete: { age: 24 * 3600 },  // keep completed jobs for 24h (debugging)
+      removeOnFail: false,                     // retain failed jobs for DLQ inspection
     });
 
     this.logger.debug(`Job enqueued: ${name}`);

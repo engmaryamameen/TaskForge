@@ -2,8 +2,10 @@
 
 import { Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { CircleCheck, Loader2 } from 'lucide-react';
-import { useVerifyEmail } from '@/features/auth/hooks/useAuth';
+import { CircleCheck } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
+import { useVerifyEmail, consumePostVerifyRedirect } from '@/features/auth/hooks/useAuth';
 import { AuthShell, FormErrorAlert } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
 import { ApiError } from '@/types';
@@ -34,6 +36,9 @@ function VerifyEmailContent() {
   const okStorageKey = useMemo(() => (token ? storageKeyForToken(token) : ''), [token]);
   const [cachedOk, setCachedOk] = useState(false);
   const [promiseFailed, setPromiseFailed] = useState(false);
+
+  // Consume a saved redirect (e.g. from invite flow) once on mount
+  const [savedRedirect] = useState(() => consumePostVerifyRedirect());
 
   useLayoutEffect(() => {
     if (!okStorageKey || typeof window === 'undefined') return;
@@ -129,7 +134,7 @@ function VerifyEmailContent() {
             <p className={AUTH_PAGE_SUBTITLE}>Hang tight — we are activating your account.</p>
           </header>
           <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-4 text-sm text-neutral-600">
-            <Loader2 className="h-6 w-6 shrink-0 animate-spin text-primary-600" aria-hidden />
+            <Spinner className="h-6 w-6 shrink-0 text-primary-600" />
             <span>Securely confirming your link…</span>
           </div>
         </div>
@@ -138,6 +143,18 @@ function VerifyEmailContent() {
   }
 
   if (showSuccess) {
+    const successDest = savedRedirect || '/onboarding/create-organization';
+    const successLabel = savedRedirect ? 'Continue' : 'Create your organization';
+    const successSubtitle = savedRedirect
+      ? 'Your account is active. Continue where you left off.'
+      : 'Your account is active. Next, create your organization to get started.';
+    const successDetail = savedRedirect
+      ? 'Your email is verified and your account is ready.'
+      : "Your email is verified. Let's set up your workspace.";
+    const panelDesc = savedRedirect
+      ? 'Your account is verified — pick up where you left off.'
+      : 'One more step — set up your workspace.';
+
     return (
       <AuthShell
         compactVisual
@@ -148,13 +165,13 @@ function VerifyEmailContent() {
             aboard.
           </>
         }
-        panelDescription="Your workspace is ready — jump in when you are."
+        panelDescription={panelDesc}
       >
         <div className="flex min-h-0 flex-1 flex-col lg:block lg:flex-none">
           <div className={AUTH_MOBILE_SCROLL_COLUMN}>
             <header className={AUTH_HEADER_SECTION}>
               <h1 className={AUTH_PAGE_TITLE}>Email verified</h1>
-              <p className={AUTH_PAGE_SUBTITLE}>You are signed in and your account is active.</p>
+              <p className={AUTH_PAGE_SUBTITLE}>{successSubtitle}</p>
             </header>
 
             <div className="rounded-xl border border-success-200 bg-success-50 px-4 py-4 text-success-900">
@@ -163,7 +180,7 @@ function VerifyEmailContent() {
                 <div className="min-w-0">
                   <p className="font-semibold leading-snug">Success</p>
                   <p className="mt-1 text-sm leading-relaxed text-success-800">
-                    Your email is verified. You can open your dashboard anytime.
+                    {successDetail}
                   </p>
                 </div>
               </div>
@@ -173,16 +190,16 @@ function VerifyEmailContent() {
               type="button"
               size="lg"
               className={AUTH_DESKTOP_SUBMIT}
-              onClick={() => router.push('/')}
+              onClick={() => router.push(successDest)}
             >
-              Continue to dashboard
+              {successLabel}
             </Button>
           </div>
 
           <div className={AUTH_MOBILE_PRIMARY_DOCK}>
             <div className={AUTH_MOBILE_DOCK_INNER}>
-              <Button type="button" size="lg" className="min-h-[48px] w-full text-[15px]" onClick={() => router.push('/')}>
-                Continue to dashboard
+              <Button type="button" size="lg" className="min-h-[48px] w-full text-[15px]" onClick={() => router.push(successDest)}>
+                {successLabel}
               </Button>
             </div>
           </div>
@@ -241,11 +258,7 @@ function VerifyEmailContent() {
 export default function VerifyEmailPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <VerifyEmailContent />
     </Suspense>

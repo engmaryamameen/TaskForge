@@ -15,6 +15,7 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Input, Textarea } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { Role, TaskStatus, TaskPriority } from '@/types';
 import { formatTaskStatus, formatTaskPriority } from '@/lib/utils';
 
@@ -79,13 +80,7 @@ export default function ProjectDetailPage({
   }
 
   if (projectLoading) {
-    return (
-      <div className="animate-pulse">
-        <div className="h-4 w-32 rounded bg-neutral-200 mb-4" />
-        <div className="h-8 w-2/3 rounded bg-neutral-200 mb-2" />
-        <div className="h-4 w-1/2 rounded bg-neutral-200" />
-      </div>
-    );
+    return <PageSkeleton variant="project-detail" />;
   }
 
   if (!project) {

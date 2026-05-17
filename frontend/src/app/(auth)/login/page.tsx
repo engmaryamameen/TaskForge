@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { PageSkeleton } from '@/components/ui/page-skeleton';
 import { useLogin, useResendVerification } from '@/features/auth/hooks/useAuth';
 import { AuthShell, FormErrorAlert, PasswordInput } from '@/features/auth/components';
 import { Button } from '@/components/ui/button';
@@ -177,11 +178,7 @@ function LoginPageContent() {
 export default function LoginPage() {
   return (
     <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] text-neutral-500">
-          Loading…
-        </div>
-      }
+      fallback={<PageSkeleton variant="auth" />}
     >
       <LoginPageContent />
     </Suspense>
