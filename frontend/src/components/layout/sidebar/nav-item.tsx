@@ -60,7 +60,7 @@ export function NavItem({
             isActive ? activeClass : inactiveClass
           }`}
         >
-          <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
+          <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-500'}`} />
           <span className="flex-1 text-left">{label}</span>
           <IconChevronRight
             className={`h-3 w-3 shrink-0 text-neutral-300 transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}
@@ -106,7 +106,7 @@ export function NavItem({
         isActive ? activeClass : inactiveClass
       }`}
     >
-      <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-400'}`} />
+      <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? 'text-primary-600' : 'text-neutral-500'}`} />
       <span className="flex-1">{label}</span>
       {badge !== undefined && badge > 0 && (
         <span className="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-100 px-1 text-[10px] font-bold text-primary-700">
