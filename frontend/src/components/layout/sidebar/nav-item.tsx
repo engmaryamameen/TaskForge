@@ -71,7 +71,7 @@ export function NavItem({
           className="overflow-hidden transition-all duration-250 ease-in-out"
           style={{ maxHeight: expanded ? contentHeight : 0 }}
         >
-          <div ref={contentRef} className="ml-6.5 space-y-px border-l border-neutral-200/80 py-0.5 pl-2.5">
+          <div ref={contentRef} className="ml-6.5 space-y-px py-0.5 pl-2.5">
             {subLinks.map((sub) => {
               const subActive = subLinkIsActive
                 ? subLinkIsActive(sub.href)
@@ -81,12 +81,13 @@ export function NavItem({
                   key={sub.href}
                   href={sub.href}
                   onClick={onClick}
-                  className={`block rounded-md px-2 py-1 text-xs transition-colors duration-150 ${
+                  className={`flex items-center gap-2 rounded-md px-2 py-1 text-xs transition-colors duration-150 ${
                     subActive
                       ? 'font-semibold text-primary-600'
                       : 'text-neutral-500 hover:text-neutral-800'
                   }`}
                 >
+                  <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${subActive ? 'bg-primary-600' : 'bg-neutral-300'}`} />
                   {sub.label}
                 </Link>
               );
