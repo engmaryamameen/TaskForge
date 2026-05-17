@@ -35,17 +35,21 @@ export class ProjectsService {
     });
 
     if (project.visibility === 'private') {
-      await this.projectAccessService.addProjectMember(
-        project.id, userId, ProjectMemberRole.MANAGER, userId,
-      );
-      if (memberIds?.length) {
-        for (const memberId of memberIds) {
-          if (memberId !== userId) {
-            await this.projectAccessService.addProjectMember(
-              project.id, memberId, ProjectMemberRole.MEMBER, userId,
-            );
+      try {
+        await this.projectAccessService.addProjectMember(
+          project.id, userId, ProjectMemberRole.MANAGER, userId,
+        );
+        if (memberIds?.length) {
+          for (const memberId of memberIds) {
+            if (memberId !== userId) {
+              await this.projectAccessService.addProjectMember(
+                project.id, memberId, ProjectMemberRole.MEMBER, userId,
+              );
+            }
           }
         }
+      } catch (err) {
+        this.logger.error(`Failed to add project members: ${err instanceof Error ? err.message : err}`);
       }
     }
 
