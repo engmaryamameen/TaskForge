@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Spinner } from './spinner';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success' | 'outline';
@@ -42,7 +42,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? (
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin" aria-hidden />
+          <Spinner className="h-4 w-4 shrink-0" />
         ) : leftIcon ? (
           <span className="shrink-0">{leftIcon}</span>
         ) : null}
