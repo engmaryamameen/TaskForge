@@ -83,8 +83,6 @@ export default function DashboardPage() {
   const activityItems = activityData?.data ?? [];
   const firstName = user?.firstName || 'there';
 
-  /* ── Loading / Error / Pre-org gates ── */
-
   if (orgsLoading) {
     return <PageSkeleton variant="dashboard" />;
   }
@@ -143,6 +141,9 @@ export default function DashboardPage() {
           totalTasks={totalTasks}
           totalMembers={totalMembers}
           role={currentRole}
+          activities={activityItems}
+          members={members}
+          currentUserId={user?.id}
           onCreateProject={openProjectModal}
           onCreateTask={openTaskModal}
           onInvite={openInviteModal}

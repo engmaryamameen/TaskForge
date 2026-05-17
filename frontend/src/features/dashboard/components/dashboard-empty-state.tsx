@@ -2,11 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { RecentActivityCard } from './recent-activity-card';
+import type { Activity, Membership } from '@/types';
 import {
   IconFolder,
   IconCheckSquare,
   IconUsers,
-  IconActivity,
   IconCheck,
   IconPlus,
   IconUserPlus,
@@ -35,6 +36,9 @@ interface DashboardEmptyStateProps {
   totalTasks: number;
   totalMembers: number;
   role?: string | null;
+  activities?: Activity[];
+  members?: Membership[];
+  currentUserId?: string;
   onCreateProject: () => void;
   onCreateTask: () => void;
   onInvite: () => void;
@@ -140,6 +144,9 @@ export function DashboardEmptyState({
   totalTasks,
   totalMembers,
   role,
+  activities,
+  members,
+  currentUserId,
   onCreateProject,
   onCreateTask,
   onInvite,
@@ -243,21 +250,12 @@ export function DashboardEmptyState({
         </div>
 
         <div className="lg:col-span-5">
-          <div className="flex h-full flex-col rounded-2xl bg-white shadow-soft">
-            <div className="flex items-center gap-2 border-b border-neutral-100 px-5 py-4">
-              <IconActivity className="h-4 w-4 text-neutral-500" />
-              <h2 className="text-sm font-semibold text-neutral-900">Recent activity</h2>
-            </div>
-            <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 text-center">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-100 text-neutral-400">
-                <IconActivity className="h-5 w-5" />
-              </div>
-              <p className="mt-3 text-sm font-semibold text-neutral-900">No activity yet</p>
-              <p className="mt-1 max-w-[220px] text-xs text-neutral-400">
-                Actions like creating projects, adding tasks, and inviting members will appear here.
-              </p>
-            </div>
-          </div>
+          <RecentActivityCard
+            activities={(activities ?? []) as Activity[]}
+            members={members as Membership[] | undefined}
+            currentUserId={currentUserId}
+            onCreateTask={onCreateTask}
+          />
         </div>
       </div>
     </div>
