@@ -7,6 +7,8 @@ import {
   IconUsers,
   IconActivity,
   IconCheck,
+  IconPlus,
+  IconUserPlus,
   IconTrendingUp,
   IconTarget,
 } from '@/components/icons';
@@ -22,6 +24,7 @@ interface OnboardingStep {
   iconColor: string;
   completed: boolean;
   actionLabel: string;
+  actionIcon?: React.ReactNode;
   onAction?: () => void;
 }
 
@@ -42,7 +45,7 @@ function ChecklistItem({ step }: { step: OnboardingStep }) {
     <div
       className={`group flex items-center gap-4 rounded-xl border px-5 py-4 transition-all ${
         step.completed
-          ? 'border-success-100 bg-success-50/50'
+          ? 'border-neutral-100 bg-neutral-50'
           : 'border-neutral-200 bg-white shadow-xs hover:border-primary-200 hover:shadow-soft'
       }`}
     >
@@ -70,7 +73,7 @@ function ChecklistItem({ step }: { step: OnboardingStep }) {
           Completed
         </span>
       ) : step.onAction ? (
-        <Button size="sm" onClick={step.onAction} className="shrink-0">
+        <Button size="md" onClick={step.onAction} className="shrink-0" leftIcon={step.actionIcon}>
           {step.actionLabel}
         </Button>
       ) : null}
@@ -148,6 +151,7 @@ export function DashboardEmptyState({
       iconColor: 'text-primary-500',
       completed: totalProjects > 0,
       actionLabel: 'Create project',
+      actionIcon: <IconPlus className="h-3.5 w-3.5" />,
       onAction: onCreateProject,
     },
     {
@@ -159,6 +163,7 @@ export function DashboardEmptyState({
       iconColor: 'text-purple-500',
       completed: totalTasks > 0,
       actionLabel: 'Add task',
+      actionIcon: <IconPlus className="h-3.5 w-3.5" />,
       onAction: onCreateTask,
     },
     {
@@ -170,6 +175,7 @@ export function DashboardEmptyState({
       iconColor: 'text-info-500',
       completed: totalMembers > 1,
       actionLabel: 'Invite',
+      actionIcon: <IconUserPlus className="h-3.5 w-3.5" />,
       onAction: onInvite,
     },
   ];

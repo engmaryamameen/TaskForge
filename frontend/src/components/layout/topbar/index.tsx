@@ -2,10 +2,13 @@
 
 import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store/ui.store';
+import { useThemeStore } from '@/store/theme.store';
 import { useSocketStatus } from '@/hooks/useSocketStatus';
 import { useCurrentOrganization } from '@/features/organizations/hooks/useOrganizations';
 import { NotificationDropdown } from './notification-dropdown';
 import { IconMenu } from '@/components/icons';
+import { IconSun } from '@/assets/svg/icon-sun';
+import { IconMoon } from '@/assets/svg/icon-moon';
 
 
 const PAGE_TITLES: Record<string, string> = {
@@ -16,6 +19,21 @@ const PAGE_TITLES: Record<string, string> = {
   '/activity': 'Activity',
   '/settings': 'Settings',
 };
+
+function ThemeToggle() {
+  const { resolved, setTheme } = useThemeStore();
+  const isDark = resolved === 'dark';
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-colors"
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    >
+      {isDark ? <IconSun className="h-5 w-5" /> : <IconMoon className="h-5 w-5" />}
+    </button>
+  );
+}
 
 function getPageTitle(pathname: string): string {
   if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
@@ -59,6 +77,7 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-1 ml-auto shrink-0">
+        <ThemeToggle />
         <NotificationDropdown />
       </div>
     </header>
