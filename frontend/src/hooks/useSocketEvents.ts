@@ -144,7 +144,30 @@ export function useSocketEvents() {
       }
     }
 
+    function handleNotification(payload: {
+      id: string;
+      type: string;
+      message: string;
+      entityType?: string;
+      entityId?: string;
+      actorId?: string;
+      createdAt: string;
+    }) {
+      useNotificationStore.getState().addNotification({
+        id: payload.id,
+        type: payload.type,
+        message: payload.message,
+        entityId: payload.entityId ?? '',
+        entityType: (payload.entityType as 'task' | 'project' | 'organization') ?? undefined,
+        actorId: payload.actorId ?? '',
+        createdAt: payload.createdAt,
+        read: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ['activity'] });
+    }
+
     socket.on('connect', handleConnect);
+    socket.on('notification', handleNotification);
     const eventTypes = Object.values(SocketEvents);
     eventTypes.forEach((eventType) => {
       socket.on(eventType, handleEvent);
@@ -152,6 +175,7 @@ export function useSocketEvents() {
 
     return () => {
       socket.off('connect', handleConnect);
+      socket.off('notification', handleNotification);
       eventTypes.forEach((eventType) => {
         socket.off(eventType, handleEvent);
       });

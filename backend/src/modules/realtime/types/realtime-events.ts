@@ -7,6 +7,8 @@ export const REALTIME_EVENT_PREFIXES = [
   'task.',
   'project.',
   'member.',
+  'invite.',
+  'organization.',
   'subscription.',
 ] as const;
 
